@@ -1,0 +1,9 @@
+for i in 0..3: the_emperor_protects()
+
+for j in 1..5: 
+    we_are_one()
+    WAAAGH()
+
+for k in 0..2:
+    purge_the_xenos(k)
+    burn_the_heretic(k) 

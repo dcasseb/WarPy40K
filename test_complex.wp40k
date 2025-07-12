@@ -1,0 +1,13 @@
+serv: servitor = servitor()
+dg: dg = servitor()
+
+the_emperor_protects()
+for_the_emperor()
+
+for i in 0..3:
+    we_are_one()
+    WAAAGH()
+    purge_the_xenos(i)
+
+pain_is_temporary_glory_is_forever()
+even_in_death_i_still_serve() 
