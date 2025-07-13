@@ -1,0 +1,64 @@
+{
+  "name": "warpy40k-syntax",
+  "displayName": "WarPy40K Syntax Highlighting",
+  "description": "Syntax highlighting for WarPy40K language files",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "warpy40k",
+        "aliases": [
+          "WarPy40K",
+          "warpy40k"
+        ],
+        "extensions": [
+          ".wp40k"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "warpy40k",
+        "scopeName": "source.warpy40k",
+        "path": "./syntaxes/warpy40k.tmLanguage.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "WarPy40K Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/warpy40k-dark.json"
+      }
+    ]
+  },
+  "publisher": "warpy40k",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dcasseb/WarPy40K.git"
+  },
+  "keywords": [
+    "warpy40k",
+    "warhammer",
+    "40k",
+    "imperium"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dcasseb/WarPy40K/issues"
+  },
+  "homepage": "https://github.com/dcasseb/WarPy40K#readme",
+  "devDependencies": {
+    "vsce": "^2.15.0"
+  }
+}

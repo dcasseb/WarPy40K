@@ -1,0 +1,6 @@
+# Simple WarPy40K test
+i: dg = 0
+for i in 1..3:
+    the_emperor_protects()
+    i = i + 1
+for_the_emperor() 

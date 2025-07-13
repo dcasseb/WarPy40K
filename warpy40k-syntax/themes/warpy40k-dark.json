@@ -1,0 +1,157 @@
+{
+  "name": "WarPy40K Dark",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#1a1a1a",
+    "editor.foreground": "#d4d4d4",
+    "editor.lineHighlightBackground": "#2a2a2a",
+    "editor.selectionBackground": "#264f78",
+    "editor.inactiveSelectionBackground": "#3a3d41"
+  },
+  "tokenColors": [
+    {
+      "name": "Comments",
+      "scope": "comment",
+      "settings": {
+        "foreground": "#6a9955"
+      }
+    },
+    {
+      "name": "Strings",
+      "scope": "string",
+      "settings": {
+        "foreground": "#ce9178"
+      }
+    },
+    {
+      "name": "Numbers",
+      "scope": "constant.numeric",
+      "settings": {
+        "foreground": "#b5cea8"
+      }
+    },
+    {
+      "name": "Keywords",
+      "scope": "keyword.control",
+      "settings": {
+        "foreground": "#c586c0"
+      }
+    },
+    {
+      "name": "Operators",
+      "scope": "keyword.operator",
+      "settings": {
+        "foreground": "#d4d4d4"
+      }
+    },
+    {
+      "name": "Variables",
+      "scope": "variable.other",
+      "settings": {
+        "foreground": "#9cdcfe"
+      }
+    },
+    {
+      "name": "Functions/Commands",
+      "scope": "entity.name.function",
+      "settings": {
+        "foreground": "#dcdcaa"
+      }
+    },
+    {
+      "name": "Types",
+      "scope": "storage.type",
+      "settings": {
+        "foreground": "#569cd6"
+      }
+    },
+    {
+      "name": "WarPy40K Commands",
+      "scope": "entity.name.function.warpy40k",
+      "settings": {
+        "foreground": "#ff6b6b",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "WarPy40K Types",
+      "scope": "storage.type.warpy40k",
+      "settings": {
+        "foreground": "#4ec9b0",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "WarPy40K Keywords",
+      "scope": "keyword.control.warpy40k",
+      "settings": {
+        "foreground": "#c586c0",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "WarPy40K Variables",
+      "scope": "variable.other.warpy40k",
+      "settings": {
+        "foreground": "#9cdcfe"
+      }
+    },
+    {
+      "name": "WarPy40K Comments",
+      "scope": "comment.line.number-sign.warpy40k",
+      "settings": {
+        "foreground": "#6a9955",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "WarPy40K Strings",
+      "scope": "string.quoted.double.warpy40k",
+      "settings": {
+        "foreground": "#ce9178"
+      }
+    },
+    {
+      "name": "WarPy40K Numbers",
+      "scope": "constant.numeric.warpy40k",
+      "settings": {
+        "foreground": "#b5cea8"
+      }
+    },
+    {
+      "name": "WarPy40K Operators",
+      "scope": "keyword.operator.warpy40k",
+      "settings": {
+        "foreground": "#d4d4d4"
+      }
+    },
+    {
+      "name": "WarPy40K Loops",
+      "scope": "meta.loop",
+      "settings": {
+        "foreground": "#c586c0"
+      }
+    },
+    {
+      "name": "WarPy40K Conditionals",
+      "scope": "meta.conditional",
+      "settings": {
+        "foreground": "#c586c0"
+      }
+    },
+    {
+      "name": "WarPy40K Declarations",
+      "scope": "meta.declaration",
+      "settings": {
+        "foreground": "#9cdcfe"
+      }
+    },
+    {
+      "name": "WarPy40K Assignments",
+      "scope": "meta.assignment",
+      "settings": {
+        "foreground": "#9cdcfe"
+      }
+    }
+  ]
+} 
