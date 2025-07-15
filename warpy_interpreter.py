@@ -34,17 +34,9 @@ condicional : IF expressao ":" comandos [ELSE ":" comandos]
 
 expr_range  : expressao ".." expressao
 
-expressao   : termo expressao_rest
-expressao_rest : PLUS termo expressao_rest
-              | MINUS termo expressao_rest
-              | ""  
-
-termo       : fator termo_rest
-termo_rest  : STAR fator termo_rest
-           | SLASH fator termo_rest
-           | PERCENT fator termo_rest
-           | ""
-
+// Refactored: Use left recursion and EBNF for arithmetic expressions
+expressao   : termo ((PLUS | MINUS) termo)*
+termo       : fator ((STAR | SLASH | PERCENT) fator)*
 fator       : numero
             | identificador
             | chamada
@@ -65,7 +57,7 @@ identificador: /[a-zA-Z_][a-zA-Z0-9_]*/
 numero      : /\d+(\.\d+)?/
 COMMENT     : /#[^\n]*/
 
-ESCAPED_STRING : /"[^\"]*"/
+ESCAPED_STRING : /"[^"]*"/
 
 PLUS: "+"
 MINUS: "-"
@@ -567,11 +559,9 @@ class WarpyTransformer(Transformer):
             return None
         return str(children[0])
 
-    def ESCAPED_STRING(self, children):
-        val = children[0]
-        if hasattr(val, 'value'):
-            val = val.value
-        val = str(val)
+    def ESCAPED_STRING(self, token):
+        # Lark passes the token directly for terminals
+        val = token.value if hasattr(token, 'value') else str(token)
         if val.startswith('"') and val.endswith('"'):
             return val[1:-1]
         return val
@@ -581,10 +571,8 @@ class WarpyTransformer(Transformer):
         return None
 
 def run_warpy_script(script_path: str):
-    # TEMP: Use a hardcoded string for testing
-    code = 'vox_cast("Hello, world!")'
-    # with open(script_path, 'r') as f:
-    #     code = f.read()
+    with open(script_path, 'r') as f:
+        code = f.read()
 
     parser = Lark(warpy_grammar, parser='earley', start='start')
     parse_tree = parser.parse(code)
