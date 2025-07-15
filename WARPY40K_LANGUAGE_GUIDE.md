@@ -241,6 +241,7 @@ command_name(argument)
 | `blood_for_the_blood_god()`    | `blood_for_the_blood_god()`          | Logs: Blood for the Blood God!                             |
 | `let_the_galaxy_burn()`        | `let_the_galaxy_burn()`              | Logs: The galaxy burns!                                    |
 | `servitor()`                   | `servitor()`                         | Returns: "servitor_instance" (for advanced use)          |
+| `vox_cast(msg)`                | `vox_cast("message")`                | Prints a message with [VOX] prefix (Warhammer 40K style print) |
 
 ---
 

@@ -1,0 +1,16 @@
+# WarPy40K Input/Print Test: Multiples of 2 in User Interval
+
+vox_cast("Enter the upper limit for the interval:")
+limit: dg = hear_the_emperors_voice("Limit: ")
+
+if limit == 0:
+    vox_cast("ERROR: Invalid input. Please enter a valid number greater than 0.")
+else:
+    if limit == None:
+        vox_cast("ERROR: Invalid input. Please enter a valid number greater than 0.")
+    else:
+        vox_cast("Multiples of 2 from 1 to the given limit:")
+        for i in 1..limit:
+            if i % 2 == 0:
+                vox_cast(i)
+        vox_cast("Done!") 

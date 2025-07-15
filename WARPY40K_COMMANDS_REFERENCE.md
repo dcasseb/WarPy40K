@@ -53,6 +53,7 @@ WarPy40K commands are organized into several thematic categories based on the Wa
 | `farseers_vision()` | Eldar | `farseers_vision()` | Logs: "The Farseer foresees..." | None |
 | `servitor()` | General | `servitor()` | Returns: "servitor_instance" | None |
 | `hear_the_emperors_voice(prompt)` | Input | `hear_the_emperors_voice("Enter name:")` | Prompts for user input | Optional string |
+| `vox_cast(msg)` | General | `vox_cast("message")` | Prints a message with [VOX] prefix (Warhammer 40K style print) | String/Expression |
 
 ---
 

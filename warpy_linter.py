@@ -33,7 +33,8 @@ class WarPy40KLinter:
             'faith_is_my_shield', 'we_are_angels_of_death', 'we_are_one', 'WAAAGH', 'taste_chaos',
             'for_the_emperor', 'purge_the_xenos', 'the_emperors_will_be_done', 'fear_is_the_mind_killer',
             'ave_imperator', 'the_path_is_set', 'farseers_vision', 'more_dakka', 'ork_cunning',
-            'blood_for_the_blood_god', 'let_the_galaxy_burn', 'servitor', 'hear_the_emperors_voice'
+            'blood_for_the_blood_god', 'let_the_galaxy_burn', 'servitor', 'hear_the_emperors_voice',
+            'vox_cast'
         }
         
         # Valid keywords

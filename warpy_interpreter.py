@@ -53,7 +53,7 @@ fator       : numero
 comparacao  : expressao op_comparacao expressao
 op_comparacao: "==" | "!=" | "<" | ">" | "<=" | ">="
 
-NOME_COMANDO: "the_emperor_protects"|"only_in_death_does_duty_end"|"even_in_death_i_still_serve"|"no_pity_no_remorse_no_fear"|"burn_the_heretic"|"pain_is_temporary_glory_is_forever"|"faith_is_my_shield"|"we_are_angels_of_death"|"we_are_one"|"WAAAGH"|"taste_chaos"|"for_the_emperor"|"purge_the_xenos"|"the_emperors_will_be_done"|"fear_is_the_mind_killer"|"ave_imperator"|"the_path_is_set"|"farseers_vision"|"more_dakka"|"ork_cunning"|"blood_for_the_blood_god"|"let_the_galaxy_burn"|"servitor"|"hear_the_emperors_voice"
+NOME_COMANDO: "the_emperor_protects"|"only_in_death_does_duty_end"|"even_in_death_i_still_serve"|"no_pity_no_remorse_no_fear"|"burn_the_heretic"|"pain_is_temporary_glory_is_forever"|"faith_is_my_shield"|"we_are_angels_of_death"|"we_are_one"|"WAAAGH"|"taste_chaos"|"for_the_emperor"|"purge_the_xenos"|"the_emperors_will_be_done"|"fear_is_the_mind_killer"|"ave_imperator"|"the_path_is_set"|"farseers_vision"|"more_dakka"|"ork_cunning"|"blood_for_the_blood_god"|"let_the_galaxy_burn"|"servitor"|"hear_the_emperors_voice"|"vox_cast"
 IF: "if"
 ELSE: "else"
 FOR: "for"
@@ -63,7 +63,8 @@ identificador: /[a-zA-Z_][a-zA-Z0-9_]*/
 numero      : /\d+(\.\d+)?/
 COMMENT     : /#[^\n]*/
 
-%import common.ESCAPED_STRING
+ESCAPED_STRING : /"([^"\\]|\\.)*"/
+
 %import common.WS
 %ignore WS
 """
@@ -93,8 +94,16 @@ COMMANDS = {
     'faith_is_my_shield': lambda: print("[LOG] Faith is my shield!"),
     'we_are_angels_of_death': lambda: print("[LOG] We are the Angels of Death!"),
     'servitor': lambda: "servitor_instance",
-    'hear_the_emperors_voice': lambda prompt=None: input(f"[INPUT] {prompt} " if prompt else "[INPUT] The Emperor awaits your command: ")
+    'hear_the_emperors_voice': lambda prompt=None: hear_the_emperors_voice_impl(prompt),
+    'vox_cast': lambda msg=None: print(f"[VOX] {str(msg) if msg is not None else ''}"),
 }
+
+def hear_the_emperors_voice_impl(prompt=None):
+    try:
+        return input(prompt if prompt else "")
+    except (EOFError, KeyboardInterrupt):
+        print("[LOG] Input interrupted. Returning empty string.")
+        return ""
 
 def flatten_args(args):
     flat = []
@@ -120,6 +129,9 @@ class CommandNode:
         handler = COMMANDS.get(self.name)
         if handler:
             try:
+                # DEBUG: Print when vox_cast is called
+                if self.name == 'vox_cast':
+                    print(f"[DEBUG] vox_cast called with args: {self.args}")
                 # Resolve variables and evaluate expressions in arguments
                 resolved_args = []
                 for arg in self.args:
@@ -131,15 +143,19 @@ class CommandNode:
                         resolved_args.append(arg.evaluate(context))
                     else:
                         resolved_args.append(arg)
+                # DEBUG: Print resolved arguments for vox_cast
+                if self.name == 'vox_cast':
+                    print(f"[DEBUG] vox_cast resolved_args: {resolved_args}")
                 if resolved_args:
-                    handler(*resolved_args)
+                    return handler(*resolved_args)
                 else:
-                    handler()
+                    return handler()
             except TypeError:
                 # Fallback for commands that don't take arguments
-                handler()
+                return handler()
         else:
             print(f"Unknown command: {self.name}")
+            return None
 
 class DeclarationNode:
     def __init__(self, varname, typename, callnode):
@@ -385,6 +401,7 @@ class WarpyTransformer(Transformer):
         args = unwrap(children[1]) if len(children) > 1 else []
         if not isinstance(args, list):
             args = [args]
+        print(f"[DEBUG] comando: name={name}, args={args}")
         return CommandNode(name, args)
 
     def chamada(self, children):
@@ -543,8 +560,17 @@ class WarpyTransformer(Transformer):
         return str(children[0])
 
     def ESCAPED_STRING(self, children):
-        # Remove quotes and return the string content
-        return str(children[0])[1:-1]
+        val = children[0]
+        print(f"[DEBUG] ESCAPED_STRING input: {val}")
+        if hasattr(val, 'value'):
+            val = val.value
+        val = str(val)
+        if val.startswith('"') and val.endswith('"'):
+            result = val[1:-1]
+        else:
+            result = val
+        print(f"[DEBUG] ESCAPED_STRING output: {result}")
+        return result
 
     def COMMENT(self, children):
         # Comments are ignored during execution
