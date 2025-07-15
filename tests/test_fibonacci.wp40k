@@ -1,0 +1,18 @@
+start: dg = 0
+end: dg = 5
+
+a: dg = 0
+b: dg = 1
+i: dg = 0
+c: dg = 0
+
+if start == 0:
+    burn_the_heretic(a)
+
+for i in 1..end:
+    c = a + b
+    a = b
+    b = c
+    if i >= start:
+        if i <= end:
+            burn_the_heretic(a) 

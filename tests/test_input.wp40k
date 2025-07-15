@@ -1,0 +1,41 @@
+# Test file for input functionality
+# Demonstrating hear_the_emperors_voice() command
+
+# Welcome message
+the_emperor_protects()
+for_the_emperor()
+
+# Get user's name
+name: servitor = hear_the_emperors_voice("What is your name, faithful servant?")
+
+# Get user's rank
+rank: servitor = hear_the_emperors_voice("What is your rank in the Imperial Guard?")
+
+# Get a number for calculations
+power_level: dg = hear_the_emperors_voice("What is your power level? (1-100)")
+
+# Use the input in arithmetic
+enhanced_power: dg = power_level * 2
+faith_bonus: dg = enhanced_power + 10
+
+# Display results
+burn_the_heretic(name)
+burn_the_heretic(rank)
+burn_the_heretic(enhanced_power)
+burn_the_heretic(faith_bonus)
+
+# Conditional based on input
+if power_level > 50:
+    the_emperors_will_be_done()
+    ave_imperator()
+else:
+    fear_is_the_mind_killer()
+    faith_is_my_shield()
+
+# Loop using input
+iterations: dg = hear_the_emperors_voice("How many times shall we chant?")
+for i in 1..iterations:
+    we_are_angels_of_death()
+
+# Final message
+we_are_one() 

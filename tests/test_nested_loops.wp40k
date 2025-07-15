@@ -1,0 +1,29 @@
+i: dg = 0
+j: dg = 0
+
+for i in 1..3:
+    for_the_emperor()
+    for j in 1..2:
+        the_emperor_protects()
+        burn_the_heretic("nested_heretic")
+    purge_the_xenos("outer_xenos")
+
+x: dg = 0
+y: dg = 0
+while x < 2:
+    the_emperors_will_be_done()
+    y = 0
+    while y < 2:
+        fear_is_the_mind_killer()
+        y = y + 1
+    x = x + 1
+
+k: dg = 0
+for k in 1..2:
+    ave_imperator()
+    z: dg = 0
+    while z < 2:
+        we_are_angels_of_death()
+        z = z + 1
+
+for_the_emperor() 

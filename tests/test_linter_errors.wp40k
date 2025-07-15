@@ -1,0 +1,28 @@
+# This comment should trigger a warning
+invalid_syntax_here
+
+# Variable declaration with invalid syntax
+bad_var: invalid_type = 123
+
+# Undeclared variable usage
+x = undeclared_var + 1
+
+# Invalid command
+unknown_command()
+
+# For loop with missing colon
+for i in 1..5
+    the_emperor_protects()
+
+# While loop with invalid condition
+while invalid_condition:
+    for_the_emperor()
+
+# Command with invalid string literal
+burn_the_heretic("unclosed_string
+
+# Valid code mixed in
+i: dg = 0
+the_emperor_protects()
+for i in 1..3:
+    we_are_one() 

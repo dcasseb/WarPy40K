@@ -1,0 +1,82 @@
+# ─────────────────────────────────────────────────────────
+# 1. Initialize global state & checkpoint
+# ─────────────────────────────────────────────────────────
+serv_stats: servitor = servitor()              # Servitor tracking armor & wounds
+serv_stats.armor = 20
+serv_stats.wounds = 12
+
+# Create a mission-start checkpoint for rollback
+pain_is_temporary_glory_is_forever(checkpoint_id="mission_start")
+
+# Rally cry
+ave_imperator()
+
+# ─────────────────────────────────────────────────────────
+# 2. Async Recon: call out to the Farseer API
+# ─────────────────────────────────────────────────────────
+async farseers_vision(timeout=3000) -> vision_data
+
+# Branch on recon result
+if vision_data.enemies > 15:
+    no_pity_no_remorse_no_fear(mode="critical")
+else:
+    faith_is_my_shield(duration=4000, level=75)
+
+# ─────────────────────────────────────────────────────────
+# 3. Planetfall Assault (Parallel Workflow)
+# ─────────────────────────────────────────────────────────
+workflow "planetfall":
+  parallel:
+    - task: we_are_angels_of_death(power=80, area_of_effect=5) retry=2 timeout=5000
+    - task: burn_the_heretic("enemy_bunker") force=True timeout=7000
+  on_success:
+    we_are_one()                            # Sync shards
+    purge_the_xenos("scattered_forces")     # Clean‑up
+  on_failure:
+    restore_checkpoint("mission_start")     
+    only_in_death_does_duty_end(cleanup=False)
+end
+
+# ─────────────────────────────────────────────────────────
+# 4. Campaign Waves: stateful loop with break
+# ─────────────────────────────────────────────────────────
+for wave in 1..4:
+    vox(f"Wave {wave} incoming!")
+    let_the_galaxy_burn()
+
+    # Damage servitor
+    serv_stats.wounds -= wave * 3
+
+    if serv_stats.wounds <= 0:
+        taste_chaos(corruption_level=100, spread=True)
+        break    # abort remaining waves
+
+# Post‑campaign resolution
+if serv_stats.wounds > 0:
+    the_emperors_will_be_done()
+else:
+    only_in_death_does_duty_end(cleanup=False)
+
+# ─────────────────────────────────────────────────────────
+# 5. Event‑Driven Reaction
+# ─────────────────────────────────────────────────────────
+# Register shield callback whenever we burn a heretic
+on_event("heretic_burned", callback=faith_is_my_shield)
+
+# Burn the high‑value target and emit event
+burn_the_heretic("high_priest") force=True timeout=3000
+emit_event("heretic_burned", payload="high_priest")
+
+# ─────────────────────────────────────────────────────────
+# 6. Final Report & Closeout
+# ─────────────────────────────────────────────────────────
+async http_post("https://dashboard.wp40k.local/report",
+                data={
+                  "remaining_wounds": serv_stats.wounds,
+                  "mission": "planetfall",
+                  "status": serv_stats.wounds>0 ? "Success" : "Failure"
+                },
+                timeout=5000)
+
+even_in_death_i_still_serve(delay=1000)
+only_in_death_does_duty_end()

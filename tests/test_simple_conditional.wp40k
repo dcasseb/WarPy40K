@@ -1,0 +1,14 @@
+# Simple conditional test
+x: dg = 5
+
+if x > 3:
+    the_emperor_protects()
+else:
+    burn_the_heretic("test")
+
+# Simple loop test
+for i in 1..3:
+    WAAAGH()
+
+# Final command
+for_the_emperor() 

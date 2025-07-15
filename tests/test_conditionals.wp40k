@@ -1,0 +1,11 @@
+the_emperor_protects()
+
+for i in 0..3:
+    if i == 1:
+        we_are_one()
+        WAAAGH()
+    else:
+        purge_the_xenos(i)
+        burn_the_heretic(i)
+
+for_the_emperor() 

@@ -1,0 +1,5 @@
+x: dg = 5
+the_emperor_protects()
+if x > 3:
+    burn_the_heretic("test")
+for_the_emperor() 

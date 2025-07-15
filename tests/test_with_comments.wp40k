@@ -1,0 +1,19 @@
+# This is a test file with comments
+# It demonstrates that comments are now supported in WarPy40K
+
+# Variable declarations
+i: dg = 0
+name: servitor = "imperial_servant"
+
+# Commands
+the_emperor_protects()  # This will print a message
+for_the_emperor()
+
+# Loop with comments
+for i in 1..3:
+    we_are_one()  # Unity command
+    WAAAGH()      # Ork rally
+    purge_the_xenos(i)  # Purge with loop variable
+
+# End of test
+ave_imperator()  # Final salute 

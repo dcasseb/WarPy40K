@@ -1,0 +1,84 @@
+# Test file for arithmetic operations
+# Testing all operators: +, -, *, /, % and operator precedence
+
+# Basic arithmetic operations
+a: dg = 10
+b: dg = 3
+c: dg = 2
+
+# Addition and subtraction
+result1: dg = a + b
+result2: dg = a - b
+result3: dg = b + c
+
+# Multiplication and division
+result4: dg = a * b
+result5: dg = a / b
+result6: dg = b * c
+
+# Modulo operation
+result7: dg = a % b
+result8: dg = b % c
+
+# Complex expressions with precedence
+# Should evaluate as: (a + b) * c = (10 + 3) * 2 = 26
+complex1: dg = a + b * c
+
+# Should evaluate as: a * b + c = 10 * 3 + 2 = 32
+complex2: dg = a * b + c
+
+# Should evaluate as: (a - b) / c = (10 - 3) / 2 = 3.5
+complex3: dg = a - b / c
+
+# Should evaluate as: a % b + c = 10 % 3 + 2 = 1 + 2 = 3
+complex4: dg = a % b + c
+
+# Parentheses to override precedence
+# Should evaluate as: (a + b) * c = (10 + 3) * 2 = 26
+paren1: dg = (a + b) * c
+
+# Should evaluate as: a * (b + c) = 10 * (3 + 2) = 50
+paren2: dg = a * (b + c)
+
+# Should evaluate as: (a - b) % c = (10 - 3) % 2 = 7 % 2 = 1
+paren3: dg = (a - b) % c
+
+# Nested parentheses
+# Should evaluate as: ((a + b) * c) / 2 = ((10 + 3) * 2) / 2 = 26 / 2 = 13
+nested: dg = ((a + b) * c) / 2
+
+# Test with variables in expressions
+x: dg = 5
+y: dg = 2
+z: dg = x * y + 1  # Should be 5 * 2 + 1 = 11
+
+# Print results using commands
+burn_the_heretic(result1)  # Should be 13
+burn_the_heretic(result2)  # Should be 7
+burn_the_heretic(result3)  # Should be 5
+burn_the_heretic(result4)  # Should be 30
+burn_the_heretic(result5)  # Should be 3.333...
+burn_the_heretic(result6)  # Should be 6
+burn_the_heretic(result7)  # Should be 1
+burn_the_heretic(result8)  # Should be 1
+burn_the_heretic(complex1) # Should be 16 (not 26 due to precedence)
+burn_the_heretic(complex2) # Should be 32
+burn_the_heretic(complex3) # Should be 8.5 (not 3.5 due to precedence)
+burn_the_heretic(complex4) # Should be 3
+burn_the_heretic(paren1)   # Should be 26
+burn_the_heretic(paren2)   # Should be 50
+burn_the_heretic(paren3)   # Should be 1
+burn_the_heretic(nested)   # Should be 13
+burn_the_heretic(z)        # Should be 11
+
+# Test in conditions
+if a + b > 10:
+    the_emperor_protects()
+
+if a * b <= 30:
+    for_the_emperor()
+
+# Test in loops
+for i in 1..3:
+    temp: dg = i * 2
+    burn_the_heretic(temp) 

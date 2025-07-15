@@ -1,0 +1,100 @@
+%YAML 1.2
+---
+name: WarPy40K
+file_extensions: [wp40k]
+scope: source.warpy40k
+
+variables:
+  identifier: '[a-zA-Z_][a-zA-Z0-9_]*'
+  number: '\b\d+(?:\.\d+)?\b'
+
+contexts:
+  main:
+    - include: comments
+    - include: strings
+    - include: numbers
+    - include: keywords
+    - include: commands
+    - include: types
+    - include: operators
+    - include: variables
+    - include: loops
+    - include: conditionals
+    - include: declarations
+    - include: assignments
+
+  comments:
+    - match: '#.*$'
+      scope: comment.line.number-sign.warpy40k
+
+  strings:
+    - match: '"(?:[^"\\]|\\.)*"'
+      scope: string.quoted.double.warpy40k
+
+  numbers:
+    - match: '\b\d+\b'
+      scope: constant.numeric.integer.warpy40k
+    - match: '\b\d+\.\d+\b'
+      scope: constant.numeric.float.warpy40k
+
+  keywords:
+    - match: '\b(for|in|while|if|else)\b'
+      scope: keyword.control.warpy40k
+
+  commands:
+    - match: '\b(the_emperor_protects|only_in_death_does_duty_end|even_in_death_i_still_serve|no_pity_no_remorse_no_fear|burn_the_heretic|pain_is_temporary_glory_is_forever|faith_is_my_shield|we_are_angels_of_death|we_are_one|WAAAGH|taste_chaos|for_the_emperor|purge_the_xenos|the_emperors_will_be_done|fear_is_the_mind_killer|ave_imperator|the_path_is_set|farseers_vision|more_dakka|ork_cunning|blood_for_the_blood_god|let_the_galaxy_burn|servitor)\b'
+      scope: entity.name.function.warpy40k
+
+  types:
+    - match: '\b(dg|servitor|blob|psykers|void_shields)\b'
+      scope: storage.type.warpy40k
+
+  operators:
+    - match: '\+'
+      scope: keyword.operator.arithmetic.warpy40k
+    - match: '='
+      scope: keyword.operator.assignment.warpy40k
+    - match: '(==|!=|<|>|<=|>=)'
+      scope: keyword.operator.comparison.warpy40k
+    - match: '\.\.'
+      scope: keyword.operator.range.warpy40k
+    - match: ':'
+      scope: keyword.operator.declaration.warpy40k
+
+  variables:
+    - match: '\b[a-zA-Z_][a-zA-Z0-9_]*\b'
+      scope: variable.other.warpy40k
+
+  loops:
+    - match: '\b(for)\b\s+(\b[a-zA-Z_][a-zA-Z0-9_]*\b)\s+\b(in)\b'
+      captures:
+        1: keyword.control.warpy40k
+        2: variable.other.warpy40k
+        3: keyword.control.warpy40k
+      scope: meta.loop.for.warpy40k
+    - match: '\b(while)\b'
+      captures:
+        1: keyword.control.warpy40k
+      scope: meta.loop.while.warpy40k
+
+  conditionals:
+    - match: '\b(if)\b'
+      captures:
+        1: keyword.control.warpy40k
+      scope: meta.conditional.if.warpy40k
+    - match: '\b(else)\b'
+      captures:
+        1: keyword.control.warpy40k
+      scope: meta.conditional.else.warpy40k
+
+  declarations:
+    - match: '\b([a-zA-Z_][a-zA-Z0-9_]*)\b\s*:'
+      captures:
+        1: variable.other.warpy40k
+      scope: meta.declaration.warpy40k
+
+  assignments:
+    - match: '\b([a-zA-Z_][a-zA-Z0-9_]*)\b\s*='
+      captures:
+        1: variable.other.warpy40k
+      scope: meta.assignment.warpy40k 

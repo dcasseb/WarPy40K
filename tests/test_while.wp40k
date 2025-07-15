@@ -1,0 +1,5 @@
+i: dg = 0
+while i < 3:
+    the_emperor_protects()
+    i = i + 1
+for_the_emperor() 

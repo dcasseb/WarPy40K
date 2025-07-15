@@ -1,0 +1,42 @@
+# Simplified WarPy40K Simulation
+# This demonstrates a basic mission simulation using only supported syntax
+
+# Initialize variables
+wave: dg = 1
+enemies: dg = 15
+wounds: dg = 12
+
+# Mission start
+pain_is_temporary_glory_is_forever()
+ave_imperator()
+
+# Recon phase
+farseers_vision()
+
+# Branch on enemy count
+if enemies > 10:
+    no_pity_no_remorse_no_fear()
+else:
+    faith_is_my_shield()
+
+# Planetfall assault
+we_are_angels_of_death()
+burn_the_heretic("enemy_bunker")
+we_are_one()
+purge_the_xenos("scattered_forces")
+
+# Campaign waves
+for wave in 1..3:
+    WAAAGH()
+    let_the_galaxy_burn()
+
+# Post-campaign resolution
+the_emperors_will_be_done()
+
+# Final actions
+burn_the_heretic("high_priest")
+faith_is_my_shield()
+
+# Mission complete
+even_in_death_i_still_serve()
+only_in_death_does_duty_end() 

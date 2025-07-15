@@ -1,0 +1,4 @@
+{
+    "extensions": ["wp40k"],
+    "syntax": "Packages/User/WarPy40K.sublime-syntax"
+} 

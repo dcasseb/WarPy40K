@@ -1,0 +1,322 @@
+# WarPy40K Comprehensive Test
+# This test demonstrates every feature of the language
+
+# ========================================
+# 1. VARIABLE DECLARATIONS - All Data Types
+# ========================================
+
+# Numeric types
+counter: dg = 0
+power_level: dg = 100
+precision: dg = 3.14159
+
+# String types
+name: servitor = "Space Marine"
+title: servitor = "Chapter Master"
+
+# Arbitrary data types
+data: blob = "classified_information"
+status: blob = 42
+
+# Specialized types
+psychic_power: psykers = 85
+shield_status: void_shields = true
+
+# ========================================
+# 2. ARITHMETIC OPERATIONS - All Operators
+# ========================================
+
+# Basic arithmetic
+a: dg = 10
+b: dg = 3
+c: dg = 2
+
+# Addition
+sum: dg = a + b                    # 13
+total: dg = sum + c                # 15
+
+# Subtraction
+difference: dg = a - b             # 7
+remaining: dg = difference - c     # 5
+
+# Multiplication
+product: dg = a * b                # 30
+area: dg = product * c             # 60
+
+# Division
+quotient: dg = a / b               # 3.333...
+ratio: dg = quotient / c           # 1.666...
+
+# Modulo
+remainder: dg = a % b              # 1
+cycle: dg = remainder % c          # 1
+
+# Complex expressions with precedence
+complex1: dg = a + b * c           # 16 (not 26)
+complex2: dg = (a + b) * c         # 26
+complex3: dg = a * b + c * 5       # 36
+
+# ========================================
+# 3. USER INPUT FUNCTIONALITY
+# ========================================
+
+# Get user input for interactive testing
+player_name: servitor = hear_the_emperors_voice("Enter your Space Marine name:")
+player_rank: dg = hear_the_emperors_voice("Enter your rank (1-10):")
+player_loyalty: dg = hear_the_emperors_voice("Enter your loyalty to the Emperor (1-100):")
+
+# Use input in calculations
+promoted_rank: dg = player_rank + 1
+loyalty_bonus: dg = player_loyalty * 1.5
+
+# ========================================
+# 4. IMPERIAL COMMANDS - All Available
+# ========================================
+
+# Basic Imperial commands
+the_emperor_protects()
+only_in_death_does_duty_end()
+even_in_death_i_still_serve()
+no_pity_no_remorse_no_fear()
+pain_is_temporary_glory_is_forever()
+faith_is_my_shield()
+we_are_angels_of_death()
+for_the_emperor()
+the_emperors_will_be_done()
+ave_imperator()
+fear_is_the_mind_killer()
+
+# Imperial commands with arguments
+burn_the_heretic("traitor")
+burn_the_heretic(player_name)
+purge_the_xenos("tyranid")
+purge_the_xenos("eldar")
+
+# ========================================
+# 5. CHAOS COMMANDS - All Available
+# ========================================
+
+taste_chaos()
+blood_for_the_blood_god()
+let_the_galaxy_burn()
+
+# ========================================
+# 6. ORK COMMANDS - All Available
+# ========================================
+
+WAAAGH()
+more_dakka()
+ork_cunning()
+
+# ========================================
+# 7. ELDAR COMMANDS - All Available
+# ========================================
+
+the_path_is_set()
+farseers_vision()
+
+# ========================================
+# 8. GENERAL COMMANDS
+# ========================================
+
+we_are_one()
+servitor_result: servitor = servitor()
+
+# ========================================
+# 9. CONDITIONAL LOGIC - Complex Conditions
+# ========================================
+
+# Simple conditionals
+if player_loyalty >= 75:
+    the_emperors_will_be_done()
+    ave_imperator()
+    burn_the_heretic("heretic")
+
+# Complex conditions with arithmetic
+if player_rank >= 5:
+    if player_loyalty >= 80:
+        we_are_angels_of_death()
+        for_the_emperor()
+        faith_is_my_shield()
+
+# Multiple conditions
+if player_loyalty >= 50:
+    the_emperor_protects()
+    for_the_emperor()
+    if player_rank >= 7:
+        we_are_angels_of_death()
+        ave_imperator()
+    else:
+        faith_is_my_shield()
+        pain_is_temporary_glory_is_forever()
+else:
+    # Fall to Chaos
+    taste_chaos()
+    blood_for_the_blood_god()
+    let_the_galaxy_burn()
+
+# ========================================
+# 10. FOR LOOPS - Multiple Examples
+# ========================================
+
+# Basic for loop
+for i in 1..5:
+    burn_the_heretic("heretic_")
+    the_emperor_protects()
+
+# For loop with arithmetic in condition
+for x in 1..3:
+    for y in 1..2:
+        purge_the_xenos("xenos_")
+        WAAAGH()
+
+# For loop with complex expressions
+for iteration in 1..player_rank:
+    if iteration % 2 == 0:
+        faith_is_my_shield()
+    else:
+        no_pity_no_remorse_no_fear()
+
+# ========================================
+# 11. WHILE LOOPS - Multiple Examples
+# ========================================
+
+# Basic while loop
+counter: dg = 3
+while counter > 0:
+    for_the_emperor()
+    counter = counter - 1
+
+# While loop with complex condition
+power: dg = 100
+while power > 0:
+    if power > 50:
+        the_emperors_will_be_done()
+    else:
+        fear_is_the_mind_killer()
+    power = power - 25
+
+# While loop with arithmetic
+loyalty_test: dg = player_loyalty
+while loyalty_test > 0:
+    if loyalty_test >= 50:
+        the_emperor_protects()
+    else:
+        taste_chaos()
+    loyalty_test = loyalty_test - 25
+
+# ========================================
+# 12. NESTED CONTROL STRUCTURES
+# ========================================
+
+# Nested loops and conditionals
+for battle in 1..3:
+    if battle == 1:
+        the_emperor_protects()
+        for soldier in 1..2:
+            burn_the_heretic("enemy_")
+    else:
+        if battle == 2:
+            WAAAGH()
+            while counter < 2:
+                more_dakka()
+                counter = counter + 1
+        else:
+            the_path_is_set()
+            farseers_vision()
+
+# ========================================
+# 13. COMPLEX EXPRESSIONS AND CALCULATIONS
+# ========================================
+
+# Calculate battle effectiveness
+base_power: dg = 50
+rank_bonus: dg = player_rank * 5
+loyalty_multiplier: dg = player_loyalty / 100
+total_effectiveness: dg = (base_power + rank_bonus) * loyalty_multiplier
+
+# Use calculated values in conditionals
+if total_effectiveness >= 100:
+    we_are_angels_of_death()
+    the_emperors_will_be_done()
+else:
+    if total_effectiveness >= 50:
+        faith_is_my_shield()
+        for_the_emperor()
+    else:
+        fear_is_the_mind_killer()
+        pain_is_temporary_glory_is_forever()
+
+# ========================================
+# 14. STRING CONCATENATION AND VARIABLES
+# ========================================
+
+# Dynamic target names
+target_prefix: servitor = "enemy_"
+for i in 1..3:
+    target_name: servitor = target_prefix
+    burn_the_heretic(target_name)
+
+# ========================================
+# 15. FINAL DEMONSTRATION - ALL FEATURES
+# ========================================
+
+# Grand finale using all features
+final_power: dg = hear_the_emperors_voice("Enter final power level for the grand finale:")
+final_choice: dg = hear_the_emperors_voice("Choose your path (1=Imperial, 2=Chaos, 3=Ork, 4=Eldar):")
+
+if final_choice == 1:
+    # Imperial path
+    for i in 1..final_power:
+        if i % 3 == 0:
+            the_emperors_will_be_done()
+        else:
+            if i % 2 == 0:
+                ave_imperator()
+            else:
+                the_emperor_protects()
+    we_are_one()
+    
+else:
+    if final_choice == 2:
+        # Chaos path
+        taste_chaos()
+        blood_for_the_blood_god()
+        let_the_galaxy_burn()
+        
+    else:
+        if final_choice == 3:
+            # Ork path
+            WAAAGH()
+            more_dakka()
+            ork_cunning()
+            
+        else:
+            if final_choice == 4:
+                # Eldar path
+                the_path_is_set()
+                farseers_vision()
+                
+            else:
+                # Default - mixed
+                we_are_one()
+                the_emperor_protects()
+                WAAAGH()
+
+# ========================================
+# 16. CONCLUSION - Final Commands
+# ========================================
+
+# Final messages
+only_in_death_does_duty_end()
+even_in_death_i_still_serve()
+no_pity_no_remorse_no_fear()
+pain_is_temporary_glory_is_forever()
+
+# Display final results
+burn_the_heretic("Test completed successfully!")
+for_the_emperor()
+
+# ========================================
+# END OF COMPREHENSIVE TEST
+# ======================================== 
