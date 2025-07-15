@@ -1,10 +1,12 @@
-from warnings import warn
+from .utils import logger, NO_VALUE
+from typing import Mapping, Iterable, Callable, Union, TypeVar, Tuple, Any, List, Set, Optional, Collection, TYPE_CHECKING
 
-from .utils import STRING_TYPE, logger, NO_VALUE
-
+if TYPE_CHECKING:
+    from .lexer import Token
+    from .parsers.lalr_interactive_parser import InteractiveParser
+    from .tree import Tree
 
 ###{standalone
-
 
 class LarkError(Exception):
     pass
@@ -14,7 +16,7 @@ class ConfigurationError(LarkError, ValueError):
     pass
 
 
-def assert_config(value, options, msg='Got %r, expected one of %s'):
+def assert_config(value, options: Collection, msg='Got %r, expected one of %s'):
     if value not in options:
         raise ConfigurationError(msg % (value, options))
 
@@ -30,6 +32,7 @@ class ParseError(LarkError):
 class LexError(LarkError):
     pass
 
+T = TypeVar('T')
 
 class UnexpectedInput(LarkError):
     """UnexpectedInput Error.
@@ -42,10 +45,14 @@ class UnexpectedInput(LarkError):
 
     After catching one of these exceptions, you may call the following helper methods to create a nicer error message.
     """
+    line: int
+    column: int
     pos_in_stream = None
+    state: Any
     _terminals_by_name = None
+    interactive_parser: 'InteractiveParser'
 
-    def get_context(self, text, span=40):
+    def get_context(self, text: str, span: int=40) -> str:
         """Returns a pretty string pinpointing the error in the text,
         with span amount of context characters around it.
 
@@ -66,7 +73,11 @@ class UnexpectedInput(LarkError):
             after = text[pos:end].split(b'\n', 1)[0]
             return (before + after + b'\n' + b' ' * len(before.expandtabs()) + b'^\n').decode("ascii", "backslashreplace")
 
-    def match_examples(self, parse_fn, examples, token_type_match_fallback=False, use_accepts=False):
+    def match_examples(self, parse_fn: 'Callable[[str], Tree]',
+                             examples: Union[Mapping[T, Iterable[str]], Iterable[Tuple[T, Iterable[str]]]],
+                             token_type_match_fallback: bool=False,
+                             use_accepts: bool=True
+                         ) -> Optional[T]:
         """Allows you to detect what's wrong in the input text by matching
         against example errors.
 
@@ -81,28 +92,35 @@ class UnexpectedInput(LarkError):
         Parameters:
             parse_fn: parse function (usually ``lark_instance.parse``)
             examples: dictionary of ``{'example_string': value}``.
-            use_accepts: Recommended to call this with ``use_accepts=True``.
-                The default is ``False`` for backwards compatibility.
+            use_accepts: Recommended to keep this as ``use_accepts=True``.
         """
         assert self.state is not None, "Not supported for this exception"
 
-        if isinstance(examples, dict):
+        if isinstance(examples, Mapping):
             examples = examples.items()
 
         candidate = (None, False)
         for i, (label, example) in enumerate(examples):
-            assert not isinstance(example, STRING_TYPE)
+            assert not isinstance(example, str), "Expecting a list"
 
             for j, malformed in enumerate(example):
                 try:
                     parse_fn(malformed)
                 except UnexpectedInput as ut:
                     if ut.state == self.state:
-                        if use_accepts and hasattr(self, 'accepts') and ut.accepts != self.accepts:
+                        if (
+                            use_accepts
+                            and isinstance(self, UnexpectedToken)
+                            and isinstance(ut, UnexpectedToken)
+                            and ut.accepts != self.accepts
+                        ):
                             logger.debug("Different accepts with same state[%d]: %s != %s at example [%s][%s]" %
                                          (self.state, self.accepts, ut.accepts, i, j))
                             continue
-                        try:
+                        if (
+                            isinstance(self, (UnexpectedToken, UnexpectedEOF))
+                            and isinstance(ut, (UnexpectedToken, UnexpectedEOF))
+                        ):
                             if ut.token == self.token:  # Try exact match first
                                 logger.debug("Exact Match at example [%s][%s]" % (i, j))
                                 return label
@@ -113,8 +131,6 @@ class UnexpectedInput(LarkError):
                                     logger.debug("Token Type Fallback at example [%s][%s]" % (i, j))
                                     candidate = label, True
 
-                        except AttributeError:
-                            pass
                         if candidate[0] is None:
                             logger.debug("Same State match at example [%s][%s]" % (i, j))
                             candidate = label, False
@@ -131,6 +147,7 @@ class UnexpectedInput(LarkError):
 class UnexpectedEOF(ParseError, UnexpectedInput):
     """An exception that is raised by the parser, when the input ends while it still expects a token.
     """
+    expected: 'List[Token]'
 
     def __init__(self, expected, state=None, terminals_by_name=None):
         super(UnexpectedEOF, self).__init__()
@@ -152,9 +169,12 @@ class UnexpectedEOF(ParseError, UnexpectedInput):
 
 
 class UnexpectedCharacters(LexError, UnexpectedInput):
-    """An exception that is raised by the lexer, when it cannot match the next 
+    """An exception that is raised by the lexer, when it cannot match the next
     string of characters to any of its terminals.
     """
+
+    allowed: Set[str]
+    considered_tokens: Set[Any]
 
     def __init__(self, seq, lex_pos, line, column, allowed=None, considered_tokens=None, state=None, token_history=None,
                  terminals_by_name=None, considered_rules=None):
@@ -198,15 +218,18 @@ class UnexpectedToken(ParseError, UnexpectedInput):
         expected: The set of expected tokens
         considered_rules: Which rules were considered, to deduce the expected tokens
         state: A value representing the parser state. Do not rely on its value or type.
-        interactive_parser: An instance of ``InteractiveParser``, that is initialized to the point of failture,
+        interactive_parser: An instance of ``InteractiveParser``, that is initialized to the point of failure,
                             and can be used for debugging and error handling.
 
     Note: These parameters are available as attributes of the instance.
     """
 
+    expected: Set[str]
+    considered_rules: Set[str]
+
     def __init__(self, token, expected, considered_rules=None, state=None, interactive_parser=None, terminals_by_name=None, token_history=None):
         super(UnexpectedToken, self).__init__()
-        
+
         # TODO considered_rules and expected can be figured out using state
         self.line = getattr(token, 'line', '?')
         self.column = getattr(token, 'column', '?')
@@ -223,7 +246,7 @@ class UnexpectedToken(ParseError, UnexpectedInput):
 
 
     @property
-    def accepts(self):
+    def accepts(self) -> Set[str]:
         if self._accepts is NO_VALUE:
             self._accepts = self.interactive_parser and self.interactive_parser.accepts()
         return self._accepts
@@ -236,11 +259,6 @@ class UnexpectedToken(ParseError, UnexpectedInput):
 
         return message
 
-    @property
-    def puppet(self):
-        warn("UnexpectedToken.puppet attribute has been renamed to interactive_parser", DeprecationWarning)
-        return self.interactive_parser
-    
 
 
 class VisitError(LarkError):
@@ -256,6 +274,9 @@ class VisitError(LarkError):
     Note: These parameters are available as attributes
     """
 
+    obj: 'Union[Tree, Token]'
+    orig_exc: Exception
+
     def __init__(self, rule, obj, orig_exc):
         message = 'Error trying to process rule "%s":\n\n%s' % (rule, orig_exc)
         super(VisitError, self).__init__(message)
@@ -263,5 +284,9 @@ class VisitError(LarkError):
         self.rule = rule
         self.obj = obj
         self.orig_exc = orig_exc
+
+
+class MissingVariableError(LarkError):
+    pass
 
 ###}

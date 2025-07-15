@@ -34,14 +34,16 @@ condicional : IF expressao ":" comandos [ELSE ":" comandos]
 
 expr_range  : expressao ".." expressao
 
-expressao   : termo
-            | expressao "+" termo    -> soma
-            | expressao "-" termo    -> subtracao
+expressao   : termo expressao_rest
+expressao_rest : PLUS termo expressao_rest
+              | MINUS termo expressao_rest
+              | ""  
 
-termo       : fator
-            | termo "*" fator        -> multiplicacao
-            | termo "/" fator        -> divisao
-            | termo "%" fator        -> modulo
+termo       : fator termo_rest
+termo_rest  : STAR fator termo_rest
+           | SLASH fator termo_rest
+           | PERCENT fator termo_rest
+           | ""
 
 fator       : numero
             | identificador
@@ -63,7 +65,13 @@ identificador: /[a-zA-Z_][a-zA-Z0-9_]*/
 numero      : /\d+(\.\d+)?/
 COMMENT     : /#[^\n]*/
 
-ESCAPED_STRING : /"([^"\\]|\\.)*"/
+ESCAPED_STRING : /"[^\"]*"/
+
+PLUS: "+"
+MINUS: "-"
+STAR: "*"
+SLASH: "/"
+PERCENT: "%"
 
 %import common.WS
 %ignore WS
@@ -129,7 +137,7 @@ class CommandNode:
         handler = COMMANDS.get(self.name)
         if handler:
             try:
-                # DEBUG: Print when vox_cast is called
+                # TODO: [vox_cast] Debug print for vox_cast call
                 if self.name == 'vox_cast':
                     print(f"[DEBUG] vox_cast called with args: {self.args}")
                 # Resolve variables and evaluate expressions in arguments
@@ -143,7 +151,7 @@ class CommandNode:
                         resolved_args.append(arg.evaluate(context))
                     else:
                         resolved_args.append(arg)
-                # DEBUG: Print resolved arguments for vox_cast
+                # TODO: [vox_cast] Debug print for resolved vox_cast arguments
                 if self.name == 'vox_cast':
                     print(f"[DEBUG] vox_cast resolved_args: {resolved_args}")
                 if resolved_args:
@@ -561,24 +569,22 @@ class WarpyTransformer(Transformer):
 
     def ESCAPED_STRING(self, children):
         val = children[0]
-        print(f"[DEBUG] ESCAPED_STRING input: {val}")
         if hasattr(val, 'value'):
             val = val.value
         val = str(val)
         if val.startswith('"') and val.endswith('"'):
-            result = val[1:-1]
-        else:
-            result = val
-        print(f"[DEBUG] ESCAPED_STRING output: {result}")
-        return result
+            return val[1:-1]
+        return val
 
     def COMMENT(self, children):
         # Comments are ignored during execution
         return None
 
 def run_warpy_script(script_path: str):
-    with open(script_path, 'r') as f:
-        code = f.read()
+    # TEMP: Use a hardcoded string for testing
+    code = 'vox_cast("Hello, world!")'
+    # with open(script_path, 'r') as f:
+    #     code = f.read()
 
     parser = Lark(warpy_grammar, parser='earley', start='start')
     parse_tree = parser.parse(code)
