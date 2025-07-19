@@ -9,7 +9,7 @@ A Warhammer 40K-themed toy programming language and interpreter, designed for fu
 - **Control Flow**: If-else conditionals, for loops, and while loops
 - **Variables**: Typed variable declarations and assignments
 - **Interpreter**: Execute `.wp40k` scripts directly with Python
-- **Linter**: Comprehensive static analysis for syntax, variables, and style ([see linter docs](./LINTER_README.md))
+- **Linter**: Comprehensive static analysis for syntax, variables, and style ([see linter docs](./docs/LINTER_README.md))
 - **Syntax Highlighting**: Official extensions for VS Code and Sublime Text
 - **Test Files**: Example scripts for learning and validation
 
@@ -25,6 +25,10 @@ A Warhammer 40K-themed toy programming language and interpreter, designed for fu
    git clone https://github.com/YOUR-USERNAME/WarPy40K.git
    cd WarPy40K
    ```
+
+## Integrantes
+
+- Nome: [Seu Nome] - Matrícula: [Sua Matrícula] - Turma: [Sua Turma]
 
 ## Usage
 
@@ -85,10 +89,90 @@ for i in 1..end:
 
 ## Tooling
 
-- **Linter**: See [LINTER_README.md](./LINTER_README.md) for error codes, integration, and advanced usage.
+- **Linter**: See [LINTER_README.md](./docs/LINTER_README.md) for error codes, integration, and advanced usage.
 - **Syntax Highlighting**:
   - VS Code: See `warpy40k-syntax/README.md`
   - Sublime Text: See `warpy40k-sublime/README.md`
+
+## Referências
+
+Este projeto foi desenvolvido utilizando as seguintes referências e tecnologias:
+
+- **Lark Parser**: Biblioteca Python para parsing e análise sintática. Utilizada como base para implementar a análise léxica e sintática da linguagem WarPy40K. Site oficial: [https://github.com/lark-parser/lark](https://github.com/lark-parser/lark)
+- **Warhammer 40K Universe**: Inspiração temática para nomes de comandos, tipos de dados e estética geral da linguagem. Propriedade da Games Workshop.
+- **Crafting Interpreters**: Conceitos fundamentais de design de linguagens de programação e implementação de interpretadores, especialmente para estruturas de AST e avaliação de expressões.
+- **Python Official Documentation**: Referência para implementação do interpretador e estruturas de dados.
+
+### Contribuições Originais
+
+- **Gramática WarPy40K**: Sintaxe completamente original inspirada no universo Warhammer 40K
+- **Sistema de Tipos Temáticos**: Tipos de dados únicos (`dg`, `servitor`, `blob`, `psykers`, `void_shields`)
+- **Comandos Temáticos**: Set completo de comandos inspirados no lore do Warhammer 40K
+- **Linter Integrado**: Sistema de análise estática customizado para a linguagem
+- **Extensões de Syntax Highlighting**: Plugins originais para VS Code e Sublime Text
+
+## Estrutura do Código
+
+O projeto está organizado nos seguintes módulos principais:
+
+### Arquivos Principais
+
+- **`warpy_interpreter.py`**: Contém o interpretador principal e todas as etapas de compilação
+  - **Análise Léxica**: Definida na gramática Lark (linhas 6-65) com tokens, palavras-chave e operadores
+  - **Análise Sintática**: Parser Lark automaticamente constrói a AST baseada na gramática EBNF
+  - **Análise Semântica**: Implementada nas classes de nós AST (linhas 117-350) com verificação de tipos e contexto
+  - **Interpretação/Execução**: Método `evaluate()` e `execute()` em cada nó AST (linhas 350-600)
+
+- **`warpy_linter.py`**: Análise estática e detecção de erros
+  - Verificação de sintaxe, variáveis não declaradas, tipos incompatíveis
+  - Sistema de códigos de erro estruturado
+
+- **`warpy_grammar.py`**: Definição da gramática em formato isolado para reutilização
+
+### Estruturas de Dados Principais
+
+- **AST Nodes**: Classes para representar diferentes construções da linguagem
+  - `CommandNode`: Execução de comandos
+  - `DeclarationNode`: Declaração de variáveis
+  - `AssignmentNode`: Atribuição de valores
+  - `LoopNode`/`WhileLoopNode`: Estruturas de repetição
+  - `ConditionalNode`: Estruturas condicionais
+  - Nós de expressões aritméticas (`SumNode`, `SubtractionNode`, etc.)
+
+- **Context**: Dicionário para armazenamento de variáveis e estado durante execução
+
+### Etapas de Compilação
+
+1. **Análise Léxica**: Lark tokeniza o código fonte baseado na gramática
+2. **Análise Sintática**: Lark constrói a AST automaticamente
+3. **Transformação**: `WarpyTransformer` converte a AST Lark em nós customizados
+4. **Análise Semântica**: Verificação de tipos e contexto durante a transformação
+5. **Interpretação**: Execução através do método `execute()` do nó raiz
+
+## Bugs/Limitações/Problemas Conhecidos
+
+### Limitações Atuais
+
+1. **Sistema de Tipos Simples**: Apenas verificação básica de tipos, sem inferência automática
+2. **Escopo de Variáveis**: Apenas escopo global, sem suporte a escopos locais em funções
+3. **Estruturas de Dados**: Não há suporte para arrays, structs ou objetos complexos
+4. **Funções Definidas pelo Usuário**: Apenas comandos pré-definidos, sem definição de funções customizadas
+5. **Sistema de Módulos**: Não há suporte para importação de outros arquivos WarPy40K
+
+### Problemas Conhecidos
+
+1. **Tratamento de Erros**: Algumas mensagens de erro poderiam ser mais específicas
+2. **Performance**: Para scripts muito grandes, a interpretação pode ser lenta
+3. **Depuração**: Falta de ferramentas de debug integradas
+
+### Melhorias Incrementais Sugeridas
+
+1. **Melhor Tratamento de Erros**: Adicionar números de linha nas mensagens de erro
+2. **Escopo de Variáveis**: Implementar pilha de contextos para escopos aninhados
+3. **Novos Tipos**: Adicionar tipos `array` e `map` para estruturas de dados
+4. **Modo Debug**: Adicionar flag `--debug` para execução passo-a-passo
+5. **Otimizações**: Cache de AST para arquivos não modificados
+6. **Documentação**: Melhorar documentação inline e exemplos
 
 ## Project Structure
 
