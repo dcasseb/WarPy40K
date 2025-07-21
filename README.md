@@ -2,6 +2,89 @@
 
 A Warhammer 40K-themed toy programming language and interpreter, designed for fun, learning, and extensibility. WarPy40K features a custom syntax, unique commands, and robust tooling including a linter and syntax highlighting extensions for VS Code and Sublime Text.
 
+## Sobre o Universo Warhammer 40K
+
+### O Que é Warhammer 40,000?
+
+Warhammer 40,000 (também conhecido como Warhammer 40K ou WH40K) é um universo de ficção científica criado pela Games Workshop em 1987. Ambientado no ano 40,000 (daí o nome), é um futuro sombrio onde "há apenas guerra" (*"In the grim darkness of the far future, there is only war"*).
+
+### O Universo
+
+O universo de Warhammer 40K é caracterizado por:
+
+- **Imperium of Man**: Um império galáctico totalitário liderado pelo God-Emperor of Mankind, que governa milhões de mundos através de uma burocracia massiva e opressiva
+- **Space Marines**: Guerreiros geneticamente modificados, os Adeptus Astartes, conhecidos como "Angels of Death"
+- **Chaos**: Forças demoníacas da Warp (uma dimensão paralela) que corrompem e destroem
+- **Xenos**: Raças alienígenas como Orks (criaturas brutais obcecadas com guerra), Eldar (antiga raça psíquica), Tyranids (enxame devorador), entre outros
+- **Technological Decay**: A humanidade perdeu muito conhecimento tecnológico, tratando máquinas como objetos religiosos
+- **Grimdark**: O universo é intencionalmente sombrio, onde não há "mocinhos" verdadeiros e a sobrevivência é uma luta constante
+
+### O Jogo de Tabuleiro
+
+Warhammer 40,000 é um jogo de estratégia em miniatura onde:
+
+1. **Exércitos**: Cada jogador monta um exército escolhendo entre diferentes facções (Space Marines, Orks, Chaos, Eldar, etc.)
+2. **Miniaturas**: Jogadores compram, montam e pintam miniaturas detalhadas representando soldados, veículos e criaturas
+3. **Regras**: Sistema complexo de regras para movimento, combate, habilidades especiais e magia (poderes psíquicos)
+4. **Dados**: Usa principalmente dados de 6 faces (d6) para determinar acertos, ferimentos e saves
+5. **Turnos**: Jogadores alternam turnos movendo suas unidades, atirando e combatendo corpo-a-corpo
+6. **Objetivos**: Vitória através de eliminação do inimigo ou controle de objetivos no tabuleiro
+7. **Customização**: Listas de exército altamente customizáveis com diferentes unidades, equipamentos e estratégias
+
+### Elementos Temáticos no WarPy40K
+
+Nossa linguagem de programação incorpora elementos autênticos do universo Warhammer 40K:
+
+#### Tipos de Dados Temáticos
+- **`dg`** (Digit): Números, representando dados e cálculos táticos
+- **`servitor`**: Referência aos servitors (humanos lobotomizados que operam máquinas)
+- **`blob`**: Inspirado nas "blob squads" (grandes grupos de guardsmen imperiais)
+- **`psykers`**: Referência aos psykers (humanos com poderes psíquicos)
+- **`void_shields`**: Sistema de proteção de naves espaciais imperiais
+
+#### Comandos Inspirados no Lore
+- **`the_emperor_protects`**: Frase icônica de proteção imperial
+- **`burn_the_heretic`**: Usado para output/print, referenciando a purificação de hereges
+- **`vox_cast`**: Sistema de comunicação imperial para input/output
+- **`WAAAGH`**: Grito de guerra dos Orks
+- **`blood_for_the_blood_god`**: Invocação do Chaos God Khorne
+- **`for_the_emperor`**: Grito de batalha dos Space Marines
+
+### Objetivo do WarPy40K
+
+O projeto WarPy40K tem múltiplos objetivos educacionais e recreativos:
+
+#### Objetivos Educacionais
+1. **Aprendizado de Compiladores**: Demonstrar conceitos de análise léxica, sintática e semântica
+2. **Design de Linguagens**: Explorar como criar uma linguagem de programação com identidade própria
+3. **Análise Estática**: Implementar um linter funcional para detecção de erros
+4. **Tooling**: Desenvolver ferramentas auxiliares como syntax highlighting
+
+#### Objetivos Recreativos
+1. **Imersão Temática**: Permitir que fãs de Warhammer 40K programem usando vocabulário familiar
+2. **Comunidade**: Criar uma ponte entre comunidades de programação e gaming
+3. **Criatividade**: Inspirar projetos únicos que combinem hobbies diferentes
+
+#### Objetivos Técnicos
+1. **Funcionalidade Completa**: Suportar estruturas de controle, variáveis tipadas e operações aritméticas
+2. **Extensibilidade**: Arquitetura que permite fácil adição de novos comandos e tipos
+3. **Qualidade**: Código limpo, bem documentado e testado
+4. **Acessibilidade**: Ferramentas que facilitam o uso (linter, syntax highlighting, exemplos)
+
+### Por Que Warhammer 40K?
+
+A escolha do universo Warhammer 40K para esta linguagem não é por acaso:
+
+1. **Vocabulário Rico**: O universo possui terminologia técnica extensa que se adapta bem a conceitos de programação
+2. **Comunidade Apaixonada**: Fãs de 40K apreciam referências autênticas e detalhadas ao lore
+3. **Estética Distintiva**: A estética "grimdark" cria uma identidade visual e conceitual única
+4. **Complexidade**: O universo é complexo o suficiente para inspirar funcionalidades avançadas
+5. **Nostalgia e Diversão**: Combina o aprendizado técnico com elementos lúdicos familiares
+
+O WarPy40K não é apenas uma linguagem de programação - é uma homenagem a um universo rico e uma ferramenta educacional que torna o aprendizado de compiladores mais envolvente e memorável.
+
+*"Knowledge is power, guard it well."* - Adeptus Mechanicus
+
 ## Features
 
 - **Custom Language**: Warhammer 40K-inspired syntax and commands

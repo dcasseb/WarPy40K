@@ -1,31 +1,31 @@
-# WarPy40K Syntax Highlighting for Sublime Text
+# Destaque de Sintaxe WarPy40K para Sublime Text
 
-A Sublime Text syntax definition that provides rich syntax highlighting for the WarPy40K programming language.
+Uma definição de sintaxe do Sublime Text que fornece destaque de sintaxe rico para a linguagem de programação WarPy40K.
 
-> See the main [WarPy40K README](../README.md) for language features, interpreter, and linter usage.
+> Veja o [README principal do WarPy40K](../README.md) para recursos da linguagem, interpretador e uso do linter.
 
-## Features
+## Recursos
 
-- Syntax highlighting for `.wp40k` files
-- Support for all WarPy40K language constructs:
-  - Commands (e.g., `the_emperor_protects`, `for_the_emperor`)
-  - Variable declarations and assignments
-  - Loop constructs (`for`, `while`)
-  - Conditional statements (`if`, `else`)
-  - Data types (`dg`, `servitor`, `blob`, `psykers`, `void_shields`)
-  - Operators (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`)
-  - Strings and numbers
+- Destaque de sintaxe para arquivos `.wp40k`
+- Suporte para todas as construções da linguagem WarPy40K:
+  - Comandos (ex: `the_emperor_protects`, `for_the_emperor`)
+  - Declarações e atribuições de variáveis
+  - Construções de loop (`for`, `while`)
+  - Declarações condicionais (`if`, `else`)
+  - Tipos de dados (`dg`, `servitor`, `blob`, `psykers`, `void_shields`)
+  - Operadores (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`)
+  - Strings e números
 
-## Installation
+## Instalação
 
-### Method 1: Using the Install Script (Recommended)
+### Método 1: Usando o Script de Instalação (Recomendado)
 ```bash
 cd warpy40k-sublime
 chmod +x install.sh
 ./install.sh
 ```
 
-### Method 2: Manual Installation
+### Método 2: Instalação Manual
 
 #### macOS
 ```bash

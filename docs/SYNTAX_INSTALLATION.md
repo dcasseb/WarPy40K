@@ -1,24 +1,24 @@
-# WarPy40K Syntax Highlighting - Complete Installation Guide
+# WarPy40K Destaque de Sintaxe - Guia Completo de Instalação
 
-This guide covers installing syntax highlighting for WarPy40K in both VS Code and Sublime Text.
+Este guia cobre a instalação do destaque de sintaxe para WarPy40K no VS Code e Sublime Text.
 
-## 🎨 VS Code Extension
+## 🎨 Extensão VS Code
 
-### ✅ **Already Installed!**
-The VS Code extension has been successfully installed on your machine.
+### ✅ **Já Instalada!**
+A extensão do VS Code foi instalada com sucesso em sua máquina.
 
-### **Features:**
-- Complete syntax highlighting for all WarPy40K constructs
-- Custom "WarPy40K Dark" theme with Warhammer 40K inspired colors
-- Auto-completion and file association
-- Support for all language features
+### **Recursos:**
+- Destaque de sintaxe completo para todas as construções WarPy40K
+- Tema personalizado "WarPy40K Dark" com cores inspiradas em Warhammer 40K
+- Auto-completar e associação de arquivos
+- Suporte para todos os recursos da linguagem
 
-### **Testing VS Code:**
-1. Open VS Code
-2. Create a new file with `.wp40k` extension
-3. Type some WarPy40K code:
+### **Testando VS Code:**
+1. Abra o VS Code
+2. Crie um novo arquivo com extensão `.wp40k`
+3. Digite algum código WarPy40K:
    ```warpy40k
-   # Test syntax highlighting
+   # Teste de destaque de sintaxe
    i: dg = 0
    for i in 1..5:
        the_emperor_protects()
@@ -26,26 +26,26 @@ The VS Code extension has been successfully installed on your machine.
            for_the_emperor()
    ```
 
-### **Using the WarPy40K Dark Theme:**
-1. Press `Ctrl+K Ctrl+T` (or `Cmd+K Cmd+T` on Mac)
-2. Select "WarPy40K Dark" from the theme list
+### **Usando o Tema WarPy40K Dark:**
+1. Pressione `Ctrl+K Ctrl+T` (ou `Cmd+K Cmd+T` no Mac)
+2. Selecione "WarPy40K Dark" da lista de temas
 
-## 🎨 Sublime Text Extension
+## 🎨 Extensão Sublime Text
 
-### ✅ **Already Installed!**
-The Sublime Text syntax highlighting has been successfully installed on your machine.
+### ✅ **Já Instalada!**
+O destaque de sintaxe do Sublime Text foi instalado com sucesso em sua máquina.
 
-### **Features:**
-- Complete syntax highlighting for all WarPy40K constructs
-- Automatic file association for `.wp40k` files
-- Support for all language features
+### **Recursos:**
+- Destaque de sintaxe completo para todas as construções WarPy40K
+- Associação automática de arquivos para arquivos `.wp40k`
+- Suporte para todos os recursos da linguagem
 
-### **Testing Sublime Text:**
-1. Open Sublime Text 4
-2. Create a new file with `.wp40k` extension
-3. Type some WarPy40K code:
+### **Testando Sublime Text:**
+1. Abra o Sublime Text 4
+2. Crie um novo arquivo com extensão `.wp40k`
+3. Digite algum código WarPy40K:
    ```warpy40k
-   # Test syntax highlighting
+   # Teste de destaque de sintaxe
    i: dg = 0
    for i in 1..5:
        the_emperor_protects()
@@ -53,47 +53,47 @@ The Sublime Text syntax highlighting has been successfully installed on your mac
            for_the_emperor()
    ```
 
-### **Manual Syntax Selection (if needed):**
-1. Open a `.wp40k` file
-2. Go to **View → Syntax → User → WarPy40K**
-3. Or press **Ctrl+Shift+P** and type "Set Syntax: WarPy40K"
+### **Seleção Manual de Sintaxe (se necessário):**
+1. Abra um arquivo `.wp40k`
+2. Vá para **View → Syntax → User → WarPy40K**
+3. Ou pressione **Ctrl+Shift+P** e digite "Set Syntax: WarPy40K"
 
-## 🎯 **What You Should See**
+## 🎯 **O Que Você Deve Ver**
 
-Both editors should highlight:
-- **Comments** (`#`) in green
-- **Commands** (`the_emperor_protects`, `for_the_emperor`, etc.) in function color
-- **Keywords** (`for`, `while`, `if`, `else`, `in`) in control flow color
-- **Variables** (`i`, `counter`) in variable color
-- **Types** (`dg`, `servitor`, `blob`, `psykers`, `void_shields`) in storage type color
-- **Numbers** (`0`, `1`, `5`) in number color
-- **Operators** (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`) in operator color
-- **Strings** (`"heretic"`) in string color
+Ambos os editores devem destacar:
+- **Comentários** (`#`) em verde
+- **Comandos** (`the_emperor_protects`, `for_the_emperor`, etc.) na cor de função
+- **Palavras-chave** (`for`, `while`, `if`, `else`, `in`) na cor de fluxo de controle
+- **Variáveis** (`i`, `counter`) na cor de variável
+- **Tipos** (`dg`, `servitor`, `blob`, `psykers`, `void_shields`) na cor de tipo de armazenamento
+- **Números** (`0`, `1`, `5`) na cor de número
+- **Operadores** (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`) na cor de operador
+- **Strings** (`"heretic"`) na cor de string
 
-## 🔧 **Troubleshooting**
+## 🔧 **Solução de Problemas**
 
-### VS Code Issues:
-1. **Extension not working**: Restart VS Code
-2. **No syntax highlighting**: Check if file has `.wp40k` extension
-3. **Theme not available**: Check if extension is properly installed
+### Problemas do VS Code:
+1. **Extensão não funcionando**: Reinicie o VS Code
+2. **Sem destaque de sintaxe**: Verifique se o arquivo tem extensão `.wp40k`
+3. **Tema não disponível**: Verifique se a extensão está instalada corretamente
 
-### Sublime Text Issues:
-1. **Syntax not appearing**: Restart Sublime Text
-2. **Manual selection needed**: Use View → Syntax → User → WarPy40K
-3. **Wrong colors**: Try a different color scheme
+### Problemas do Sublime Text:
+1. **Sintaxe não aparecendo**: Reinicie o Sublime Text
+2. **Seleção manual necessária**: Use View → Syntax → User → WarPy40K
+3. **Cores erradas**: Tente um esquema de cores diferente
 
-## 📁 **File Locations**
+## 📁 **Localização dos Arquivos**
 
-### VS Code Extension:
-- **Installed**: `~/.vscode/extensions/warpy40k-syntax-0.1.0/`
-- **Source**: `warpy40k-syntax/`
+### Extensão VS Code:
+- **Instalada**: `~/.vscode/extensions/warpy40k-syntax-0.1.0/`
+- **Fonte**: `warpy40k-syntax/`
 
-### Sublime Text Syntax:
-- **Syntax file**: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-syntax`
-- **Settings file**: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-settings`
-- **Source**: `warpy40k-sublime/`
+### Sintaxe Sublime Text:
+- **Arquivo de sintaxe**: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-syntax`
+- **Arquivo de configurações**: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-settings`
+- **Fonte**: `warpy40k-sublime/`
 
-## 🚀 **Quick Test Commands**
+## 🚀 **Comandos de Teste Rápido**
 
 ### VS Code:
 ```bash
@@ -107,10 +107,10 @@ cd warpy40k-sublime
 subl test-syntax.wp40k
 ```
 
-## 🎉 **Success!**
+## 🎉 **Sucesso!**
 
-Both VS Code and Sublime Text now have full syntax highlighting support for WarPy40K! You can write WarPy40K code with beautiful syntax highlighting in either editor.
+Tanto o VS Code quanto o Sublime Text agora têm suporte completo de destaque de sintaxe para WarPy40K! Você pode escrever código WarPy40K com belo destaque de sintaxe em qualquer editor.
 
 ---
 
-**For the Emperor!** 🛡️ 
+**Pelo Imperador!** 🛡️ 

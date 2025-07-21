@@ -44,8 +44,8 @@ fator       : numero
             | comparacao
             | "(" expressao ")"
 
-comparacao  : expressao op_comparacao expressao
-op_comparacao: "==" | "!=" | "<" | ">" | "<=" | ">="
+comparacao  : expressao OP_COMPARACAO expressao
+OP_COMPARACAO: "==" | "!=" | "<" | ">" | "<=" | ">="
 
 NOME_COMANDO: "the_emperor_protects"|"only_in_death_does_duty_end"|"even_in_death_i_still_serve"|"no_pity_no_remorse_no_fear"|"burn_the_heretic"|"pain_is_temporary_glory_is_forever"|"faith_is_my_shield"|"we_are_angels_of_death"|"we_are_one"|"WAAAGH"|"taste_chaos"|"for_the_emperor"|"purge_the_xenos"|"the_emperors_will_be_done"|"fear_is_the_mind_killer"|"ave_imperator"|"the_path_is_set"|"farseers_vision"|"more_dakka"|"ork_cunning"|"blood_for_the_blood_god"|"let_the_galaxy_burn"|"servitor"|"hear_the_emperors_voice"|"vox_cast"
 IF: "if"
@@ -129,9 +129,6 @@ class CommandNode:
         handler = COMMANDS.get(self.name)
         if handler:
             try:
-                # TODO: [vox_cast] Debug print for vox_cast call
-                if self.name == 'vox_cast':
-                    print(f"[DEBUG] vox_cast called with args: {self.args}")
                 # Resolve variables and evaluate expressions in arguments
                 resolved_args = []
                 for arg in self.args:
@@ -143,9 +140,6 @@ class CommandNode:
                         resolved_args.append(arg.evaluate(context))
                     else:
                         resolved_args.append(arg)
-                # TODO: [vox_cast] Debug print for resolved vox_cast arguments
-                if self.name == 'vox_cast':
-                    print(f"[DEBUG] vox_cast resolved_args: {resolved_args}")
                 if resolved_args:
                     return handler(*resolved_args)
                 else:
@@ -183,7 +177,6 @@ class DeclarationNode:
         elif isinstance(value, (SumNode, SubtractionNode, MultiplicationNode, DivisionNode, ModuloNode)):
             value = value.evaluate(context)
         context[self.varname] = value
-        print(f"[DECL] Variable {self.varname} of type {self.typename} declared")
 
 class LoopNode:
     def __init__(self, varname, start, end, commands):
@@ -383,7 +376,14 @@ class WarpyTransformer(Transformer):
         return programa
 
     def programa(self, *sentencas):
-        return sentencas
+        # Flatten any nested lists in sentencas
+        result = []
+        for item in sentencas:
+            if isinstance(item, (list, tuple)):
+                result.extend(item)
+            else:
+                result.append(item)
+        return result
 
     def sentenca(self, stmt):
         return stmt
@@ -401,7 +401,6 @@ class WarpyTransformer(Transformer):
         args = unwrap(children[1]) if len(children) > 1 else []
         if not isinstance(args, list):
             args = [args]
-        print(f"[DEBUG] comando: name={name}, args={args}")
         return CommandNode(name, args)
 
     def chamada(self, children):
@@ -411,8 +410,25 @@ class WarpyTransformer(Transformer):
             args = [args]
         return CommandNode(name, args)
 
-    def expressao(self, val):
-        return self._maybe_transform(val)
+    def expressao(self, children):
+        if len(children) == 1:
+            return unwrap(children[0])
+        
+        # Handle expressions with operators: term ((PLUS | MINUS) term)*
+        result = unwrap(children[0])
+        i = 1
+        while i < len(children):
+            if i + 1 < len(children):
+                operator = children[i]
+                right = unwrap(children[i + 1])
+                if str(operator) == '+':
+                    result = SumNode(result, right)
+                elif str(operator) == '-':
+                    result = SubtractionNode(result, right)
+                i += 2
+            else:
+                i += 1
+        return result
 
     def soma(self, children):
         left, right = map(unwrap, children)
@@ -422,8 +438,27 @@ class WarpyTransformer(Transformer):
         left, right = map(unwrap, children)
         return SubtractionNode(left, right)
 
-    def termo(self, val):
-        return self._maybe_transform(val)
+    def termo(self, children):
+        if len(children) == 1:
+            return unwrap(children[0])
+        
+        # Handle terms with operators: fator ((STAR | SLASH | PERCENT) fator)*
+        result = unwrap(children[0])
+        i = 1
+        while i < len(children):
+            if i + 1 < len(children):
+                operator = children[i]
+                right = unwrap(children[i + 1])
+                if str(operator) == '*':
+                    result = MultiplicationNode(result, right)
+                elif str(operator) == '/':
+                    result = DivisionNode(result, right)
+                elif str(operator) == '%':
+                    result = ModuloNode(result, right)
+                i += 2
+            else:
+                i += 1
+        return result
 
     def multiplicacao(self, children):
         left, right = map(unwrap, children)
@@ -472,6 +507,9 @@ class WarpyTransformer(Transformer):
         # comandos is a list of lists, flatten it
         if isinstance(comandos, list) and len(comandos) == 1 and isinstance(comandos[0], list):
             comandos = comandos[0]
+        # Ensure comandos is always a list
+        if not isinstance(comandos, list):
+            comandos = [comandos] if comandos else []
         if not isinstance(range_tuple, tuple) or len(range_tuple) != 2:
             raise ValueError("Invalid loop range.")
         start, end = range_tuple
@@ -481,6 +519,9 @@ class WarpyTransformer(Transformer):
         # children[0] is WHILE token, children[1] is [condition], children[2] is [commands]
         condition = unwrap(children[1][0]) if isinstance(children[1], list) and children[1] else unwrap(children[1])
         commands = unwrap(children[2]) if len(children) > 2 else []
+        # Ensure commands is always a list
+        if not isinstance(commands, list):
+            commands = [commands] if commands else []
         return WhileNode(condition, commands)
 
     def condicional(self, children):
@@ -512,12 +553,7 @@ class WarpyTransformer(Transformer):
 
     def comparacao(self, children):
         left, operator, right = map(unwrap, children)
-        return ComparisonNode(left, operator, right)
-
-    def op_comparacao(self, children):
-        if not children:
-            return None
-        return str(children[0])
+        return ComparisonNode(left, str(operator), right)
 
     def comandos(self, *stmts):
         def flatten(items):

@@ -1,33 +1,33 @@
-# WarPy40K Syntax Highlighting for VS Code
+# Destaque de Sintaxe WarPy40K para VS Code
 
-A Visual Studio Code extension that provides rich syntax highlighting for the WarPy40K programming language.
+Uma extensão do Visual Studio Code que fornece destaque de sintaxe rico para a linguagem de programação WarPy40K.
 
-> See the main [WarPy40K README](../README.md) for language features, interpreter, and linter usage.
+> Veja o [README principal do WarPy40K](../README.md) para recursos da linguagem, interpretador e uso do linter.
 
-## Features
+## Recursos
 
-- Syntax highlighting for `.wp40k` files
-- Support for all WarPy40K language constructs:
-  - Commands (e.g., `the_emperor_protects`, `for_the_emperor`)
-  - Variable declarations and assignments
-  - Loop constructs (`for`, `while`)
-  - Conditional statements (`if`, `else`)
-  - Data types (`dg`, `servitor`, `blob`, `psykers`, `void_shields`)
-  - Operators (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`)
-  - Strings and numbers
+- Destaque de sintaxe para arquivos `.wp40k`
+- Suporte para todas as construções da linguagem WarPy40K:
+  - Comandos (ex: `the_emperor_protects`, `for_the_emperor`)
+  - Declarações e atribuições de variáveis
+  - Construções de loop (`for`, `while`)
+  - Declarações condicionais (`if`, `else`)
+  - Tipos de dados (`dg`, `servitor`, `blob`, `psykers`, `void_shields`)
+  - Operadores (`+`, `=`, `==`, `!=`, `<`, `>`, `<=`, `>=`, `..`, `:`)
+  - Strings e números
 
-## Installation
+## Instalação
 
-### Method 1: Install from VSIX (Recommended)
+### Método 1: Instalar a partir do VSIX (Recomendado)
 
-1. Download the latest `warpy40k-syntax-*.vsix` file from the releases or build it locally.
-2. In VS Code, press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac) and select `Extensions: Install from VSIX...`.
-3. Select the `.vsix` file.
-4. Open a `.wp40k` file to see syntax highlighting.
+1. Baixe o arquivo `warpy40k-syntax-*.vsix` mais recente dos releases ou construa localmente.
+2. No VS Code, pressione `Ctrl+Shift+P` (ou `Cmd+Shift+P` no Mac) e selecione `Extensions: Install from VSIX...`.
+3. Selecione o arquivo `.vsix`.
+4. Abra um arquivo `.wp40k` para ver o destaque de sintaxe.
 
-### Method 2: Development Install
+### Método 2: Instalação de Desenvolvimento
 
-1. Clone the repository and open the `warpy40k-syntax` folder in VS Code.
+1. Clone o repositório e abra a pasta `warpy40k-syntax` no VS Code.
 2. Press `F5` to launch an Extension Development Host window.
 3. Open a `.wp40k` file to test the highlighting.
 

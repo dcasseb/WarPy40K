@@ -4,7 +4,6 @@ def run_test(grammar, test_code, token_name):
     class MyTransformer(Transformer):
         def __default_token__(self, children):
             val = children[0]
-            print(f"[DEBUG] {token_name} input: {val}")
             if hasattr(val, 'value'):
                 val = val.value
             val = str(val)
@@ -12,10 +11,8 @@ def run_test(grammar, test_code, token_name):
                 result = val[1:-1]
             else:
                 result = val
-            print(f"[DEBUG] {token_name} output: {result}")
             return result
         def comando(self, children):
-            print(f"[DEBUG] comando: args={children}")
             return children
     parser = Lark(grammar, parser="lalr", transformer=MyTransformer())
     print(f"\n[TEST] Grammar: {token_name}\nCode: {test_code}")
@@ -24,7 +21,6 @@ def run_test(grammar, test_code, token_name):
 # 1. MYSTRING in command, /"[^\"]*"/
 grammar1 = r'''
 start: comando
-# TODO: [vox_cast] Test for vox_cast command
 comando: "vox_cast" "(" MYSTRING ")"
 MYSTRING : /"[^\"]*"/
 %import common.WS
@@ -36,7 +32,6 @@ run_test(grammar1, test_code1, "MYSTRING")
 # 2. MYSTRING in command, /".+"/
 grammar2 = r'''
 start: comando
-# TODO: [vox_cast] Test for vox_cast command (alternate grammar)
 comando: "vox_cast" "(" MYSTRING ")"
 MYSTRING : /".+"/
 %import common.WS

@@ -1,79 +1,79 @@
-# WarPy40K Language Linter
+# Linter da Linguagem WarPy40K
 
-A comprehensive linter for the WarPy40K programming language. Checks syntax, validates commands and variables, and provides helpful error messages for robust code quality.
+Um linter abrangente para a linguagem de programação WarPy40K. Verifica sintaxe, valida comandos e variáveis, e fornece mensagens de erro úteis para qualidade robusta de código.
 
-> See the main [README.md](./README.md) for project overview, interpreter usage, and syntax highlighting.
+> Veja o [README.md](../README.md) principal para visão geral do projeto, uso do interpretador e realce de sintaxe.
 
-## Features
+## Recursos
 
-- **Syntax Validation**: Ensures WarPy40K syntax rules, command structure, variable declarations, assignments, loops, and conditionals are correct.
-- **Command Validation**: Verifies all commands exist in the WarPy40K command set, checks argument syntax, and validates string literals and variable references.
-- **Variable Analysis**: Tracks variable declarations and usage, detects undeclared/unused variables, and validates names against reserved keywords.
-- **Control Flow Analysis**: Validates for/while loop structures, loop variable declarations, and conditional expressions.
-- **Arithmetic Expression Validation**: Validates arithmetic operations (+, -, *, /, %) with proper operator precedence and parentheses.
-- **Code Style Checks**: Detects trailing whitespace, long lines, and unsupported comments.
+- **Validação de Sintaxe**: Garante que as regras de sintaxe do WarPy40K, estrutura de comandos, declarações de variáveis, atribuições, loops e condicionais estejam corretas.
+- **Validação de Comandos**: Verifica se todos os comandos existem no conjunto de comandos WarPy40K, verifica sintaxe de argumentos e valida literais de string e referências de variáveis.
+- **Análise de Variáveis**: Rastreia declarações e uso de variáveis, detecta variáveis não declaradas/não utilizadas e valida nomes contra palavras-chave reservadas.
+- **Análise de Fluxo de Controle**: Valida estruturas de loop for/while, declarações de variáveis de loop e expressões condicionais.
+- **Validação de Expressões Aritméticas**: Valida operações aritméticas (+, -, *, /, %) com precedência adequada de operadores e parênteses.
+- **Verificações de Estilo de Código**: Detecta espaços em branco finais, linhas longas e comentários não suportados.
 
-## Installation
+## Instalação
 
-The linter is a standalone Python script. Requires Python 3.6+ and no extra dependencies.
+O linter é um script Python independente. Requer Python 3.6+ e nenhuma dependência extra.
 
 ```bash
 chmod +x warpy_linter.py
 python3 warpy_linter.py tests/test_fibonacci.wp40k
 ```
 
-## Usage
+## Uso
 
 ```bash
 python3 warpy_linter.py tests/test_fibonacci.wp40k
 ```
 
-For help:
+Para ajuda:
 ```bash
 python3 warpy_linter.py --help
 ```
 
-### Exit Codes
-- `0` - No errors found (warnings may still be present)
-- `1` - Errors found
+### Códigos de Saída
+- `0` - Nenhum erro encontrado (avisos ainda podem estar presentes)
+- `1` - Erros encontrados
 
-## Error Codes and Messages
+## Códigos de Erro e Mensagens
 
-### ❌ ERRORS (Must be fixed)
+### ❌ ERROS (Devem ser corrigidos)
 
-| Code | Description | Example | Fix |
-|------|-------------|---------|-----|
-| `UNKNOWN_SYNTAX` | Invalid syntax | `invalid_syntax_here` | Check WarPy40K syntax documentation |
-| `UNKNOWN_COMMAND` | Command doesn't exist | `unknown_command()` | Use valid WarPy40K commands |
-| `MISSING_COLON` | Loop missing colon | `for i in 1..5` | Add `:` at end |
-| `INVALID_CONDITION` | Invalid condition | `while invalid_condition:` | Use comparison operators |
-| `UNDECLARED_VARIABLE` | Variable used before declaration | `x = undeclared_var` | Declare variable first |
-| `RESERVED_KEYWORD` | Using reserved keyword | `for: dg = 0` | Use different variable name |
-| `INVALID_VAR_DECL` | Invalid variable declaration | `bad_var: invalid_type = 123` | Use `variable: type = value` |
-| `MISSING_PARENTHESIS` | Missing closing parenthesis | `the_emperor_protects(` | Add `)` |
-| `INVALID_STRING` | Invalid string literal | `"unclosed_string` | Close string with `"` |
-| `EMPTY_EXPRESSION` | Empty expression | `x = ` | Provide valid expression |
-| `INVALID_ARITHMETIC` | Invalid arithmetic expression | `x = a / 0` | Check for division by zero or invalid operations |
+| Código | Descrição | Exemplo | Correção |
+|--------|-----------|---------|----------|
+| `UNKNOWN_SYNTAX` | Sintaxe inválida | `sintaxe_invalida_aqui` | Consulte a documentação de sintaxe do WarPy40K |
+| `UNKNOWN_COMMAND` | Comando não existe | `comando_desconhecido()` | Use comandos WarPy40K válidos |
+| `MISSING_COLON` | Loop sem dois pontos | `for i in 1..5` | Adicione `:` no final |
+| `INVALID_CONDITION` | Condição inválida | `while condicao_invalida:` | Use operadores de comparação |
+| `UNDECLARED_VARIABLE` | Variável usada antes da declaração | `x = var_nao_declarada` | Declare a variável primeiro |
+| `RESERVED_KEYWORD` | Usando palavra-chave reservada | `for: dg = 0` | Use nome de variável diferente |
+| `INVALID_VAR_DECL` | Declaração de variável inválida | `var_ruim: tipo_invalido = 123` | Use `variavel: tipo = valor` |
+| `MISSING_PARENTHESIS` | Parênteses de fechamento ausente | `the_emperor_protects(` | Adicione `)` |
+| `INVALID_STRING` | Literal de string inválida | `"string_nao_fechada` | Feche a string com `"` |
+| `EMPTY_EXPRESSION` | Expressão vazia | `x = ` | Forneça expressão válida |
+| `INVALID_ARITHMETIC` | Expressão aritmética inválida | `x = a / 0` | Verifique divisão por zero ou operações inválidas |
 
-### ⚠️ WARNINGS (Should be reviewed)
+### ⚠️ AVISOS (Devem ser revisados)
 
-| Code | Description | Example | Fix |
-|------|-------------|---------|-----|
-| `TRAILING_WHITESPACE` | Trailing spaces | `command() ` | Remove trailing spaces |
-| `LINE_TOO_LONG` | Line > 120 characters | Very long line... | Break into multiple lines |
-| `UNUSED_VARIABLE` | Variable declared but not used | `x: dg = 0` | Use variable or remove |
-| `UNDECLARED_VARIABLE` | Variable used but not declared | `x = some_var` | Declare variable first |
-| `INCOMPLETE_COMMAND` | Command appears incomplete | `command(` | Check for missing parentheses or syntax errors |
+| Código | Descrição | Exemplo | Correção |
+|--------|-----------|---------|----------|
+| `TRAILING_WHITESPACE` | Espaços finais | `command() ` | Remova espaços finais |
+| `LINE_TOO_LONG` | Linha > 120 caracteres | Linha muito longa... | Divida em múltiplas linhas |
+| `UNUSED_VARIABLE` | Variável declarada mas não usada | `x: dg = 0` | Use a variável ou remova |
+| `UNDECLARED_VARIABLE` | Variável usada mas não declarada | `x = alguma_var` | Declare a variável primeiro |
+| `INCOMPLETE_COMMAND` | Comando parece incompleto | `command(` | Verifique parênteses ausentes ou erros de sintaxe |
 
-### ℹ️ INFO (Informational)
+### ℹ️ INFO (Informativo)
 
-| Code | Description | Example |
-|------|-------------|---------|
-| `INCOMPLETE_COMMAND` | Command appears incomplete | `command(` |
+| Código | Descrição | Exemplo |
+|--------|-----------|---------|
+| `INCOMPLETE_COMMAND` | Comando parece incompleto | `command(` |
 
-## Examples
+## Exemplos
 
-### ✅ Valid WarPy40K Code
+### ✅ Código WarPy40K Válido
 ```warpy40k
 start: dg = 0
 end: dg = 5
@@ -93,27 +93,27 @@ for i in 1..end:
     if i >= start and i <= end:
         burn_the_heretic(a)
 
-# Arithmetic operations
+# Operações aritméticas
 x: dg = 10
 y: dg = 3
 z: dg = x * y + 2  # 32
 remainder: dg = x % y  # 1
 ```
 
-### ❌ Code with Errors
+### ❌ Código com Erros
 ```warpy40k
 invalid_syntax_here
 unknown_command()
-for i in 1..5  # Missing colon
-while invalid_condition:  # Invalid condition
+for i in 1..5  # Dois pontos ausentes
+while invalid_condition:  # Condição inválida
     for_the_emperor()
-x = undeclared_var  # Undeclared variable
+x = undeclared_var  # Variável não declarada
 ```
 
-## Integration
+## Integração
 
-### VS Code Integration
-Add to your VS Code settings for automatic linting:
+### Integração VS Code
+Adicione às suas configurações do VS Code para linting automático:
 
 ```json
 {
@@ -131,7 +131,7 @@ Add to your VS Code settings for automatic linting:
 ```
 
 ### Git Hooks
-Add to your pre-commit hook:
+Adicione ao seu hook pre-commit:
 
 ```bash
 #!/bin/bash
@@ -140,36 +140,36 @@ Add to your pre-commit hook:
 for file in $(git diff --cached --name-only --diff-filter=ACM | grep '\.wp40k$'); do
     python3 warpy_linter.py "$file"
     if [ $? -ne 0 ]; then
-        echo "Linting failed for $file"
+        echo "Linting falhou para $file"
         exit 1
     fi
 done
 ```
 
-## Configuration
+## Configuração
 
-The linter is designed to be lightweight and doesn't require configuration files. All rules are built-in and follow WarPy40K language specifications.
+O linter foi projetado para ser leve e não requer arquivos de configuração. Todas as regras são incorporadas e seguem as especificações da linguagem WarPy40K.
 
-## Troubleshooting & FAQ
+## Solução de Problemas e FAQ
 
-**Q: What arithmetic operations are supported?**
-A: WarPy40K supports addition (+), subtraction (-), multiplication (*), division (/), and modulo (%) with proper operator precedence and parentheses.
+**P: Quais operações aritméticas são suportadas?**
+R: WarPy40K suporta adição (+), subtração (-), multiplicação (*), divisão (/) e módulo (%) com precedência adequada de operadores e parênteses.
 
-**Q: Can I use the linter in my editor or CI?**
-A: Yes! See the integration section above for VS Code and Git hooks.
+**P: Posso usar o linter no meu editor ou CI?**
+R: Sim! Veja a seção de integração acima para VS Code e Git hooks.
 
-## Contributing
+## Contribuindo
 
-To extend the linter:
-1. Add new validation methods to the `WarPy40KLinter` class
-2. Update the `valid_commands` set with new commands
-3. Add new error codes to the `LintIssue` class
-4. Update this documentation
+Para estender o linter:
+1. Adicione novos métodos de validação à classe `WarPy40KLinter`
+2. Atualize o conjunto `valid_commands` com novos comandos
+3. Adicione novos códigos de erro à classe `LintIssue`
+4. Atualize esta documentação
 
-## License
+## Licença
 
-This linter is part of the WarPy40K project and follows the same license terms. See `LICENSE` for details.
+Este linter faz parte do projeto WarPy40K e segue os mesmos termos de licença. Veja `LICENSE` para detalhes.
 
 ---
 
-*For the Emperor!* 🛡️ 
+*Pelo Imperador!* 🛡️ 

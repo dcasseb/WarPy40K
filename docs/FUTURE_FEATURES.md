@@ -1,84 +1,84 @@
-# WarPy40K: Future Functionalities & Improvements
+# WarPy40K: Funcionalidades e Melhorias Futuras
 
-This document tracks planned features, bug fixes, and enhancements for the WarPy40K language and interpreter. Contributions and suggestions are welcome!
-
----
-
-## Core Interpreter Improvements
-
-- **Correct vox_cast Functionality**
-  - Ensure `vox_cast` prints string arguments as expected, including proper parsing and output of string literals.
-  - Add support for string concatenation and variable interpolation in `vox_cast`.
-
-- **Robust String Literal Handling**
-  - Improve parsing of string literals (support for escape sequences, multi-line strings, etc.).
-  - Fix any remaining issues with empty or malformed strings.
-
-- **Input Functionality**
-  - Ensure `hear_the_emperors_voice` reliably receives and returns user input.
-  - Add input validation and error handling for numeric and string types.
-
-- **Error Reporting & Debugging**
-  - Provide clearer error messages for syntax and runtime errors.
-  - Add line/column reporting for parse and execution errors.
-  - Implement a debug mode for step-by-step execution tracing.
-
-- **Type System Enhancements**
-  - Enforce type checking for variable assignments and command arguments.
-  - Add support for type inference and type conversion where appropriate.
+Este documento acompanha os recursos planejados, correções de bugs e melhorias para a linguagem WarPy40K e interpretador. Contribuições e sugestões são bem-vindas!
 
 ---
 
-## Language Features
+## Melhorias do Interpretador Central
 
-- **Functions & Procedures**
-  - Add user-defined functions with parameters and return values.
-  - Support for function calls and recursion.
+- **Funcionalidade Correta do vox_cast**
+  - Garantir que `vox_cast` imprima argumentos string conforme esperado, incluindo análise adequada e saída de literais string.
+  - Adicionar suporte para concatenação de strings e interpolação de variáveis em `vox_cast`.
 
-- **Data Structures**
-  - Implement arrays/lists and dictionaries/maps.
-  - Add support for iterating over collections.
+- **Manipulação Robusta de Literais String**
+  - Melhorar a análise de literais string (suporte para sequências de escape, strings multi-linha, etc.).
+  - Corrigir problemas restantes com strings vazias ou malformadas.
 
-- **Advanced Control Flow**
-  - Add support for `break`, `continue`, and `return` statements.
-  - Implement switch/case or pattern matching constructs.
+- **Funcionalidade de Entrada**
+  - Garantir que `hear_the_emperors_voice` receba e retorne entrada do usuário de forma confiável.
+  - Adicionar validação de entrada e tratamento de erros para tipos numéricos e string.
 
-- **Modules & Imports**
-  - Allow splitting code into multiple files and importing modules.
+- **Relatório de Erros e Depuração**
+  - Fornecer mensagens de erro mais claras para erros de sintaxe e execução.
+  - Adicionar relatório de linha/coluna para erros de análise e execução.
+  - Implementar um modo de depuração para rastreamento de execução passo a passo.
 
----
-
-## Tooling & Ecosystem
-
-- **Testing Framework**
-  - Create a test runner for `.wp40k` scripts with assertions and output checks.
-
-- **Linter Enhancements**
-  - Expand static analysis to catch more error types and style issues.
-  - Add auto-fix suggestions for common problems.
-
-- **Editor Integration**
-  - Improve syntax highlighting and autocompletion for VS Code and Sublime Text extensions.
-  - Add code snippets and documentation popups.
+- **Melhorias do Sistema de Tipos**
+  - Aplicar verificação de tipos para atribuições de variáveis e argumentos de comandos.
+  - Adicionar suporte para inferência de tipos e conversão de tipos quando apropriado.
 
 ---
 
-## Documentation
+## Recursos da Linguagem
 
-- **Language Reference**
-  - Keep the command reference and language guide up to date with new features.
+- **Funções e Procedimentos**
+  - Adicionar funções definidas pelo usuário com parâmetros e valores de retorno.
+  - Suporte para chamadas de função e recursão.
 
-- **Tutorials & Examples**
-  - Add more example scripts demonstrating advanced features and best practices.
+- **Estruturas de Dados**
+  - Implementar arrays/listas e dicionários/mapas.
+  - Adicionar suporte para iteração sobre coleções.
+
+- **Fluxo de Controle Avançado**
+  - Adicionar suporte para declarações `break`, `continue` e `return`.
+  - Implementar construções switch/case ou correspondência de padrões.
+
+- **Módulos e Importações**
+  - Permitir dividir código em múltiplos arquivos e importar módulos.
 
 ---
 
-## Known Issues
+## Ferramentas e Ecossistema
 
-- String literals may be parsed as empty strings in some cases (Earley parser limitation).
-- Error messages may lack context or line numbers.
-- Some commands may not handle arguments or types robustly.
+- **Framework de Testes**
+  - Criar um executor de testes para scripts `.wp40k` com asserções e verificações de saída.
+
+- **Melhorias do Linter**
+  - Expandir análise estática para capturar mais tipos de erro e questões de estilo.
+  - Adicionar sugestões de correção automática para problemas comuns.
+
+- **Integração com Editores**
+  - Melhorar destaque de sintaxe e autocompletar para extensões VS Code e Sublime Text.
+  - Adicionar snippets de código e popups de documentação.
 
 ---
 
-*Last updated: [15-07-2025]*
+## Documentação
+
+- **Referência da Linguagem**
+  - Manter a referência de comandos e guia da linguagem atualizados com novos recursos.
+
+- **Tutoriais e Exemplos**
+  - Adicionar mais scripts de exemplo demonstrando recursos avançados e melhores práticas.
+
+---
+
+## Problemas Conhecidos
+
+- Literais string podem ser analisados como strings vazias em alguns casos (limitação do parser Earley).
+- Mensagens de erro podem carecer de contexto ou números de linha.
+- Alguns comandos podem não lidar com argumentos ou tipos de forma robusta.
+
+---
+
+*Última atualização: [15-07-2025]*

@@ -1,80 +1,80 @@
-# WarPy40K Language Guide
+# Guia da Linguagem WarPy40K
 
-## Introduction
+## Introdução
 
-**WarPy40K** is a toy programming language inspired by the Warhammer 40,000 universe. It is designed to be fun, readable, and expressive, with a unique set of commands and a simple, approachable syntax. This guide covers every aspect of the language, from variables and types to loops, conditionals, and the full command set.
+**WarPy40K** é uma linguagem de programação experimental inspirada no universo Warhammer 40.000. Ela foi projetada para ser divertida, legível e expressiva, com um conjunto único de comandos e uma sintaxe simples e acessível. Este guia cobre todos os aspectos da linguagem, desde variáveis e tipos até loops, condicionais e o conjunto completo de comandos.
 
 ---
 
-## 1. File Structure and Running Code
+## 1. Estrutura de Arquivo e Execução de Código
 
-- WarPy40K source files use the `.wp40k` extension.
-- You can run a script with:
+- Arquivos fonte WarPy40K usam a extensão `.wp40k`.
+- Você pode executar um script com:
   ```bash
   python3 warpy_interpreter.py tests/your_script.wp40k
   ```
-- Lint your code for errors and style:
+- Verifique seu código para erros e estilo:
   ```bash
   python3 warpy_linter.py tests/your_script.wp40k
   ```
 
 ---
 
-## 2. Language Syntax Overview
+## 2. Visão Geral da Sintaxe da Linguagem
 
-### 2.1. Statements
+### 2.1. Declarações
 
-A WarPy40K program is a sequence of **statements**. Each statement can be:
-- A variable declaration
-- An assignment
-- A command call
-- A loop (`for` or `while`)
-- A conditional (`if`/`else`)
+Um programa WarPy40K é uma sequência de **declarações**. Cada declaração pode ser:
+- Uma declaração de variável
+- Uma atribuição
+- Uma chamada de comando
+- Um loop (`for` ou `while`)
+- Um condicional (`if`/`else`)
 
-### 2.2. Comments
+### 2.2. Comentários
 
-- Comments start with `#` and continue to the end of the line.
-- Comments are ignored during execution and can be used for documentation.
-- Example:
+- Comentários começam com `#` e continuam até o final da linha.
+- Comentários são ignorados durante a execução e podem ser usados para documentação.
+- Exemplo:
   ```warpy40k
-  # This is a comment
-  i: dg = 0  # Initialize counter
+  # Este é um comentário
+  i: dg = 0  # Inicializar contador
   ```
 
 ---
 
-## 3. Variables and Types
+## 3. Variáveis e Tipos
 
-### 3.1. Declaration
+### 3.1. Declaração
 
-Declare a variable with a type and initial value:
+Declare uma variável com um tipo e valor inicial:
 ```warpy40k
-variable_name: type = value
+nome_variavel: tipo = valor
 ```
-- Example:
+- Exemplo:
   ```warpy40k
   i: dg = 0
   name: servitor = "imperial_servant"
   power: psykers = 100
   ```
 
-#### Supported Types
+#### Tipos Suportados
 
-| Type         | Description                        | Example Value      |
+| Tipo         | Descrição                          | Valor de Exemplo   |
 |--------------|------------------------------------|--------------------|
-| `dg`         | Generic number (integer/float)     | `0`, `42`, `3.14`  |
-| `servitor`   | String or identifier               | `"servant"`        |
-| `blob`       | Arbitrary data (string/number)     | `"data"`, `123`    |
-| `psykers`    | Number, often for psychic power    | `100`              |
-| `void_shields` | Boolean or status                | `true`, `false`    |
+| `dg`         | Número genérico (inteiro/float)    | `0`, `42`, `3.14`  |
+| `servitor`   | String ou identificador            | `"servant"`        |
+| `blob`       | Dados arbitrários (string/número)  | `"data"`, `123`    |
+| `psykers`    | Número, frequentemente para poder psíquico | `100`              |
+| `void_shields` | Booleano ou status               | `true`, `false`    |
 
-### 3.2. Assignment
+### 3.2. Atribuição
 
-Assign a new value to an existing variable:
+Atribua um novo valor a uma variável existente:
 ```warpy40k
-variable_name = expression
+nome_variavel = expressão
 ```
-- Example:
+- Exemplo:
   ```warpy40k
   i = i + 1
   name = "new_name"
@@ -82,39 +82,39 @@ variable_name = expression
 
 ---
 
-## 4. Expressions
+## 4. Expressões
 
-### 4.1. Literals
+### 4.1. Literais
 
-- **Numbers:** `0`, `42`, `3.14`
+- **Números:** `0`, `42`, `3.14`
 - **Strings:** `"hello world"`
-- **Booleans:** `true`, `false` (as values for `void_shields`)
+- **Booleanos:** `true`, `false` (como valores para `void_shields`)
 
-### 4.2. Variables
+### 4.2. Variáveis
 
-- Use variable names directly in expressions:
+- Use nomes de variáveis diretamente em expressões:
   ```warpy40k
   result = i + power
   ```
 
-### 4.3. Arithmetic Operations
+### 4.3. Operações Aritméticas
 
-WarPy40K supports a full set of arithmetic operations with proper operator precedence:
+WarPy40K suporta um conjunto completo de operações aritméticas com precedência adequada de operadores:
 
-#### Basic Operators
+#### Operadores Básicos
 
-| Operator | Description | Example | Result |
-|----------|-------------|---------|--------|
-| `+` | Addition | `a + b` | Sum of a and b |
-| `-` | Subtraction | `a - b` | Difference of a and b |
-| `*` | Multiplication | `a * b` | Product of a and b |
-| `/` | Division | `a / b` | Quotient of a divided by b |
-| `%` | Modulo | `a % b` | Remainder of a divided by b |
+| Operador | Descrição | Exemplo | Resultado |
+|----------|-----------|---------|-----------|
+| `+` | Adição | `a + b` | Soma de a e b |
+| `-` | Subtração | `a - b` | Diferença de a e b |
+| `*` | Multiplicação | `a * b` | Produto de a e b |
+| `/` | Divisão | `a / b` | Quociente de a dividido por b |
+| `%` | Módulo | `a % b` | Resto de a dividido por b |
 
-#### Examples
+#### Exemplos
 
 ```warpy40k
-# Basic arithmetic
+# Aritmética básica
 a: dg = 10
 b: dg = 3
 c: dg = 2
@@ -126,58 +126,58 @@ quotient: dg = a / b   # 3.333...
 remainder: dg = a % b  # 1
 ```
 
-#### Operator Precedence
+#### Precedência de Operadores
 
-Arithmetic operators follow standard precedence rules (highest to lowest):
+Operadores aritméticos seguem regras de precedência padrão (maior para menor):
 
-1. **Parentheses** `()` - Highest precedence
-2. **Multiplication** `*`, **Division** `/`, **Modulo** `%` - Same precedence
-3. **Addition** `+`, **Subtraction** `-` - Same precedence
+1. **Parênteses** `()` - Precedência mais alta
+2. **Multiplicação** `*`, **Divisão** `/`, **Módulo** `%` - Mesma precedência
+3. **Adição** `+`, **Subtração** `-` - Mesma precedência
 
 ```warpy40k
-# Precedence examples
-result1: dg = 2 + 3 * 4    # 14 (not 20)
+# Exemplos de precedência
+result1: dg = 2 + 3 * 4    # 14 (não 20)
 result2: dg = (2 + 3) * 4  # 20
-result3: dg = 10 / 2 + 3   # 8 (not 2)
+result3: dg = 10 / 2 + 3   # 8 (não 2)
 result4: dg = 10 % 3 + 1   # 2
 ```
 
-#### Complex Expressions
+#### Expressões Complexas
 
-You can combine multiple operations in a single expression:
+Você pode combinar múltiplas operações em uma única expressão:
 
 ```warpy40k
-# Complex arithmetic
+# Aritmética complexa
 x: dg = 5
 y: dg = 2
 z: dg = 3
 
-# Multiple operations
+# Múltiplas operações
 result: dg = x * y + z     # 13 (5 * 2 + 3)
 result2: dg = x + y * z    # 11 (5 + 2 * 3)
 result3: dg = (x + y) * z  # 21 ((5 + 2) * 3)
 
-# Using modulo
+# Usando módulo
 remainder: dg = x % y      # 1
 power: dg = x * x % 3      # 1 (25 % 3)
 ```
 
-#### Division and Modulo Notes
+#### Notas sobre Divisão e Módulo
 
-- **Division** (`/`) always returns a float result, even for integer division
-- **Modulo** (`%`) works with both integers and floats
-- Division by zero will cause a runtime error
-- Modulo by zero will cause a runtime error
+- **Divisão** (`/`) sempre retorna um resultado float, mesmo para divisão de inteiros
+- **Módulo** (`%`) funciona com inteiros e floats
+- Divisão por zero causará um erro de execução
+- Módulo por zero causará um erro de execução
 
 ```warpy40k
-# Division examples
+# Exemplos de divisão
 a: dg = 10
 b: dg = 3
 
 div: dg = a / b        # 3.3333333333333335
 mod: dg = a % b        # 1
 
-# Float arithmetic
+# Aritmética com float
 c: dg = 10.5
 d: dg = 2.5
 
@@ -185,17 +185,17 @@ float_div: dg = c / d  # 4.2
 float_mod: dg = c % d  # 0.5
 ```
 
-### 4.4. Comparisons
+### 4.4. Comparações
 
-- Supported operators: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- Operadores suportados: `==`, `!=`, `<`, `>`, `<=`, `>=`
   ```warpy40k
   if i >= 0:
       ...
   ```
 
-### 4.5. Logical Operators
+### 4.5. Operadores Lógicos
 
-- Use `and` and `or` to combine conditions:
+- Use `and` e `or` para combinar condições:
   ```warpy40k
   if i > 0 and power < 100:
       ...
@@ -203,71 +203,71 @@ float_mod: dg = c % d  # 0.5
 
 ---
 
-## 5. Commands
+## 5. Comandos
 
-Commands are the heart of WarPy40K, each inspired by Warhammer 40K lore. They are called like functions, with or without arguments.
+Comandos são o coração do WarPy40K, cada um inspirado no lore de Warhammer 40K. Eles são chamados como funções, com ou sem argumentos.
 
-### 5.1. Command Syntax
+### 5.1. Sintaxe de Comandos
 
 ```warpy40k
-command_name()
-command_name(argument)
+nome_comando()
+nome_comando(argumento)
 ```
 
-### 5.2. Full Command List
+### 5.2. Lista Completa de Comandos
 
-| Command                        | Usage Example                        | Description/Effect (default implementation)                |
+| Comando                        | Exemplo de Uso                       | Descrição/Efeito (implementação padrão)                   |
 |--------------------------------|--------------------------------------|------------------------------------------------------------|
-| `the_emperor_protects()`       | `the_emperor_protects()`             | Logs: The Emperor protects!                                |
-| `only_in_death_does_duty_end()`| `only_in_death_does_duty_end()`      | Logs: Only in death does duty end.                         |
-| `even_in_death_i_still_serve()`| `even_in_death_i_still_serve()`      | Logs: Even in death, I still serve!                        |
-| `no_pity_no_remorse_no_fear()` | `no_pity_no_remorse_no_fear()`       | Logs: No pity, no remorse, no fear!                        |
-| `burn_the_heretic(arg)`        | `burn_the_heretic("traitor")`      | Logs: Burn the heretic: arg                                |
-| `pain_is_temporary_glory_is_forever()` | ... | Logs: Pain is temporary, glory is forever.           |
-| `faith_is_my_shield()`         | `faith_is_my_shield()`               | Logs: Faith is my shield!                                  |
-| `we_are_angels_of_death()`     | `we_are_angels_of_death()`           | Logs: We are the Angels of Death!                          |
-| `we_are_one()`                 | `we_are_one()`                       | Logs: We are one.                                          |
-| `WAAAGH()`                     | `WAAAGH()`                           | Logs: The orks rally!                                      |
-| `taste_chaos()`                | `taste_chaos()`                      | Logs: Warp corrupts your soul.                             |
-| `for_the_emperor()`            | `for_the_emperor()`                  | Logs: For the Emperor!                                     |
-| `purge_the_xenos(arg)`         | `purge_the_xenos("xenos")`         | Logs: Xenos purged: arg!                                   |
-| `the_emperors_will_be_done()`  | `the_emperors_will_be_done()`        | Logs: The Emperor's will is fulfilled.                     |
-| `fear_is_the_mind_killer()`    | `fear_is_the_mind_killer()`          | Logs: Fear suppressed.                                     |
-| `ave_imperator()`              | `ave_imperator()`                    | Logs: Ave Imperator! Glory to the Emperor!                 |
-| `the_path_is_set()`            | `the_path_is_set()`                  | Logs: The path is set. We proceed.                         |
-| `farseers_vision()`            | `farseers_vision()`                  | Logs: The Farseer foresees...                              |
-| `more_dakka()`                 | `more_dakka()`                       | Logs: More dakka! Fire everything!                         |
-| `ork_cunning()`                | `ork_cunning()`                      | Logs: Cunning plan!                                        |
-| `blood_for_the_blood_god()`    | `blood_for_the_blood_god()`          | Logs: Blood for the Blood God!                             |
-| `let_the_galaxy_burn()`        | `let_the_galaxy_burn()`              | Logs: The galaxy burns!                                    |
-| `servitor()`                   | `servitor()`                         | Returns: "servitor_instance" (for advanced use)          |
-| `vox_cast(msg)`                | `vox_cast("message")`                | Prints a message with [VOX] prefix (Warhammer 40K style print) |
+| `the_emperor_protects()`       | `the_emperor_protects()`             | Registra: The Emperor protects!                           |
+| `only_in_death_does_duty_end()`| `only_in_death_does_duty_end()`      | Registra: Only in death does duty end.                    |
+| `even_in_death_i_still_serve()`| `even_in_death_i_still_serve()`      | Registra: Even in death, I still serve!                   |
+| `no_pity_no_remorse_no_fear()` | `no_pity_no_remorse_no_fear()`       | Registra: No pity, no remorse, no fear!                   |
+| `burn_the_heretic(arg)`        | `burn_the_heretic("traitor")`        | Registra: Burn the heretic: arg                           |
+| `pain_is_temporary_glory_is_forever()` | ... | Registra: Pain is temporary, glory is forever.            |
+| `faith_is_my_shield()`         | `faith_is_my_shield()`               | Registra: Faith is my shield!                             |
+| `we_are_angels_of_death()`     | `we_are_angels_of_death()`           | Registra: We are the Angels of Death!                     |
+| `we_are_one()`                 | `we_are_one()`                       | Registra: We are one.                                     |
+| `WAAAGH()`                     | `WAAAGH()`                           | Registra: The orks rally!                                 |
+| `taste_chaos()`                | `taste_chaos()`                      | Registra: Warp corrupts your soul.                        |
+| `for_the_emperor()`            | `for_the_emperor()`                  | Registra: For the Emperor!                                |
+| `purge_the_xenos(arg)`         | `purge_the_xenos("xenos")`           | Registra: Xenos purged: arg!                              |
+| `the_emperors_will_be_done()`  | `the_emperors_will_be_done()`        | Registra: The Emperor's will is fulfilled.                |
+| `fear_is_the_mind_killer()`    | `fear_is_the_mind_killer()`          | Registra: Fear suppressed.                                |
+| `ave_imperator()`              | `ave_imperator()`                    | Registra: Ave Imperator! Glory to the Emperor!            |
+| `the_path_is_set()`            | `the_path_is_set()`                  | Registra: The path is set. We proceed.                    |
+| `farseers_vision()`            | `farseers_vision()`                  | Registra: The Farseer foresees...                         |
+| `more_dakka()`                 | `more_dakka()`                       | Registra: More dakka! Fire everything!                    |
+| `ork_cunning()`                | `ork_cunning()`                      | Registra: Cunning plan!                                   |
+| `blood_for_the_blood_god()`    | `blood_for_the_blood_god()`          | Registra: Blood for the Blood God!                        |
+| `let_the_galaxy_burn()`        | `let_the_galaxy_burn()`              | Registra: The galaxy burns!                               |
+| `servitor()`                   | `servitor()`                         | Retorna: "servitor_instance" (para uso avançado)         |
+| `vox_cast(msg)`                | `vox_cast("message")`                | Imprime mensagem com prefixo [VOX] (estilo Warhammer 40K) |
 
 ---
 
-## 6. Control Flow
+## 6. Fluxo de Controle
 
-### 6.1. For Loops
+### 6.1. Loops For
 
-Iterate over a range of numbers:
+Itere sobre um intervalo de números:
 ```warpy40k
 for i in 1..5:
     the_emperor_protects()
 ```
-- The loop variable (`i`) takes values from the start to the end (inclusive).
+- A variável do loop (`i`) assume valores do início ao fim (inclusive).
 
-### 6.2. While Loops
+### 6.2. Loops While
 
-Repeat as long as a condition is true:
+Repita enquanto uma condição for verdadeira:
 ```warpy40k
 while i < 10:
     for_the_emperor()
     i = i + 1
 ```
 
-### 6.3. Conditionals
+### 6.3. Condicionais
 
-Branch your code with `if` and `else`:
+Ramifique seu código com `if` e `else`:
 ```warpy40k
 if power > 50:
     the_emperors_will_be_done()
@@ -276,11 +276,11 @@ else:
     fear_is_the_mind_killer()
     burn_the_heretic("weak_psyker")
 ```
-- You can nest `if` statements and use logical operators.
+- Você pode aninhar declarações `if` e usar operadores lógicos.
 
 ---
 
-## 7. Example: Fibonacci Sequence
+## 7. Exemplo: Sequência de Fibonacci
 
 ```warpy40k
 start: dg = 0
@@ -304,34 +304,34 @@ for i in 1..end:
 
 ---
 
-## 8. Advanced Features
+## 8. Recursos Avançados
 
-- **Nested Loops:** You can nest `for` and `while` loops.
-- **Chained Conditionals:** Use `and`/`or` for complex conditions.
-- **String Concatenation:** Use `+` to concatenate strings (e.g., `"heretic_" + str(i)`).
-- **All commands can be called with or without arguments as specified.**
-
----
-
-## 9. Linting and Best Practices
-
-- Use the linter to catch errors and style issues before running your code.
-- Avoid using undeclared variables.
-- Keep lines under 120 characters for readability.
-- Use comments to document your code and explain complex logic.
+- **Loops Aninhados:** Você pode aninhar loops `for` e `while`.
+- **Condicionais Encadeados:** Use `and`/`or` para condições complexas.
+- **Concatenação de Strings:** Use `+` para concatenar strings (ex: `"heretic_" + str(i)`).
+- **Todos os comandos podem ser chamados com ou sem argumentos conforme especificado.**
 
 ---
 
-## 10. Editor Support
+## 9. Linting e Melhores Práticas
 
-- **VS Code:** Install the WarPy40K syntax extension for full highlighting and theme support.
-- **Sublime Text:** Use the provided syntax definition for rich highlighting.
+- Use o linter para capturar erros e questões de estilo antes de executar seu código.
+- Evite usar variáveis não declaradas.
+- Mantenha linhas com menos de 120 caracteres para legibilidade.
+- Use comentários para documentar seu código e explicar lógica complexa.
 
 ---
 
-## 11. Project Structure
+## 10. Suporte de Editores
 
-A typical WarPy40K project might look like:
+- **VS Code:** Instale a extensão de sintaxe WarPy40K para destaque completo e suporte a temas.
+- **Sublime Text:** Use a definição de sintaxe fornecida para destaque rico.
+
+---
+
+## 11. Estrutura do Projeto
+
+Um projeto WarPy40K típico pode parecer com:
 ```
 WarPy40K/
   warpy_interpreter.py
@@ -345,30 +345,30 @@ WarPy40K/
 
 ---
 
-## 12. Further Reading
+## 12. Leitura Adicional
 
-- See the `README.md` for installation and usage.
-- See the `LINTER_README.md` for error codes and integration.
-- Explore the `tests/` directory for more example scripts.
+- Veja o `README.md` para instalação e uso.
+- Veja o `LINTER_README.md` para códigos de erro e integração.
+- Explore o diretório `tests/` para mais scripts de exemplo.
 
 ---
 
-## 13. Quick Reference
+## 13. Referência Rápida
 
-### Variable Declaration
+### Declaração de Variável
 ```warpy40k
 x: dg = 10
 ```
-### Assignment
+### Atribuição
 ```warpy40k
 x = x + 1
 ```
-### For Loop
+### Loop For
 ```warpy40k
 for i in 1..5:
     command()
 ```
-### While Loop
+### Loop While
 ```warpy40k
 while x < 10:
     command()
@@ -380,7 +380,7 @@ if x > 0:
 else:
     other_command()
 ```
-### Command Call
+### Chamada de Comando
 ```warpy40k
 the_emperor_protects()
 burn_the_heretic("traitor")
@@ -388,13 +388,13 @@ burn_the_heretic("traitor")
 
 ---
 
-## 14. Tips
+## 14. Dicas
 
-- Use meaningful variable names.
-- Use the linter to check your code before running.
-- Explore the command set for fun and thematic output.
-- Try combining loops, conditionals, and commands to create interesting scripts!
+- Use nomes de variáveis significativos.
+- Use o linter para verificar seu código antes de executar.
+- Explore o conjunto de comandos para saída divertida e temática.
+- Tente combinar loops, condicionais e comandos para criar scripts interessantes!
 
 ---
 
-*For the Emperor!* 
+*Pelo Imperador!* 

@@ -1,96 +1,96 @@
-# WarPy40K Commands Reference
+# Referência de Comandos WarPy40K
 
-This document provides a complete reference of all commands available in the WarPy40K programming language. Print this page for a handy reference while writing WarPy40K scripts!
+Este documento fornece uma referência completa de todos os comandos disponíveis na linguagem de programação WarPy40K. Imprima esta página para ter uma referência útil ao escrever scripts WarPy40K!
 
-## Table of Contents
+## Índice
 
-1. [Command Categories](#command-categories)
-2. [Complete Command List](#complete-command-list)
-3. [Command Usage Examples](#command-usage-examples)
-4. [Input Function](#input-function)
-5. [Command Categories by Faction](#command-categories-by-faction)
-
----
-
-## Command Categories
-
-WarPy40K commands are organized into several thematic categories based on the Warhammer 40,000 universe:
-
-- **Imperial Commands**: Loyal to the Emperor
-- **Chaos Commands**: Corrupted by the Warp
-- **Ork Commands**: Brutal and cunning
-- **Eldar Commands**: Ancient and mysterious
-- **General Commands**: Universal utility
-- **Input Function**: User interaction
+1. [Categorias de Comandos](#categorias-de-comandos)
+2. [Lista Completa de Comandos](#lista-completa-de-comandos)
+3. [Exemplos de Uso de Comandos](#exemplos-de-uso-de-comandos)
+4. [Função de Entrada](#função-de-entrada)
+5. [Categorias de Comandos por Facção](#categorias-de-comandos-por-facção)
 
 ---
 
-## Complete Command List
+## Categorias de Comandos
 
-| Command | Category | Usage | Effect | Arguments |
-|---------|----------|-------|--------|-----------|
-| `the_emperor_protects()` | Imperial | `the_emperor_protects()` | Logs: "The Emperor protects!" | None |
-| `only_in_death_does_duty_end()` | Imperial | `only_in_death_does_duty_end()` | Logs: "Only in death does duty end." | None |
-| `even_in_death_i_still_serve()` | Imperial | `even_in_death_i_still_serve()` | Logs: "Even in death, I still serve!" | None |
-| `no_pity_no_remorse_no_fear()` | Imperial | `no_pity_no_remorse_no_fear()` | Logs: "No pity, no remorse, no fear!" | None |
-| `pain_is_temporary_glory_is_forever()` | Imperial | `pain_is_temporary_glory_is_forever()` | Logs: "Pain is temporary, glory is forever." | None |
-| `faith_is_my_shield()` | Imperial | `faith_is_my_shield()` | Logs: "Faith is my shield!" | None |
-| `we_are_angels_of_death()` | Imperial | `we_are_angels_of_death()` | Logs: "We are the Angels of Death!" | None |
-| `for_the_emperor()` | Imperial | `for_the_emperor()` | Logs: "For the Emperor!" | None |
-| `the_emperors_will_be_done()` | Imperial | `the_emperors_will_be_done()` | Logs: "The Emperor's will is fulfilled." | None |
-| `ave_imperator()` | Imperial | `ave_imperator()` | Logs: "Ave Imperator! Glory to the Emperor!" | None |
-| `burn_the_heretic(arg)` | Imperial | `burn_the_heretic("traitor")` | Logs: "Burn the heretic: [arg]" | String/Expression |
-| `purge_the_xenos(arg)` | Imperial | `purge_the_xenos("alien")` | Logs: "Xenos purged: [arg]!" | String/Expression |
-| `fear_is_the_mind_killer()` | Imperial | `fear_is_the_mind_killer()` | Logs: "Fear suppressed." | None |
-| `we_are_one()` | General | `we_are_one()` | Logs: "We are one." | None |
-| `WAAAGH()` | Ork | `WAAAGH()` | Logs: "The orks rally!" | None |
-| `more_dakka()` | Ork | `more_dakka()` | Logs: "More dakka! Fire everything!" | None |
-| `ork_cunning()` | Ork | `ork_cunning()` | Logs: "Cunning plan!" | None |
-| `taste_chaos()` | Chaos | `taste_chaos()` | Logs: "Warp corrupts your soul." | None |
-| `blood_for_the_blood_god()` | Chaos | `blood_for_the_blood_god()` | Logs: "Blood for the Blood God!" | None |
-| `let_the_galaxy_burn()` | Chaos | `let_the_galaxy_burn()` | Logs: "The galaxy burns!" | None |
-| `the_path_is_set()` | Eldar | `the_path_is_set()` | Logs: "The path is set. We proceed." | None |
-| `farseers_vision()` | Eldar | `farseers_vision()` | Logs: "The Farseer foresees..." | None |
-| `servitor()` | General | `servitor()` | Returns: "servitor_instance" | None |
-| `hear_the_emperors_voice(prompt)` | Input | `hear_the_emperors_voice("Enter name:")` | Prompts for user input | Optional string |
-| `vox_cast(msg)` | General | `vox_cast("message")` | Prints a message with [VOX] prefix (Warhammer 40K style print) | String/Expression |
+Os comandos WarPy40K são organizados em várias categorias temáticas baseadas no universo Warhammer 40.000:
+
+- **Comandos Imperiais**: Leais ao Imperador
+- **Comandos do Caos**: Corrompidos pela Warp
+- **Comandos Ork**: Brutais e astutos
+- **Comandos Eldar**: Antigos e misteriosos
+- **Comandos Gerais**: Utilitários universais
+- **Função de Entrada**: Interação com usuário
 
 ---
 
-## Command Usage Examples
+## Lista Completa de Comandos
 
-### Basic Command Calls
+| Comando | Categoria | Uso | Efeito | Argumentos |
+|---------|-----------|-----|--------|------------|
+| `the_emperor_protects()` | Imperial | `the_emperor_protects()` | Registra: "The Emperor protects!" | Nenhum |
+| `only_in_death_does_duty_end()` | Imperial | `only_in_death_does_duty_end()` | Registra: "Only in death does duty end." | Nenhum |
+| `even_in_death_i_still_serve()` | Imperial | `even_in_death_i_still_serve()` | Registra: "Even in death, I still serve!" | Nenhum |
+| `no_pity_no_remorse_no_fear()` | Imperial | `no_pity_no_remorse_no_fear()` | Registra: "No pity, no remorse, no fear!" | Nenhum |
+| `pain_is_temporary_glory_is_forever()` | Imperial | `pain_is_temporary_glory_is_forever()` | Registra: "Pain is temporary, glory is forever." | Nenhum |
+| `faith_is_my_shield()` | Imperial | `faith_is_my_shield()` | Registra: "Faith is my shield!" | Nenhum |
+| `we_are_angels_of_death()` | Imperial | `we_are_angels_of_death()` | Registra: "We are the Angels of Death!" | Nenhum |
+| `for_the_emperor()` | Imperial | `for_the_emperor()` | Registra: "For the Emperor!" | Nenhum |
+| `the_emperors_will_be_done()` | Imperial | `the_emperors_will_be_done()` | Registra: "The Emperor's will is fulfilled." | Nenhum |
+| `ave_imperator()` | Imperial | `ave_imperator()` | Registra: "Ave Imperator! Glory to the Emperor!" | Nenhum |
+| `burn_the_heretic(arg)` | Imperial | `burn_the_heretic("traitor")` | Registra: "Burn the heretic: [arg]" | String/Expressão |
+| `purge_the_xenos(arg)` | Imperial | `purge_the_xenos("alien")` | Registra: "Xenos purged: [arg]!" | String/Expressão |
+| `fear_is_the_mind_killer()` | Imperial | `fear_is_the_mind_killer()` | Registra: "Fear suppressed." | Nenhum |
+| `we_are_one()` | Geral | `we_are_one()` | Registra: "We are one." | Nenhum |
+| `WAAAGH()` | Ork | `WAAAGH()` | Registra: "The orks rally!" | Nenhum |
+| `more_dakka()` | Ork | `more_dakka()` | Registra: "More dakka! Fire everything!" | Nenhum |
+| `ork_cunning()` | Ork | `ork_cunning()` | Registra: "Cunning plan!" | Nenhum |
+| `taste_chaos()` | Caos | `taste_chaos()` | Registra: "Warp corrupts your soul." | Nenhum |
+| `blood_for_the_blood_god()` | Caos | `blood_for_the_blood_god()` | Registra: "Blood for the Blood God!" | Nenhum |
+| `let_the_galaxy_burn()` | Caos | `let_the_galaxy_burn()` | Registra: "The galaxy burns!" | Nenhum |
+| `the_path_is_set()` | Eldar | `the_path_is_set()` | Registra: "The path is set. We proceed." | Nenhum |
+| `farseers_vision()` | Eldar | `farseers_vision()` | Registra: "The Farseer foresees..." | Nenhum |
+| `servitor()` | Geral | `servitor()` | Retorna: "servitor_instance" | Nenhum |
+| `hear_the_emperors_voice(prompt)` | Entrada | `hear_the_emperors_voice("Enter name:")` | Solicita entrada do usuário | String opcional |
+| `vox_cast(msg)` | Geral | `vox_cast("message")` | Imprime mensagem com prefixo [VOX] (estilo Warhammer 40K) | String/Expressão |
+
+---
+
+## Exemplos de Uso de Comandos
+
+### Chamadas Básicas de Comandos
 ```warpy40k
-# Simple commands without arguments
+# Comandos simples sem argumentos
 the_emperor_protects()
 for_the_emperor()
 WAAAGH()
 
-# Commands with string arguments
+# Comandos com argumentos string
 burn_the_heretic("traitor")
 purge_the_xenos("tyranid")
 
-# Commands with variable arguments
+# Comandos com argumentos de variáveis
 target: servitor = "heretic"
 burn_the_heretic(target)
 ```
 
-### Commands in Variables
+### Comandos em Variáveis
 ```warpy40k
-# Store command result in variable
+# Armazenar resultado de comando em variável
 result: servitor = servitor()
 
-# Use input in variable declaration
+# Usar entrada na declaração de variável
 name: servitor = hear_the_emperors_voice("Enter your name:")
 ```
 
-### Commands in Expressions
+### Comandos em Expressões
 ```warpy40k
-# Use input in arithmetic expressions
+# Usar entrada em expressões aritméticas
 count: dg = hear_the_emperors_voice("Enter count:")
 result: dg = count + 5
 
-# Use input in conditionals
+# Usar entrada em condicionais
 power: dg = hear_the_emperors_voice("Enter power level:")
 if power > 50:
     the_emperors_will_be_done()
@@ -98,23 +98,23 @@ else:
     fear_is_the_mind_killer()
 ```
 
-### Commands in Loops
+### Comandos em Loops
 ```warpy40k
-# Commands in for loops
+# Comandos em loops for
 for i in 1..5:
     burn_the_heretic("heretic_" + str(i))
     the_emperor_protects()
 
-# Commands in while loops
+# Comandos em loops while
 counter: dg = 3
 while counter > 0:
     for_the_emperor()
     counter = counter - 1
 ```
 
-### Commands in Conditionals
+### Comandos em Condicionais
 ```warpy40k
-# Imperial vs Chaos choice
+# Escolha Imperial vs Caos
 loyalty: dg = hear_the_emperors_voice("Enter loyalty level (1-100):")
 
 if loyalty >= 50:
@@ -129,29 +129,29 @@ else:
 
 ---
 
-## Input Function
+## Função de Entrada
 
-The `hear_the_emperors_voice()` function is the primary way to get user input in WarPy40K:
+A função `hear_the_emperors_voice()` é a forma principal de obter entrada do usuário em WarPy40K:
 
-### Syntax
+### Sintaxe
 ```warpy40k
-hear_the_emperors_voice()                    # Uses default prompt
-hear_the_emperors_voice("Custom prompt:")    # Uses custom prompt
+hear_the_emperors_voice()                    # Usa prompt padrão
+hear_the_emperors_voice("Custom prompt:")    # Usa prompt personalizado
 ```
 
-### Usage Examples
+### Exemplos de Uso
 ```warpy40k
-# Basic input
+# Entrada básica
 name: servitor = hear_the_emperors_voice("Enter your name:")
 
-# Numeric input (automatically converted for dg type)
+# Entrada numérica (automaticamente convertida para tipo dg)
 age: dg = hear_the_emperors_voice("Enter your age:")
 
-# Input in expressions
+# Entrada em expressões
 count: dg = hear_the_emperors_voice("Enter count:")
 total: dg = count * 2 + 10
 
-# Input in conditionals
+# Entrada em condicionais
 power: dg = hear_the_emperors_voice("Enter power level:")
 if power > 75:
     the_emperors_will_be_done()
@@ -161,16 +161,16 @@ else:
     fear_is_the_mind_killer()
 ```
 
-### Type Conversion
-- When used with `dg` type variables, input strings are automatically converted to numbers
-- Invalid conversions (non-numeric input for `dg` type) will cause runtime errors
-- Empty input for `dg` type will cause runtime errors
+### Conversão de Tipo
+- Quando usado com variáveis do tipo `dg`, strings de entrada são automaticamente convertidas para números
+- Conversões inválidas (entrada não numérica para tipo `dg`) causarão erros de execução
+- Entrada vazia para tipo `dg` causará erros de execução
 
 ---
 
-## Command Categories by Faction
+## Categorias de Comandos por Facção
 
-### Imperial Commands (Loyal to the Emperor)
+### Comandos Imperiais (Leais ao Imperador)
 ```warpy40k
 the_emperor_protects()           # The Emperor protects!
 only_in_death_does_duty_end()    # Only in death does duty end.
@@ -187,27 +187,27 @@ purge_the_xenos(arg)             # Xenos purged: [arg]!
 fear_is_the_mind_killer()        # Fear suppressed.
 ```
 
-### Chaos Commands (Corrupted by the Warp)
+### Comandos do Caos (Corrompidos pela Warp)
 ```warpy40k
 taste_chaos()                    # Warp corrupts your soul.
 blood_for_the_blood_god()        # Blood for the Blood God!
 let_the_galaxy_burn()            # The galaxy burns!
 ```
 
-### Ork Commands (Brutal and Cunning)
+### Comandos Ork (Brutais e Astutos)
 ```warpy40k
 WAAAGH()                         # The orks rally!
 more_dakka()                     # More dakka! Fire everything!
 ork_cunning()                    # Cunning plan!
 ```
 
-### Eldar Commands (Ancient and Mysterious)
+### Comandos Eldar (Antigos e Misteriosos)
 ```warpy40k
 the_path_is_set()                # The path is set. We proceed.
 farseers_vision()                # The Farseer foresees...
 ```
 
-### General Commands (Universal)
+### Comandos Gerais (Universais)
 ```warpy40k
 we_are_one()                     # We are one.
 servitor()                       # Returns "servitor_instance"
@@ -216,44 +216,44 @@ hear_the_emperors_voice(prompt)  # User input function
 
 ---
 
-## Quick Reference Card
+## Cartão de Referência Rápida
 
-### Most Common Commands
+### Comandos Mais Comuns
 ```warpy40k
-the_emperor_protects()           # Basic Imperial command
-for_the_emperor()                # Imperial rallying cry
-burn_the_heretic("target")       # Imperial action
-WAAAGH()                         # Ork rally
-taste_chaos()                    # Chaos corruption
-hear_the_emperors_voice()        # Get user input
+the_emperor_protects()           # Comando Imperial básico
+for_the_emperor()                # Grito de guerra Imperial
+burn_the_heretic("target")       # Ação Imperial
+WAAAGH()                         # Rally Ork
+taste_chaos()                    # Corrupção do Caos
+hear_the_emperors_voice()        # Obter entrada do usuário
 ```
 
-### Command Patterns
+### Padrões de Comandos
 ```warpy40k
-# Simple command
+# Comando simples
 command_name()
 
-# Command with argument
+# Comando com argumento
 command_name("argument")
 command_name(variable)
 
-# Command in variable
+# Comando em variável
 result: servitor = servitor()
 
-# Command in expression
+# Comando em expressão
 input: dg = hear_the_emperors_voice("Prompt:")
 ```
 
 ---
 
-## Tips for Using Commands
+## Dicas para Usar Comandos
 
-1. **Choose Thematically**: Use Imperial commands for loyalist programs, Chaos for corruption themes, etc.
-2. **Combine with Logic**: Use commands in conditionals and loops for dynamic behavior
-3. **User Interaction**: Use `hear_the_emperors_voice()` for interactive programs
-4. **Error Handling**: Commands with arguments will handle type conversion automatically
-5. **Debugging**: Commands print their effects, making them useful for program flow tracking
+1. **Escolha Tematicamente**: Use comandos Imperiais para programas leais, Caos para temas de corrupção, etc.
+2. **Combine com Lógica**: Use comandos em condicionais e loops para comportamento dinâmico
+3. **Interação do Usuário**: Use `hear_the_emperors_voice()` para programas interativos
+4. **Tratamento de Erros**: Comandos com argumentos lidarão com conversão de tipo automaticamente
+5. **Depuração**: Comandos imprimem seus efeitos, tornando-os úteis para rastreamento de fluxo do programa
 
 ---
 
-*For the Emperor! The WarPy40K language serves the Imperium of Man.* 
+*Pelo Imperador! A linguagem WarPy40K serve ao Império da Humanidade.* 

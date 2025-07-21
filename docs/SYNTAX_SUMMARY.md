@@ -1,74 +1,74 @@
-#  WarPy40K Syntax Highlighting - Complete Implementation
+# Realce de Sintaxe WarPy40K - Implementação Completa
 
-##  **Successfully Implemented**
+## **Implementado com Sucesso**
 
-Both VS Code and Sublime Text now have full syntax highlighting support for the WarPy40K programming language!
+Tanto o VS Code quanto o Sublime Text agora têm suporte completo de realce de sintaxe para a linguagem de programação WarPy40K!
 
-##  **Implementation Summary**
+## **Resumo da Implementação**
 
-### **VS Code Extension** ✅
-- **Status**: Installed and working
-- **Extension ID**: `warpy40k.warpy40k-syntax`
-- **Package**: `warpy40k-syntax-0.1.0.vsix` (8.74KB)
-- **Features**:
-  - Complete syntax highlighting
-  - Custom "WarPy40K Dark" theme
-  - File association for `.wp40k` files
-  - All language constructs supported
+### **Extensão VS Code** ✅
+- **Status**: Instalada e funcionando
+- **ID da Extensão**: `warpy40k.warpy40k-syntax`
+- **Pacote**: `warpy40k-syntax-0.1.0.vsix` (8.74KB)
+- **Recursos**:
+  - Realce de sintaxe completo
+  - Tema personalizado "WarPy40K Dark"
+  - Associação de arquivos para arquivos `.wp40k`
+  - Todas as construções da linguagem suportadas
 
-### **Sublime Text Extension** ✅
-- **Status**: Installed and working
-- **Files**: 
+### **Extensão Sublime Text** ✅
+- **Status**: Instalada e funcionando
+- **Arquivos**: 
   - `WarPy40K.sublime-syntax` (2.87KB)
   - `WarPy40K.sublime-settings` (87B)
-- **Features**:
-  - Complete syntax highlighting
-  - File association for `.wp40k` files
-  - All language constructs supported
+- **Recursos**:
+  - Realce de sintaxe completo
+  - Associação de arquivos para arquivos `.wp40k`
+  - Todas as construções da linguagem suportadas
 
-##  **Language Features Supported**
+## **Recursos da Linguagem Suportados**
 
-### **Core Language Constructs**
-- ✅ **Commands** (22 total): `the_emperor_protects()`, `for_the_emperor()`, etc.
-- ✅ **Variable Declarations**: `i: dg = 0`
-- ✅ **Assignments**: `i = i + 1`
-- ✅ **Loops**: `for i in 1..5:` and `while x < 3:`
-- ✅ **Conditionals**: `if i > 0:` and `else:`
-- ✅ **Data Types**: `dg`, `servitor`, `blob`, `psykers`, `void_shields`
+### **Construções Principais da Linguagem**
+- ✅ **Comandos** (22 total): `the_emperor_protects()`, `for_the_emperor()`, etc.
+- ✅ **Declarações de Variáveis**: `i: dg = 0`
+- ✅ **Atribuições**: `i = i + 1`
+- ✅ **Loops**: `for i in 1..5:` e `while x < 3:`
+- ✅ **Condicionais**: `if i > 0:` e `else:`
+- ✅ **Tipos de Dados**: `dg`, `servitor`, `blob`, `psykers`, `void_shields`
 
-### **Operators & Expressions**
-- ✅ **Arithmetic**: `+`
-- ✅ **Assignment**: `=`
-- ✅ **Comparison**: `==`, `!=`, `<`, `>`, `<=`, `>=`
-- ✅ **Range**: `..`
-- ✅ **Declaration**: `:`
+### **Operadores e Expressões**
+- ✅ **Aritméticos**: `+`
+- ✅ **Atribuição**: `=`
+- ✅ **Comparação**: `==`, `!=`, `<`, `>`, `<=`, `>=`
+- ✅ **Intervalo**: `..`
+- ✅ **Declaração**: `:`
 
-### **Literals & Comments**
+### **Literais e Comentários**
 - ✅ **Strings**: `"heretic"`
-- ✅ **Numbers**: `0`, `1`, `42`, `3.14`
-- ✅ **Comments**: `# This is a comment`
+- ✅ **Números**: `0`, `1`, `42`, `3.14`
+- ✅ **Comentários**: `# Isto é um comentário`
 
-##  **Color Scheme**
+## **Esquema de Cores**
 
-### **VS Code (WarPy40K Dark Theme)**
-- **Commands**: Bold red (`#ff6b6b`)
-- **Types**: Italic teal (`#4ec9b0`)
-- **Keywords**: Bold purple (`#c586c0`)
-- **Variables**: Light blue (`#9cdcfe`)
-- **Comments**: Italic green (`#6a9955`)
-- **Strings**: Orange (`#ce9178`)
-- **Numbers**: Light green (`#b5cea8`)
+### **VS Code (Tema WarPy40K Dark)**
+- **Comandos**: Vermelho negrito (`#ff6b6b`)
+- **Tipos**: Azul-esverdeado itálico (`#4ec9b0`)
+- **Palavras-chave**: Roxo negrito (`#c586c0`)
+- **Variáveis**: Azul claro (`#9cdcfe`)
+- **Comentários**: Verde itálico (`#6a9955`)
+- **Strings**: Laranja (`#ce9178`)
+- **Números**: Verde claro (`#b5cea8`)
 
-### **Sublime Text (Adaptive)**
-- Uses standard scope names that work with any color scheme
-- Automatically adapts to your current theme
-- Consistent highlighting across different themes
+### **Sublime Text (Adaptativo)**
+- Usa nomes de escopo padrão que funcionam com qualquer esquema de cores
+- Adapta-se automaticamente ao seu tema atual
+- Realce consistente entre diferentes temas
 
-##  **File Structure**
+## **Estrutura de Arquivos**
 
 ```
 WarPy40K/
-├── warpy40k-syntax/           # VS Code Extension
+├── warpy40k-syntax/           # Extensão VS Code
 │   ├── package.json
 │   ├── syntaxes/warpy40k.tmLanguage.json
 │   ├── themes/warpy40k-dark.json
@@ -76,19 +76,19 @@ WarPy40K/
 │   ├── install.sh
 │   ├── README.md
 │   └── test-syntax.wp40k
-├── warpy40k-sublime/          # Sublime Text Extension
+├── warpy40k-sublime/          # Extensão Sublime Text
 │   ├── WarPy40K.sublime-syntax
 │   ├── WarPy40K.sublime-settings
 │   ├── install.sh
 │   └── README.md
-├── SYNTAX_INSTALLATION.md     # Complete installation guide
-├── SYNTAX_SUMMARY.md          # This summary
-└── test-both-editors.wp40k    # Test file for both editors
+├── SYNTAX_INSTALLATION.md     # Guia completo de instalação
+├── SYNTAX_SUMMARY.md          # Este resumo
+└── test-both-editors.wp40k    # Arquivo de teste para ambos editores
 ```
 
-##  **Testing**
+## **Testes**
 
-### **Quick Test Commands**
+### **Comandos de Teste Rápido**
 ```bash
 # VS Code
 code test-both-editors.wp40k
@@ -97,37 +97,37 @@ code test-both-editors.wp40k
 subl test-both-editors.wp40k
 ```
 
-### **What to Look For**
-1. **Comments** in green
-2. **Commands** highlighted as functions
-3. **Keywords** in control flow color
-4. **Variables** in variable color
-5. **Types** in storage type color
-6. **Numbers** in number color
-7. **Operators** in operator color
-8. **Strings** in string color
+### **O Que Observar**
+1. **Comentários** em verde
+2. **Comandos** destacados como funções
+3. **Palavras-chave** na cor de fluxo de controle
+4. **Variáveis** na cor de variável
+5. **Tipos** na cor de tipo de armazenamento
+6. **Números** na cor de número
+7. **Operadores** na cor de operador
+8. **Strings** na cor de string
 
-## 🔧 **Installation Status**
+## 🔧 **Status da Instalação**
 
 ### **VS Code** ✅
-- Extension installed: `warpy40k.warpy40k-syntax`
-- Package created: `warpy40k-syntax-0.1.0.vsix`
-- Theme available: "WarPy40K Dark"
+- Extensão instalada: `warpy40k.warpy40k-syntax`
+- Pacote criado: `warpy40k-syntax-0.1.0.vsix`
+- Tema disponível: "WarPy40K Dark"
 
 ### **Sublime Text** ✅
-- Syntax file: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-syntax`
-- Settings file: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-settings`
-- File association: `.wp40k` files automatically use WarPy40K syntax
+- Arquivo de sintaxe: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-syntax`
+- Arquivo de configurações: `~/.config/sublime-text/Packages/User/WarPy40K.sublime-settings`
+- Associação de arquivo: arquivos `.wp40k` usam automaticamente a sintaxe WarPy40K
 
-##  **Mission Accomplished!**
+## **Missão Cumprida!**
 
-The WarPy40K programming language now has professional-grade syntax highlighting support in both major code editors:
+A linguagem de programação WarPy40K agora tem suporte de realce de sintaxe de nível profissional em ambos os principais editores de código:
 
-- **VS Code**: Full extension with custom theme
-- **Sublime Text**: Native syntax definition
+- **VS Code**: Extensão completa com tema personalizado
+- **Sublime Text**: Definição de sintaxe nativa
 
-Developers can now write WarPy40K code with beautiful, accurate syntax highlighting in their preferred editor! 🛡️
+Desenvolvedores agora podem escrever código WarPy40K com realce de sintaxe bonito e preciso em seu editor preferido!
 
 ---
 
-**For the Emperor!** 
+**Pelo Imperador!** 
