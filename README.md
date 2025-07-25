@@ -1,6 +1,6 @@
 # WarPy40K
 
-A Warhammer 40K-themed toy programming language and interpreter, designed for fun, learning, and extensibility. WarPy40K features a custom syntax, unique commands, and robust tooling including a linter and syntax highlighting extensions for VS Code and Sublime Text.
+É uma linguagem DSL de programação e interpretador "toy" com tema de Warhammer 40K, projetada para diversão, aprendizado e extensibilidade. WarPy40K apresenta sintaxe personalizada, comandos exclusivos e ferramentas robustas, incluindo um linter e extensões de destaque de sintaxe para VS Code e Sublime Text.
 
 ## Sobre o Universo Warhammer 40K
 
@@ -87,33 +87,29 @@ O WarPy40K não é apenas uma linguagem de programação - é uma homenagem a um
 
 ## Features
 
-- **Custom Language**: Warhammer 40K-inspired syntax and commands
-- **Arithmetic Operations**: Full support for addition (+), subtraction (-), multiplication (*), division (/), and modulo (%) with proper operator precedence
-- **Control Flow**: If-else conditionals, for loops, and while loops
-- **Variables**: Typed variable declarations and assignments
-- **Interpreter**: Execute `.wp40k` scripts directly with Python
-- **Linter**: Comprehensive static analysis for syntax, variables, and style ([see linter docs](./docs/LINTER_README.md))
-- **Syntax Highlighting**: Official extensions for VS Code and Sublime Text
-- **Test Files**: Example scripts for learning and validation
+- **Linguagem Personalizada**: Sintaxe e comandos inspirados no Warhammer 40K
+- **Operações Aritméticas**: Suporte completo para adição (+), subtração (-), multiplicação (*), divisão (/) e módulo (%) com a devida precedência de operadores
+- **Fluxo de Controle**: Condicionais if-else, loops for e while
+- **Variáveis**: Declarações e atribuições de variáveis tipadas
+- **Interpretador**: Executa scripts `.wp40k` diretamente com Python
+- **Linter**: Análise estática abrangente de sintaxe, variáveis e estilo ([consulte a documentação do linter](./docs/LINTER_README.md))
+- **Destaque de Sintaxe**: Extensões oficiais para VS Code e Sublime Text
+- **Arquivos de Teste**: Scripts de exemplo para aprendizado e validação
+  
+## Instalação
 
-## Installation
-
-1. Install dependencies:
+1. Instale as dependências:
    ```bash
    pip install lark-parser
    ```
 
-2. Clone the repository:
+2. Clone o repositório:
    ```bash
    git clone https://github.com/YOUR-USERNAME/WarPy40K.git
    cd WarPy40K
    ```
 
-## Integrantes
-
-- Nome: [Seu Nome] - Matrícula: [Sua Matrícula] - Turma: [Sua Turma]
-
-## Usage
+## Uso
 
 To run a WarPy40K script:
 ```bash
@@ -125,32 +121,32 @@ To lint a script:
 python3 warpy_linter.py tests/test_fibonacci.wp40k
 ```
 
-## Example
+## Exemplo
 
 ```warpy40k
-# Basic arithmetic operations
+# Operações aritméticas básicas
 a: dg = 10
 b: dg = 3
 c: dg = 2
 
-# Addition and subtraction
+# Adição e subtração
 result1: dg = a + b      # 13
 result2: dg = a - b      # 7
 
-# Multiplication and division
+# Multiplicação e divisão
 result3: dg = a * b      # 30
 result4: dg = a / b      # 3.333...
 
-# Modulo operation
+# Operação módulo
 result5: dg = a % b      # 1
 
-# Complex expressions with precedence
-complex: dg = a + b * c  # 16 (not 26 due to precedence)
+# Expressões complexas com precedência
+complex: dg = a + b * c  # 16 (não é 26 devido à precedência)
 
-# Parentheses to override precedence
+# Parênteses para substituir a precedência
 paren: dg = (a + b) * c  # 26
 
-# Fibonacci sequence with arithmetic
+# Sequência de Fibonacci com aritmética
 start: dg = 0
 end: dg = 5
 
@@ -172,10 +168,10 @@ for i in 1..end:
 
 ## Tooling
 
-- **Linter**: See [LINTER_README.md](./docs/LINTER_README.md) for error codes, integration, and advanced usage.
+- **Linter**: Veja [LINTER_README.md](./docs/LINTER_README.md) para erros de código, integração, e uso avançado.
 - **Syntax Highlighting**:
-  - VS Code: See `warpy40k-syntax/README.md`
-  - Sublime Text: See `warpy40k-sublime/README.md`
+  - VS Code: Veja `warpy40k-syntax/README.md`
+  - Sublime Text: Veja `warpy40k-sublime/README.md`
 
 ## Referências
 
