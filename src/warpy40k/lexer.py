@@ -39,7 +39,7 @@ class Lexer:
         """
         while self.position < len(self.source):
             token = self.next_token()
-            if token and token.type != TokenType.WHITESPACE:
+            if token and token.type not in (TokenType.WHITESPACE, TokenType.COMMENT):
                 self.tokens.append(token)
         
         self.tokens.append(Token(TokenType.EOF, "", self.line, self.column))

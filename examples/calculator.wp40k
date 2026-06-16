@@ -1,0 +1,18 @@
+# WarPy40K Example: Simple Calculator
+# Demonstrates variables, arithmetic, and user input
+
+print("Simple WarPy40K Calculator")
+print("--------------------------")
+
+a = input("Enter first number: ")
+b = input("Enter second number: ")
+
+# Convert to numbers (assuming user enters valid numbers)
+a_num = a * 1  # Trick to convert string to number
+b_num = b * 1
+
+print("Results:")
+print("Sum: " + (a_num + b_num))
+print("Difference: " + (a_num - b_num))
+print("Product: " + (a_num * b_num))
+print("Quotient: " + (a_num / b_num))

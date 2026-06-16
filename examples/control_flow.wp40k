@@ -1,0 +1,59 @@
+# WarPy40K Example: Control Flow
+# Demonstrates if/else functionality
+
+print("=== Control Flow Demo ===")
+print()
+
+# If statement example
+print("If statement example:")
+x = 10
+if x > 5
+    print("x is greater than 5")
+else
+    print("x is 5 or less")
+
+print()
+
+# Nested if example
+print("Nested if example:")
+y = 15
+if x > 5
+    if y > 10
+        print("Both x > 5 and y > 10")
+    else
+        print("x > 5 but y <= 10")
+else
+    print("x <= 5")
+
+print()
+
+# Combined example with WarPy40K expressions
+print("Combined example with WarPy40K:")
+faith = 80
+if Inquisition faith
+    print("The subject is faithful!")
+else
+    print("The subject is a heretic!")
+
+print()
+
+# Test with false condition
+heresy = 0
+if Inquisition heresy
+    print("This should not print")
+else
+    print("The Emperor protects the faithful!")
+
+print()
+
+# Complex condition
+print("Complex condition:")
+a = 10
+b = 20
+if a > 5 AND b < 30
+    print("Complex condition passed!")
+else
+    print("Complex condition failed!")
+
+print()
+print("=== Demo Complete ===")

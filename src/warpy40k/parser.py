@@ -99,6 +99,14 @@ class Parser:
         if not token:
             return None
         
+        # Handle if statements
+        if token.type == TokenType.IDENTIFIER and token.value.lower() == 'if':
+            return self._parse_if_statement()
+        
+        # Handle while loops (commented out for now - needs more work)
+        # if token.type == TokenType.IDENTIFIER and token.value.lower() == 'while':
+        #     return self._parse_while_statement()
+        
         # Handle WarPy40K specific expressions
         if token.type == TokenType.INQUISITION:
             return self._parse_inquisition_expr()
@@ -127,6 +135,44 @@ class Parser:
         
         # Default to expression statement
         return self._parse_expression_statement()
+    
+    def _parse_if_statement(self) -> IfStatementNode:
+        """Parse an if statement: if condition then_branch else else_branch"""
+        # Consume 'if' token
+        self._advance()
+        
+        # Parse condition
+        condition = self._parse_expression()
+        
+        # Parse then branch
+        then_branch = self._parse_statement()
+        
+        # Check for else
+        else_branch = None
+        if (self.current_token and 
+            self.current_token.type == TokenType.IDENTIFIER and
+            self.current_token.value.lower() == 'else'):
+            self._advance()
+            else_branch = self._parse_statement()
+        
+        return IfStatementNode(condition, then_branch, else_branch, 
+                               self.current_token.line if self.current_token else 1,
+                               self.current_token.column if self.current_token else 1)
+    
+    def _parse_while_statement(self) -> WhileLoopNode:
+        """Parse a while statement: while condition body"""
+        # Consume 'while' token
+        self._advance()
+        
+        # Parse condition
+        condition = self._parse_expression()
+        
+        # Parse body
+        body = self._parse_statement()
+        
+        return WhileLoopNode(condition, body,
+                           self.current_token.line if self.current_token else 1,
+                           self.current_token.column if self.current_token else 1)
     
     def _parse_expression_statement(self) -> ASTNode:
         """Parse an expression statement."""

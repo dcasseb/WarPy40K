@@ -1,0 +1,5 @@
+# WarPy40K Example: Hello World
+# This is a simple program that demonstrates basic output
+
+print("Welcome to the WarPy40K language!")
+print("For the Emperor!")

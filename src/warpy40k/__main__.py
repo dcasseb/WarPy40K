@@ -60,6 +60,8 @@ def main():
 
 def execute_code(source: str, show_tokens: bool = False, show_ast: bool = False) -> None:
     """Execute a string of WarPy40K code."""
+    from . import WarPy40KError, reset_interpreter
+    
     try:
         if show_tokens:
             lexer = Lexer(source)
@@ -77,20 +79,52 @@ def execute_code(source: str, show_tokens: bool = False, show_ast: bool = False)
             print(ast)
             return
         
+        # Reset interpreter for fresh execution (unless in REPL mode)
+        reset_interpreter()
+        
         result = evaluate(source)
         if result is not None:
             print(result)
+    except WarPy40KError as e:
+        print(f"WarPy40K Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        print(f"Unexpected Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 
 def execute_file(filename: str, show_tokens: bool = False, show_ast: bool = False) -> None:
     """Execute a WarPy40K source file."""
+    from . import reset_interpreter
+    
     try:
         with open(filename, 'r') as f:
             source = f.read()
-        execute_code(source, show_tokens, show_ast)
+        
+        # Reset interpreter for fresh file execution
+        reset_interpreter()
+        
+        # Split source into lines and execute them sequentially
+        # This allows variables to persist within the file
+        if show_tokens or show_ast:
+            execute_code(source, show_tokens, show_ast)
+        else:
+            # Execute line by line to maintain variable state
+            lines = source.split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                try:
+                    result = evaluate(line, use_global=True)
+                    # Only print if it's an expression that returns a value
+                    # (not an assignment, which returns the value but we don't want to print)
+                    if result is not None and '=' not in line:
+                        print(result)
+                except Exception:
+                    # If line-by-line fails, try as a whole
+                    execute_code(source, show_tokens, show_ast)
+                    break
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found", file=sys.stderr)
         sys.exit(1)
@@ -101,12 +135,16 @@ def execute_file(filename: str, show_tokens: bool = False, show_ast: bool = Fals
 
 def repl() -> None:
     """Start an interactive REPL for WarPy40K."""
+    from . import reset_interpreter, WarPy40KError
+    
     print("WarPy40K Interactive REPL")
     print("Type 'exit' or 'quit' to exit")
     print("Type 'help' for information")
+    print("Type 'reset' to clear all variables")
     print()
     
-    interpreter = Interpreter()
+    # Reset interpreter for fresh REPL session
+    reset_interpreter()
     
     while True:
         try:
@@ -121,18 +159,25 @@ def repl() -> None:
                 print_help()
                 continue
             
+            if code.strip().lower() in ('reset', 'clear'):
+                reset_interpreter()
+                print("All variables cleared. The Emperor's will be done.")
+                continue
+            
             if not code.strip():
                 continue
             
-            # Execute the code
-            result = evaluate(code)
+            # Execute the code (use_global=True to maintain state)
+            result = evaluate(code, use_global=True)
             if result is not None:
                 print(result)
                 
         except KeyboardInterrupt:
             print("\nUse 'exit' or 'quit' to exit")
+        except WarPy40KError as e:
+            print(f"WarPy40K Error: {e}", file=sys.stderr)
         except Exception as e:
-            print(f"Error: {e}", file=sys.stderr)
+            print(f"Unexpected Error: {e}", file=sys.stderr)
 
 
 def print_help() -> None:

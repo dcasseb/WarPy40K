@@ -9,7 +9,7 @@ import os
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from warpy40k import evaluate
+from warpy40k import evaluate, reset_interpreter
 from warpy40k.lexer import Lexer
 from warpy40k.parser import Parser
 from warpy40k.interpreter import Interpreter
@@ -147,6 +147,36 @@ def test_complex_expressions():
     print("✓ Complex expression tests passed")
 
 
+def test_control_flow():
+    """Test control flow (if/else)."""
+    print("Testing Control Flow...")
+    
+    # Test if/else with global interpreter
+    reset_interpreter()
+    
+    # Set up a variable
+    evaluate("x = 10")
+    
+    # Test if statement
+    result = evaluate("if x > 5\n    y = 1\nelse\n    y = 0")
+    # The result is the value of the last statement in the executed branch
+    assert result == 1
+    
+    # Check that y was set
+    y_value = evaluate("y")
+    assert y_value == 1
+    
+    # Test else branch
+    reset_interpreter()
+    evaluate("x = 3")
+    result = evaluate("if x > 5\n    y = 1\nelse\n    y = 0")
+    assert result == 0
+    y_value = evaluate("y")
+    assert y_value == 0
+    
+    print("✓ Control flow tests passed")
+
+
 def main():
     """Run all tests."""
     print("Running WarPy40K Tests")
@@ -157,6 +187,7 @@ def main():
         test_parser()
         test_interpreter()
         test_complex_expressions()
+        test_control_flow()
         
         print("=" * 40)
         print("🎉 All tests passed!")

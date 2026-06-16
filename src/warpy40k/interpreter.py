@@ -33,18 +33,34 @@ class Interpreter:
         self.environment['FAITH'] = 100  # Default faith value
         self.environment['CORRUPTION'] = 0  # Default corruption level
         self.environment['POPULATION'] = 1000000  # Default population
+        self.environment['True'] = True
+        self.environment['False'] = False
         
         # Built-in functions
         self.environment['print'] = self._builtin_print
+        self.environment['input'] = self._builtin_input
         self.environment['random'] = self._builtin_random
         self.environment['abs'] = abs
         self.environment['min'] = min
         self.environment['max'] = max
         self.environment['pow'] = pow
+        self.environment['len'] = len
+        self.environment['range'] = range
+        self.environment['exit'] = self._builtin_exit
     
     def _builtin_print(self, *args: Any) -> None:
         """Built-in print function."""
         print(*args)
+        return None
+    
+    def _builtin_input(self, prompt: str = "") -> str:
+        """Built-in input function."""
+        return input(prompt)
+    
+    def _builtin_exit(self, code: int = 0) -> None:
+        """Built-in exit function."""
+        import sys
+        sys.exit(code)
         return None
     
     def _builtin_random(self) -> float:
