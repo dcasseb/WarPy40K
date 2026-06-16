@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "WarPy40K"
+version = "0.1.0"
+description = "A toy language that uses expressions taken from the Warhammer 40K universe"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Davi Casseb", email = "77282586+dcasseb@users.noreply.github.com"}
+]
+keywords = ["language", "interpreter", "warhammer", "40k", "toy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Topic :: Software Development :: Interpreters",
+]
+
+[project.urls]
+Homepage = "https://github.com/dcasseb/WarPy40K"
+Repository = "https://github.com/dcasseb/WarPy40K"
+Issues = "https://github.com/dcasseb/WarPy40K/issues"
+
+[project.scripts]
+warpy40k = "warpy40k.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+python_files = "test_*.py"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
