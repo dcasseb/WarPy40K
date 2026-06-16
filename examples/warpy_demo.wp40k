@@ -1,0 +1,68 @@
+# WarPy40K Example: Warhammer 40K Themed Demo
+# Demonstrates all WarPy40K specific expressions
+
+print("=== WarPy40K Theme Demo ===")
+print()
+
+# Inquisition - Truth and judgment
+print("Inquisition (truth/judgment):")
+faithful = Inquisition FAITH
+print("  Inquisition FAITH =")
+print(faithful)
+heretic = Inquisition 0
+print("  Inquisition 0 =")
+print(heretic)
+print()
+
+# Emperor - Divine power
+print("Emperor (divine power):")
+blessed = Emperor 100
+print("  Emperor 100 =")
+print(blessed)
+power = Emperor
+print("  Emperor (no target) =")
+print(power)
+print()
+
+# Chaos - Corruption and randomness
+print("Chaos (corruption/randomness):")
+corrupted = Chaos 100
+print("  Chaos 100 =")
+print(corrupted)
+pure_chaos = Chaos
+print("  Chaos (no target) =")
+print(pure_chaos)
+print()
+
+# Bless and Curse - Modifications
+print("Bless and Curse (modifications):")
+blessed_value = Bless 100
+print("  Bless 100 =")
+print(blessed_value)
+cursed_value = Curse 100
+print("  Curse 100 =")
+print(cursed_value)
+print()
+
+# Purge and Exterminatus - Destruction
+print("Purge and Exterminatus (destruction):")
+purged = Purge 42
+print("  Purge 42 =")
+print(purged)
+exterminated = Exterminatus 100
+print("  Exterminatus 100 =")
+print(exterminated)
+print()
+
+# Combined expressions
+print("Combined expressions:")
+result = Bless Emperor 50
+print("  Bless Emperor 50 =")
+print(result)
+
+judgment = Inquisition Chaos
+print("  Inquisition Chaos =")
+print(judgment)
+
+print()
+print("=== Demo Complete ===")

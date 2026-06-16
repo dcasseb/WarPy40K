@@ -1,0 +1,39 @@
+# WarPy40K Example: Variables and Arithmetic
+# Demonstrates variable usage and arithmetic operations
+
+# Variable assignments
+x = 10
+y = 20
+z = 5
+
+# Arithmetic operations
+sum = x + y
+product = x * y
+difference = y - x
+quotient = y / x
+
+print("Variables and Arithmetic:")
+print("  x =")
+print(x)
+print("  y =")
+print(y)
+print("  z =")
+print(z)
+print("  x + y =")
+print(sum)
+print("  x * y =")
+print(product)
+print("  y - x =")
+print(difference)
+print("  y / x =")
+print(quotient)
+
+# Power operation
+power = x ^ z
+print("  x ^ z =")
+print(power)
+
+# Using variables in expressions
+result = (x + y) * z
+print("  (x + y) * z =")
+print(result)
