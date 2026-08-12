@@ -1,0 +1,201 @@
+# WarPy40K v1.0 constructive Turing-completeness demonstration
+#
+# This program implements a universal interpreter for deterministic
+# two-counter Minsky machines. The machine program is encoded as one
+# natural number; WarPy40K decodes and executes it using only arithmetic,
+# comparisons, functions, conditionals and unrestricted while loops.
+#
+# Instruction opcodes:
+#   0 = HALT
+#   1 = INC C1, jump A
+#   2 = INC C2, jump A
+#   3 = DECJZ C1: if C1 == 0 jump B, else C1 = C1 - 1 and jump A
+#   4 = DECJZ C2: if C2 == 0 jump B, else C2 = C2 - 1 and jump A
+#
+# Instruction encoding with field base F:
+#   word = opcode + F * A + F^2 * B
+#
+# Program encoding with program base P:
+#   program = sum(word_i * P^i)
+#
+# Choose F larger than all opcodes and labels, and P larger than every
+# encoded instruction word.
+
+
+def nat_pow(base, exponent) {
+    result = 1
+    i = 0
+
+    while i < exponent {
+        result = result * base
+        i = i + 1
+    }
+
+    return result
+}
+
+
+def nat_div(numerator, denominator) {
+    if denominator <= 0 {
+        return -1
+    }
+
+    quotient = 0
+    remainder = numerator
+
+    while remainder >= denominator {
+        remainder = remainder - denominator
+        quotient = quotient + 1
+    }
+
+    return quotient
+}
+
+
+def nat_mod(value, modulus) {
+    if modulus <= 0 {
+        return -1
+    }
+
+    remainder = value
+
+    while remainder >= modulus {
+        remainder = remainder - modulus
+    }
+
+    return remainder
+}
+
+
+def instruction_at(program, pc, program_base) {
+    scale = nat_pow(program_base, pc)
+    shifted = nat_div(program, scale)
+    return nat_mod(shifted, program_base)
+}
+
+
+def field_at(word, index, field_base) {
+    scale = nat_pow(field_base, index)
+    shifted = nat_div(word, scale)
+    return nat_mod(shifted, field_base)
+}
+
+
+def encode_inc(register, target, field_base) {
+    if register == 1 {
+        return 1 + field_base * target
+    }
+
+    return 2 + field_base * target
+}
+
+
+def encode_decjz(register, nonzero_target, zero_target, field_base) {
+    if register == 1 {
+        return 3 + field_base * nonzero_target + nat_pow(field_base, 2) * zero_target
+    }
+
+    return 4 + field_base * nonzero_target + nat_pow(field_base, 2) * zero_target
+}
+
+
+def place_instruction(word, label, program_base) {
+    return word * nat_pow(program_base, label)
+}
+
+
+def run_minsky(program, program_base, field_base, start_pc, c1, c2, max_steps, trace) {
+    # max_steps == 0 means unrestricted execution.
+    # The machine's conventional output is counter C1 when HALT is reached.
+    pc = start_pc
+    steps = 0
+    running = True
+
+    while running {
+        if max_steps > 0 {
+            if steps >= max_steps {
+                return -1
+            }
+        }
+
+        word = instruction_at(program, pc, program_base)
+        opcode = field_at(word, 0, field_base)
+        target_a = field_at(word, 1, field_base)
+        target_b = field_at(word, 2, field_base)
+
+        if trace {
+            print("step", steps, "pc", pc, "c1", c1, "c2", c2, "word", word)
+        }
+
+        if opcode == 0 {
+            running = False
+        }
+        else {
+            if opcode == 1 {
+                c1 = c1 + 1
+                pc = target_a
+            }
+            else {
+                if opcode == 2 {
+                    c2 = c2 + 1
+                    pc = target_a
+                }
+                else {
+                    if opcode == 3 {
+                        if c1 == 0 {
+                            pc = target_b
+                        }
+                        else {
+                            c1 = c1 - 1
+                            pc = target_a
+                        }
+                    }
+                    else {
+                        if opcode == 4 {
+                            if c2 == 0 {
+                                pc = target_b
+                            }
+                            else {
+                                c2 = c2 - 1
+                                pc = target_a
+                            }
+                        }
+                        else {
+                            # Invalid encoded opcode.
+                            return -2
+                        }
+                    }
+                }
+            }
+        }
+
+        steps = steps + 1
+    }
+
+    return c1
+}
+
+
+# ----------------------------------------------------------------------
+# Demonstration machine: transfer C2 into C1.
+#
+# Label 1: DECJZ C2, nonzero -> 2, zero -> HALT(0)
+# Label 2: INC C1, jump -> 1
+#
+# Starting with C1=3 and C2=4 therefore halts with C1=7 and C2=0.
+# ----------------------------------------------------------------------
+
+FIELD_BASE = 5
+PROGRAM_BASE = 15
+
+instruction_1 = encode_decjz(2, 2, 0, FIELD_BASE)
+instruction_2 = encode_inc(1, 1, FIELD_BASE)
+
+program_code = place_instruction(instruction_1, 1, PROGRAM_BASE) + place_instruction(instruction_2, 2, PROGRAM_BASE)
+
+demo_result = run_minsky(program_code, PROGRAM_BASE, FIELD_BASE, 1, 3, 4, 0, False)
+
+print("Universal Minsky interpreter demo result:", demo_result)
+print("Expected result: 7")
+
+demo_result
