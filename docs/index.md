@@ -6,6 +6,7 @@ Welcome to the documentation for **WarPy40K 1.0**, a small Warhammer 40K-inspire
 
 - **[Getting Started](getting_started.md)** — installation and basic usage
 - **[Language Reference](language_reference.md)** — current v1.0 syntax and semantics
+- **[Official v1.0 Showcase](showcase_v10.md)** — *The Vault of Vharax*, a terminal roguelike/RPG written entirely in WarPy40K
 - **[Turing Completeness](turing_completeness.md)** — constructive proof using a universal two-counter Minsky-machine interpreter
 - **[Language Roadmap](roadmap.md)** — identity-focused roadmap from v1.0 toward v2.0
 - **[WarPy40K Expressions](warpy_expressions.md)** — themed expressions and their current behavior
@@ -21,10 +22,10 @@ cd WarPy40K
 pip install -e .
 ```
 
-Run a program:
+Run the official interactive showcase:
 
 ```bash
-warpy40k examples/recursion.wp40k
+warpy40k examples/vault_of_vharax.wp40k
 ```
 
 Run the universal Minsky-machine demonstration:
@@ -33,7 +34,7 @@ Run the universal Minsky-machine demonstration:
 warpy40k examples/minsky_universal.wp40k
 ```
 
-The expected final result of the included transfer-machine example is `7`.
+These examples deliberately serve different purposes: *The Vault of Vharax* demonstrates practical interactive programming, while the Minsky-machine example demonstrates computational universality.
 
 ## Current language core
 
@@ -58,5 +59,7 @@ Under the usual theoretical unbounded-memory abstraction, WarPy40K 1.0 is Turing
 ## Direction after 1.0
 
 The 1.x series is intended to strengthen WarPy40K's identity instead of reproducing Python feature-for-feature. Planned concepts include native `Squad` and `Dataslate` data types, an explicit Warp nondeterminism model, Inquisition contracts, Codex modules, sanctioned effect capabilities, structured iteration, runtime introspection, and eventually a small WarPy40K bytecode VM.
+
+The official roguelike showcase is also intended to evolve with those milestones. For example, v1.1 can replace scalar inventory/state patterns with native `Squad` and `Dataslate` values, providing a concrete application-level benchmark for each new feature.
 
 See the [Language Roadmap](roadmap.md) for the full plan.
