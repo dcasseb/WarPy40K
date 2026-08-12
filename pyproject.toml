@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WarPy40K"
-version = "0.1.0"
-description = "A toy language that uses expressions taken from the Warhammer 40K universe"
+version = "0.9.0"
+description = "A Warhammer 40K-inspired interpreted programming language"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 authors = [
     {name = "Davi Casseb", email = "77282586+dcasseb@users.noreply.github.com"}
 ]
-keywords = ["language", "interpreter", "warhammer", "40k", "toy"]
+keywords = ["language", "interpreter", "warhammer", "40k", "toy", "recursion"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
