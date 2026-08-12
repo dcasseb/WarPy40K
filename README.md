@@ -1,95 +1,117 @@
 # WarPy40K
 
-**Current version: 0.9.0**
+**Current version: 1.0.0**
 
-A Warhammer 40K-inspired interpreted programming language implemented in Python.
+A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
 
-## Overview
+## WarPy40K 1.0
 
-WarPy40K combines a conventional tree-walking interpreter with expressions and terminology inspired by the Warhammer 40K universe. The language includes variables, arithmetic, comparisons, Boolean logic, conditionals, unrestricted `while` loops, user-defined functions, lexical function scopes, `return`, and recursion.
+Version **1.0.0** marks the transition from an experimental themed interpreter to a small but complete computational language core.
 
-Version **0.9.0** is the first WarPy40K release with a complete general-purpose control-flow core.
+WarPy40K now supports:
 
-Under the standard theoretical model in which program memory is treated as unbounded, **WarPy40K v0.9 is Turing complete**. In particular, mutable integer variables, conditional branching, and unrestricted `while` loops are sufficient to encode a two-counter Minsky machine. As with Python, C, or any language running on real hardware, actual executions are naturally limited by available memory and other machine resources.
+- variables and mutable assignment;
+- integers, floats, strings, and Booleans;
+- arithmetic and comparisons;
+- Boolean logic;
+- `if` / `else`;
+- unrestricted `while`;
+- braces-delimited blocks;
+- user-defined functions;
+- function parameters and arity validation;
+- lexical function scopes;
+- `return` with real control-flow unwind;
+- direct recursion;
+- built-in functions;
+- WarPy40K-specific expressions;
+- REPL and file execution;
+- token and AST inspection.
 
-A constructive Minsky-machine example/proof remains planned as an explicit documentation milestone before v1.0.
+Under the standard theoretical abstraction in which memory and integer size are treated as unbounded, **WarPy40K 1.0 is Turing complete**.
 
-## What changed in v0.9
+Unlike the earlier claim based only on the presence of unrestricted loops, v1.0 includes a **constructive demonstration**: [`examples/minsky_universal.wp40k`](examples/minsky_universal.wp40k) implements a universal interpreter for encoded deterministic two-counter Minsky machines entirely in WarPy40K source code.
 
-| Capability | v0.8 | v0.9 |
-|---|---:|---:|
-| Variables and assignment | ✅ | ✅ |
-| Arithmetic / comparisons / Boolean logic | ✅ | ✅ |
-| `if` / `else` | ✅ | ✅ |
-| Blocks | ✅ | ✅ |
-| Built-in functions | ✅ | ✅ |
-| `while` runtime node | Internal only | ✅ Surface syntax |
-| Unrestricted `while` | ❌ | ✅ |
-| User-defined functions | ❌ | ✅ |
-| Function parameters | ❌ | ✅ |
-| Lexical function scopes | ❌ | ✅ |
-| `return` with real control-flow unwind | ❌ | ✅ |
-| Recursion | ❌ | ✅ |
-| Turing-complete computational core | ❌ | ✅ |
+See [`docs/turing_completeness.md`](docs/turing_completeness.md) for the construction and proof argument.
 
-## Core language features
+## Constructive universality demonstration
 
-- Variables and mutable assignment
-- Integers, floats, strings, and Booleans
-- Arithmetic: `+`, `-`, `*`, `/`, `^`
-- Comparisons: `==`, `!=`, `>`, `<`, `>=`, `<=`
-- Boolean operators: `AND`, `OR`, `NOT`
-- `if` / `else`
-- Unrestricted `while` loops
-- User-defined functions with `def`
-- Function parameters and arity validation
-- Lexical function scopes
-- `return`
-- Direct recursion
-- Built-in functions
-- WarPy40K-specific expressions
-- REPL and file execution
-- Token and AST inspection through the CLI
+The v1.0 example defines the fixed function:
 
-## Installation
+```text
+run_minsky(program, program_base, field_base, start_pc, c1, c2, max_steps, trace)
+```
+
+The simulated Minsky program is supplied as a natural number. WarPy40K decodes instructions from that integer and executes the corresponding counter-machine transitions.
+
+Instruction set:
+
+| Opcode | Meaning |
+|---:|---|
+| `0` | `HALT` |
+| `1` | increment counter 1 and jump |
+| `2` | increment counter 2 and jump |
+| `3` | decrement-or-zero-jump on counter 1 |
+| `4` | decrement-or-zero-jump on counter 2 |
+
+An instruction is encoded with a field base `F`:
+
+```text
+word = opcode + F * A + F^2 * B
+```
+
+and a complete finite program is encoded with program base `P`:
+
+```text
+program = sum(word_i * P^i)
+```
+
+The included demonstration machine transfers `C2` into `C1`.
+
+Starting from:
+
+```text
+C1 = 3
+C2 = 4
+```
+
+it halts with:
+
+```text
+C1 = 7
+C2 = 0
+```
+
+Run it with:
 
 ```bash
-git clone https://github.com/dcasseb/WarPy40K.git
-cd WarPy40K
-pip install -e .
+warpy40k examples/minsky_universal.wp40k
 ```
 
-## Usage
+The automated v1.0 tests also execute different encoded machines, exercise the zero branch of `DECJZ`, and validate a deliberately non-halting program through the optional debugging step guard.
 
-### Command line
+## Why this is stronger than a hard-coded example
 
-```bash
-# Run a source file
-warpy40k examples/recursion.wp40k
+`run_minsky` is fixed while `program` is data.
 
-# Execute a single expression
-warpy40k -c "Bless Emperor 100"
+That means the same WarPy40K source interpreter can execute different finite two-counter machine programs simply by receiving different encoded integers.
 
-# Start the REPL
-warpy40k -i
+Conceptually:
 
-# Inspect tokens
-warpy40k --tokens examples/recursion.wp40k
-
-# Inspect the AST
-warpy40k --ast examples/recursion.wp40k
+```text
+Turing machine
+      ↓ simulation
+Two-counter Minsky machine
+      ↓ natural-number encoding
+WarPy40K run_minsky(program, ...)
+      ↓
+WarPy40K runtime
 ```
 
-### Python API
+Because deterministic two-counter Minsky machines are computationally universal, this supplies a constructive route from a universal machine model into WarPy40K.
 
-```python
-from warpy40k import evaluate
+As with every real implementation of a Turing-complete language, actual execution is still limited by physical memory, time, the host Python runtime, and the operating system.
 
-result = evaluate("2 + 3 * 4")
-print(result)  # 14
-```
-
-## Language reference
+## Example syntax
 
 ### Variables
 
@@ -100,11 +122,7 @@ y = x + 10
 
 ### Conditionals
 
-Blocks use braces when more than one statement should belong to a branch.
-
 ```text
-x = 10
-
 if x > 5 {
     print("greater")
 }
@@ -113,50 +131,17 @@ else {
 }
 ```
 
-### While loops
-
-`while` is fully available in v0.9 and has no artificial iteration limit.
+### While
 
 ```text
 counter = 0
 
 while counter < 5 {
-    print(counter)
     counter = counter + 1
 }
 ```
 
-This ability to repeat computation for an input-dependent and potentially unbounded number of iterations is one of the key differences between v0.8 and v0.9.
-
-### User-defined functions
-
-Functions are declared with `def`, followed by their parameter list and a block body.
-
-```text
-def add(a, b) {
-    return a + b
-}
-
-result = add(20, 22)
-print(result)
-```
-
-Each function invocation gets a fresh local scope. Parameters and assignments created inside the function do not implicitly overwrite global variables with the same names.
-
-```text
-x = 100
-
-def identity(x) {
-    return x
-}
-
-print(identity(42))
-print(x)  # 100
-```
-
-### Recursion
-
-User-defined functions can call themselves because function names remain visible through their lexical environment.
+### Functions and recursion
 
 ```text
 def factorial(n) {
@@ -167,143 +152,146 @@ def factorial(n) {
     return n * factorial(n - 1)
 }
 
-print(factorial(6))  # 720
+print(factorial(6))
 ```
-
-A recursive Fibonacci implementation is also supported:
-
-```text
-def fibonacci(n) {
-    if n <= 1 {
-        return n
-    }
-
-    return fibonacci(n - 1) + fibonacci(n - 2)
-}
-
-print(fibonacci(10))  # 55
-```
-
-### Return semantics
-
-`return` exits the nearest user-defined function immediately, even when it is reached inside nested blocks or loops.
-
-```text
-def first_at_least(limit) {
-    x = 0
-
-    while True {
-        if x >= limit {
-            return x
-        }
-        x = x + 1
-    }
-}
-```
-
-Using `return` outside a user-defined function is a runtime error.
 
 ## WarPy40K expressions
 
-| Expression | Description | Example |
-|---|---|---|
-| `Inquisition` | Evaluate truthiness | `Inquisition 42` |
-| `Emperor` | Apply the faith factor | `Emperor 100` |
-| `Chaos` | Apply corruption/randomness | `Chaos 100` |
-| `Purge` | Reduce a value to zero/empty | `Purge 42` |
-| `Exterminatus` | Total annihilation | `Exterminatus 42` |
-| `Bless` | Increase numeric value by 10% | `Bless 100` |
-| `Curse` | Decrease numeric value by 10% | `Curse 100` |
+WarPy40K includes language-specific expressions inspired by the Warhammer 40K setting:
 
-## Built-ins
+| Expression | Current role |
+|---|---|
+| `Inquisition` | truth/judgment |
+| `Emperor` | faith-based transformation |
+| `Chaos` | corruption/randomness |
+| `Purge` | destructive/reset transformation |
+| `Exterminatus` | total-annihilation semantic marker |
+| `Bless` | positive transformation |
+| `Curse` | negative transformation |
 
-- `print(...)`
-- `input(prompt)`
-- `random()`
-- `abs(x)`
-- `min(...)`
-- `max(...)`
-- `pow(x, y)`
-- `len(x)`
-- `range(...)`
-- `exit(code)`
+The post-1.0 roadmap deliberately develops these concepts into deeper semantics instead of merely adding Python features under themed names.
 
-Built-in constants:
+## Installation
 
-- `FAITH = 100`
-- `CORRUPTION = 0`
-- `POPULATION = 1000000`
-- `True`
-- `False`
+```bash
+git clone https://github.com/dcasseb/WarPy40K.git
+cd WarPy40K
+pip install -e .
+```
+
+## Command line
+
+```bash
+# Run a program
+warpy40k examples/recursion.wp40k
+
+# Run the v1.0 universal-machine demonstration
+warpy40k examples/minsky_universal.wp40k
+
+# Execute source directly
+warpy40k -c "Bless Emperor 100"
+
+# Start the REPL
+warpy40k -i
+
+# Inspect tokens
+warpy40k --tokens examples/minsky_universal.wp40k
+
+# Inspect AST
+warpy40k --ast examples/minsky_universal.wp40k
+```
+
+## Python API
+
+```python
+from warpy40k import evaluate
+
+result = evaluate("2 + 3 * 4")
+print(result)  # 14
+```
+
+Python is currently the **implementation host**, not the WarPy40K surface language. WarPy40K source is tokenized, parsed into its own AST, and executed by its own interpreter rather than being passed to Python `eval()` or `exec()`.
+
+Some runtime values and built-ins are still Python-backed. Reducing accidental host-language behavior is an explicit goal of the 1.x roadmap.
 
 ## Architecture
 
 ```text
-Source code
-    ↓
+WarPy40K source
+      ↓
 Lexer
-    ↓
+      ↓
 Tokens
-    ↓
+      ↓
 Recursive-descent parser
-    ↓
-Abstract Syntax Tree
-    ↓
+      ↓
+WarPy40K AST
+      ↓
 Tree-walking interpreter
-    ↓
-Runtime environments / results
+      ↓
+Lexical runtime environments
+      ↓
+Result / effects
 ```
 
-Function calls in v0.9 add a lexical environment layer on top of the global interpreter environment. Recursive calls therefore receive independent parameter/local-variable dictionaries while retaining access to enclosing definitions.
+## Version milestones
 
-## Project structure
+### v0.8
 
-```text
-WarPy40K/
-├── src/
-│   └── warpy40k/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── tokens.py
-│       ├── lexer.py
-│       ├── parser.py
-│       ├── ast.py
-│       └── interpreter.py
-├── docs/
-├── examples/
-│   ├── recursion.wp40k
-│   └── ...
-├── tests/
-│   ├── test_v09.py
-│   └── ...
-├── pyproject.toml
-└── README.md
-```
+- basic lexer/parser/interpreter pipeline;
+- variables and expressions;
+- conditional execution;
+- internal but inaccessible loop infrastructure;
+- not yet defensibly Turing complete as a surface language.
 
-## Roadmap
+### v0.9
 
-### v0.9 — Current
+- unrestricted `while` exposed in the surface language;
+- user-defined functions;
+- parameters and lexical call scopes;
+- real `return` unwind;
+- recursion;
+- computational core becomes Turing complete under the usual theoretical model.
 
-- [x] Enable unrestricted `while` in surface syntax
-- [x] Add dedicated control-flow tokens
-- [x] Add user-defined functions
-- [x] Add function parameters
-- [x] Add lexical call scopes
-- [x] Implement `return` control-flow unwind
-- [x] Enable direct recursion
-- [x] Validate recursive factorial and Fibonacci
-- [x] Add v0.9 regression tests
-- [x] Synchronize package version metadata
+### v1.0 — Current
 
-### Toward v1.0
+- universal two-counter Minsky-machine interpreter written in WarPy40K;
+- machine programs encoded as natural-number data;
+- constructive Turing-completeness documentation;
+- automated v1.0 machine-interpreter tests;
+- package metadata promoted to `1.0.0`;
+- language roadmap shifts from “mini-Python functionality” toward explicitly WarPy40K semantics.
 
-- [ ] Add an explicit two-counter Minsky-machine implementation
-- [ ] Publish a constructive Turing-completeness demonstration
-- [ ] Stabilize the grammar and language specification
-- [ ] Improve source-location-aware runtime errors
-- [ ] Expand function and scope semantics
-- [ ] Expand automated regression coverage
-- [ ] Reconcile all secondary documentation with the v0.9 grammar
+## Identity-focused roadmap
+
+The full roadmap is maintained in [`docs/roadmap.md`](docs/roadmap.md).
+
+Planned milestones:
+
+| Version | Direction |
+|---|---|
+| **1.1** | **Squads & Dataslates** — WarPy40K-owned collection and structured-data types |
+| **1.2** | **Orders** — pattern-oriented command dispatch |
+| **1.3** | **Warp effect model** — explicit, seedable, replayable nondeterminism |
+| **1.4** | **Inquisition contracts** — assertions, preconditions, and postconditions |
+| **1.5** | **Codex modules** — native module/export/import semantics |
+| **1.6** | **Sanctioned effects** — explicit capabilities for I/O and external effects |
+| **1.7** | **Crusades** — structured iteration over WarPy40K iterables |
+| **1.8** | **Machine-Spirit introspection** — stable AST/runtime tracing and scope inspection |
+| **1.9** | **Forge bytecode** — small documented bytecode plus VM |
+| **2.0** | **Independent runtime** — language semantics increasingly independent of accidental Python behavior |
+
+The guiding rule is simple:
+
+> New features should have WarPy40K semantics, not merely Python semantics with Warhammer terminology.
+
+## Documentation
+
+- [`docs/language_reference.md`](docs/language_reference.md) — v1.0 language reference
+- [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality proof
+- [`docs/roadmap.md`](docs/roadmap.md) — post-1.0 language roadmap
+- [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
+- [`docs/api_reference.md`](docs/api_reference.md) — Python-host API
 
 ## Development
 
@@ -328,6 +316,6 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE).
 ## Acknowledgments
 
 - Inspired by the Warhammer 40K universe created by Games Workshop
-- Built in Python as an educational programming-language/interpreter project
+- Implemented in Python as an educational programming-language/interpreter project
 
 **For the Emperor!**
