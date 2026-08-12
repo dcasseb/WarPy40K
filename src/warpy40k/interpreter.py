@@ -5,38 +5,60 @@ Executes the Abstract Syntax Tree (AST) and produces results.
 """
 
 import random
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
 
 from .ast import (
-    ASTNode, Program, LiteralNode, IdentifierNode, BinaryOpNode, 
+    ASTNode, Program, LiteralNode, IdentifierNode, BinaryOpNode,
     UnaryOpNode, VariableDeclarationNode, VariableAssignmentNode,
-    FunctionCallNode, IfStatementNode, WhileLoopNode, BlockNode,
-    ReturnStatementNode, InquisitionExprNode, EmperorExprNode,
-    ChaosExprNode, PurgeExprNode, ExterminatusExprNode,
+    FunctionDefinitionNode, FunctionCallNode, IfStatementNode,
+    WhileLoopNode, BlockNode, ReturnStatementNode, InquisitionExprNode,
+    EmperorExprNode, ChaosExprNode, PurgeExprNode, ExterminatusExprNode,
     BlessExprNode, CurseExprNode
 )
+
+
+@dataclass
+class UserFunction:
+    """Runtime representation of a WarPy40K user-defined function."""
+
+    name: str
+    parameters: List[str]
+    body: BlockNode
+    closure: Tuple[Dict[str, Any], ...]
+
+
+class _ReturnSignal(Exception):
+    """Internal signal used to unwind execution when `return` is reached."""
+
+    def __init__(self, value: Any):
+        super().__init__()
+        self.value = value
 
 
 class Interpreter:
     """
     Interpreter for executing WarPy40K AST nodes.
+
+    `environment` remains the public/global environment for compatibility.
+    Function calls add temporary lexical scopes on top of it.
     """
-    
+
     def __init__(self):
         """Initialize the interpreter."""
         self.environment: Dict[str, Any] = {}
+        self._scopes: List[Dict[str, Any]] = [self.environment]
+        self._function_depth = 0
         self._init_builtins()
-    
+
     def _init_builtins(self) -> None:
         """Initialize built-in functions and constants."""
-        # Warhammer 40K themed constants
-        self.environment['FAITH'] = 100  # Default faith value
-        self.environment['CORRUPTION'] = 0  # Default corruption level
-        self.environment['POPULATION'] = 1000000  # Default population
+        self.environment['FAITH'] = 100
+        self.environment['CORRUPTION'] = 0
+        self.environment['POPULATION'] = 1000000
         self.environment['True'] = True
         self.environment['False'] = False
-        
-        # Built-in functions
+
         self.environment['print'] = self._builtin_print
         self.environment['input'] = self._builtin_input
         self.environment['random'] = self._builtin_random
@@ -47,37 +69,32 @@ class Interpreter:
         self.environment['len'] = len
         self.environment['range'] = range
         self.environment['exit'] = self._builtin_exit
-    
+
     def _builtin_print(self, *args: Any) -> None:
-        """Built-in print function."""
         print(*args)
         return None
-    
+
     def _builtin_input(self, prompt: str = "") -> str:
-        """Built-in input function."""
         return input(prompt)
-    
+
     def _builtin_exit(self, code: int = 0) -> None:
-        """Built-in exit function."""
         import sys
         sys.exit(code)
-        return None
-    
+
     def _builtin_random(self) -> float:
-        """Built-in random function."""
         return random.random()
-    
+
+    def _lookup(self, name: str) -> Any:
+        for scope in reversed(self._scopes):
+            if name in scope:
+                return scope[name]
+        raise NameError(f"Name '{name}' is not defined")
+
+    def _define(self, name: str, value: Any) -> Any:
+        self._scopes[-1][name] = value
+        return value
+
     def execute(self, node: ASTNode) -> Any:
-        """
-        Execute an AST node and return the result.
-        
-        Args:
-            node: The AST node to execute
-            
-        Returns:
-            The result of the execution
-        """
-        # Use isinstance to determine the node type and dispatch
         if isinstance(node, Program):
             return self._execute_program(node)
         elif isinstance(node, LiteralNode):
@@ -92,6 +109,8 @@ class Interpreter:
             return self._execute_variable_declaration(node)
         elif isinstance(node, VariableAssignmentNode):
             return self._execute_variable_assignment(node)
+        elif isinstance(node, FunctionDefinitionNode):
+            return self._execute_function_definition(node)
         elif isinstance(node, FunctionCallNode):
             return self._execute_function_call(node)
         elif isinstance(node, IfStatementNode):
@@ -117,33 +136,27 @@ class Interpreter:
         elif isinstance(node, CurseExprNode):
             return self._execute_curse_expr(node)
         else:
-            raise RuntimeError(f"No execution method for node type: {type(node).__name__}")
-    
+            raise RuntimeError(
+                f"No execution method for node type: {type(node).__name__}"
+            )
+
     def _execute_program(self, node: Program) -> Any:
-        """Execute a program (list of statements)."""
         result = None
         for statement in node.statements:
             result = self.execute(statement)
         return result
-    
+
     def _execute_literal(self, node: LiteralNode) -> Any:
-        """Execute a literal node."""
         return node.value
-    
+
     def _execute_identifier(self, node: IdentifierNode) -> Any:
-        """Execute an identifier node (variable lookup)."""
-        if node.name in self.environment:
-            return self.environment[node.name]
-        else:
-            raise NameError(f"Name '{node.name}' is not defined")
-    
+        return self._lookup(node.name)
+
     def _execute_binary_op(self, node: BinaryOpNode) -> Any:
-        """Execute a binary operation."""
         left = self.execute(node.left)
         right = self.execute(node.right)
         operator = node.operator
-        
-        # Arithmetic operations
+
         if operator == '+':
             return left + right
         elif operator == '-':
@@ -156,8 +169,6 @@ class Interpreter:
             return left / right
         elif operator == '^':
             return left ** right
-        
-        # Comparison operations
         elif operator == '==':
             return left == right
         elif operator == '!=':
@@ -170,164 +181,145 @@ class Interpreter:
             return left >= right
         elif operator == '<=':
             return left <= right
-        
-        # Logical operations
         elif operator == 'AND' or operator == '&&':
             return left and right
         elif operator == 'OR' or operator == '||':
             return left or right
-        
+
         raise RuntimeError(f"Unknown operator: {operator}")
-    
+
     def _execute_unary_op(self, node: UnaryOpNode) -> Any:
-        """Execute a unary operation."""
         operand = self.execute(node.operand)
         operator = node.operator
-        
+
         if operator == '-':
             return -operand
         elif operator == 'NOT' or operator == '!':
             return not operand
-        
+
         raise RuntimeError(f"Unknown unary operator: {operator}")
-    
+
     def _execute_variable_declaration(self, node: VariableDeclarationNode) -> Any:
-        """Execute a variable declaration."""
-        value = None
-        if node.value:
-            value = self.execute(node.value)
-        
-        self.environment[node.name] = value
-        return value
-    
+        value = self.execute(node.value) if node.value is not None else None
+        return self._define(node.name, value)
+
     def _execute_variable_assignment(self, node: VariableAssignmentNode) -> Any:
-        """Execute a variable assignment."""
         value = self.execute(node.value)
-        self.environment[node.name] = value
-        return value
-    
+        return self._define(node.name, value)
+
+    def _execute_function_definition(
+        self, node: FunctionDefinitionNode
+    ) -> UserFunction:
+        if not isinstance(node.body, BlockNode):
+            raise RuntimeError("Function body must be a block")
+
+        function = UserFunction(
+            name=node.name,
+            parameters=list(node.parameters),
+            body=node.body,
+            closure=tuple(self._scopes),
+        )
+        self._define(node.name, function)
+        return function
+
     def _execute_function_call(self, node: FunctionCallNode) -> Any:
-        """Execute a function call."""
-        if node.name not in self.environment:
-            raise NameError(f"Function '{node.name}' is not defined")
-        
-        func = self.environment[node.name]
-        
-        # Evaluate arguments
+        func = self._lookup(node.name)
         args = [self.execute(arg) for arg in node.arguments]
-        
-        # Call the function
-        if callable(func):
+
+        if isinstance(func, UserFunction):
+            return self._call_user_function(func, args)
+        elif callable(func):
             return func(*args)
-        else:
-            raise TypeError(f"'{node.name}' is not callable")
-    
+
+        raise TypeError(f"'{node.name}' is not callable")
+
+    def _call_user_function(self, function: UserFunction, args: List[Any]) -> Any:
+        expected = len(function.parameters)
+        received = len(args)
+        if received != expected:
+            raise TypeError(
+                f"Function '{function.name}' expected {expected} "
+                f"argument(s), got {received}"
+            )
+
+        local_scope: Dict[str, Any] = dict(zip(function.parameters, args))
+
+        previous_scopes = self._scopes
+        self._scopes = list(function.closure) + [local_scope]
+        self._function_depth += 1
+
+        try:
+            try:
+                self.execute(function.body)
+            except _ReturnSignal as signal:
+                return signal.value
+            return None
+        finally:
+            self._function_depth -= 1
+            self._scopes = previous_scopes
+
     def _execute_if_statement(self, node: IfStatementNode) -> Any:
-        """Execute an if statement."""
         condition = self.execute(node.condition)
-        
+
         if condition:
             return self.execute(node.then_branch)
-        elif node.else_branch:
+        elif node.else_branch is not None:
             return self.execute(node.else_branch)
-        
+
         return None
-    
+
     def _execute_while_loop(self, node: WhileLoopNode) -> Any:
-        """Execute a while loop."""
         result = None
-        
-        while True:
-            condition = self.execute(node.condition)
-            if not condition:
-                break
+
+        while self.execute(node.condition):
             result = self.execute(node.body)
-        
+
         return result
-    
+
     def _execute_block(self, node: BlockNode) -> Any:
-        """Execute a block of statements."""
         result = None
         for statement in node.statements:
             result = self.execute(statement)
         return result
-    
+
     def _execute_return_statement(self, node: ReturnStatementNode) -> Any:
-        """Execute a return statement."""
-        if node.value:
-            return self.execute(node.value)
-        return None
-    
-    # WarPy40K Specific Executions
-    
+        if self._function_depth == 0:
+            raise RuntimeError("'return' can only be used inside a function")
+
+        value = self.execute(node.value) if node.value is not None else None
+        raise _ReturnSignal(value)
+
     def _execute_inquisition_expr(self, node: InquisitionExprNode) -> Any:
-        """
-        Execute Inquisition expression.
-        
-        Inquisition represents investigation/judgment.
-        If target is provided, evaluates its truthiness.
-        If no target, returns a high faith value.
-        """
-        if node.target:
-            target_value = self.execute(node.target)
-            # Inquisition judges the target - returns boolean based on truthiness
-            return bool(target_value)
-        else:
-            # Default: Inquisition brings faith and order
-            return True
-    
+        if node.target is not None:
+            return bool(self.execute(node.target))
+        return True
+
     def _execute_emperor_expr(self, node: EmperorExprNode) -> Any:
-        """
-        Execute Emperor expression.
-        
-        Emperor represents divine power and protection.
-        If target is provided, blesses it (multiplies by faith factor).
-        If no target, returns a high value representing divine power.
-        """
-        faith_factor = self.environment.get('FAITH', 100) / 100.0
-        
-        if node.target:
+        faith_factor = self._lookup('FAITH') / 100.0
+
+        if node.target is not None:
             target_value = self.execute(node.target)
             if isinstance(target_value, (int, float)):
                 return target_value * faith_factor
-            else:
-                # For non-numeric values, just return the target
-                return target_value
-        else:
-            # Emperor's divine power
-            return 1000
-    
+            return target_value
+
+        return 1000
+
     def _execute_chaos_expr(self, node: ChaosExprNode) -> Any:
-        """
-        Execute Chaos expression.
-        
-        Chaos represents corruption and uncertainty.
-        If target is provided, corrupts it (adds randomness).
-        If no target, returns a random value representing chaos.
-        """
-        corruption = self.environment.get('CORRUPTION', 0) / 100.0
-        
-        if node.target:
+        corruption = self._lookup('CORRUPTION') / 100.0
+
+        if node.target is not None:
             target_value = self.execute(node.target)
             if isinstance(target_value, (int, float)):
-                # Add chaos/randomness
                 chaos_factor = random.uniform(-corruption, corruption) * target_value
                 return target_value + chaos_factor
-            else:
-                return target_value
-        else:
-            # Pure chaos
-            return random.random() * 100
-    
+            return target_value
+
+        return random.random() * 100
+
     def _execute_purge_expr(self, node: PurgeExprNode) -> Any:
-        """
-        Execute Purge expression.
-        
-        Purge represents destruction/removal.
-        Sets the target to zero/None/empty.
-        """
         target_value = self.execute(node.target)
-        
+
         if isinstance(target_value, (int, float)):
             return 0
         elif isinstance(target_value, str):
@@ -338,55 +330,29 @@ class Interpreter:
             return {}
         else:
             return None
-    
+
     def _execute_exterminatus_expr(self, node: ExterminatusExprNode) -> Any:
-        """
-        Execute Exterminatus expression.
-        
-        Exterminatus represents total annihilation.
-        If target is provided, destroys it completely.
-        If no target, returns a special value representing total destruction.
-        """
-        if node.target:
-            # Exterminatus destroys everything - returns None
-            self.execute(node.target)  # Execute for side effects
+        if node.target is not None:
+            self.execute(node.target)
             return None
-        else:
-            # Total annihilation
-            return "EXTERMINATUS"  # Special marker
-    
+        return "EXTERMINATUS"
+
     def _execute_bless_expr(self, node: BlessExprNode) -> Any:
-        """
-        Execute Bless expression.
-        
-        Bless represents positive modification.
-        Increases the target value.
-        """
         target_value = self.execute(node.target)
-        
+
         if isinstance(target_value, (int, float)):
-            # Bless increases by 10%
-            return target_value * 1.1
+            return target_value + (target_value / 10)
         elif isinstance(target_value, str):
-            # Bless adds a positive prefix
             return f"Blessed {target_value}"
         else:
             return target_value
-    
+
     def _execute_curse_expr(self, node: CurseExprNode) -> Any:
-        """
-        Execute Curse expression.
-        
-        Curse represents negative modification.
-        Decreases the target value.
-        """
         target_value = self.execute(node.target)
-        
+
         if isinstance(target_value, (int, float)):
-            # Curse decreases by 10%
             return target_value * 0.9
         elif isinstance(target_value, str):
-            # Curse adds a negative prefix
             return f"Cursed {target_value}"
         else:
             return target_value
