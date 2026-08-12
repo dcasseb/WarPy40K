@@ -1,8 +1,8 @@
 """
-WarPy40K - A toy language using Warhammer 40K universe expressions.
+WarPy40K - A Warhammer 40K-inspired interpreted programming language.
 
-This package provides an interpreter for a custom language that uses
-terminology and expressions from the Warhammer 40K universe.
+This package provides the lexer, parser, AST interpreter, and Python API
+for the WarPy40K language.
 """
 
 from .lexer import Lexer
@@ -10,7 +10,7 @@ from .parser import Parser
 from .interpreter import Interpreter
 from .tokens import TokenType
 
-__version__ = "0.9.0"
+__version__ = "1.0.0"
 __all__ = [
     "Lexer",
     "Parser",
