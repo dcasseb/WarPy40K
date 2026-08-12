@@ -1,0 +1,27 @@
+# WarPy40K v0.9 - recursion example
+
+# Recursive factorial
+def factorial(n) {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+# Recursive Fibonacci
+def fibonacci(n) {
+    if n <= 1 {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+# While loop
+counter = 0
+while counter < 5 {
+    print("counter:", counter)
+    counter = counter + 1
+}
+
+print("6! =", factorial(6))
+print("fib(10) =", fibonacci(10))
