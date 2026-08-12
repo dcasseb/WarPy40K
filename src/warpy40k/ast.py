@@ -17,12 +17,13 @@ class NodeType(Enum):
     IDENTIFIER = auto()
     VARIABLE_DECLARATION = auto()
     VARIABLE_ASSIGNMENT = auto()
+    FUNCTION_DEFINITION = auto()
     FUNCTION_CALL = auto()
     IF_STATEMENT = auto()
     WHILE_LOOP = auto()
     BLOCK = auto()
     RETURN_STATEMENT = auto()
-    
+
     # WarPy40K specific
     INQUISITION_EXPR = auto()
     EMPEROR_EXPR = auto()
@@ -45,7 +46,7 @@ class Program(ASTNode):
     statements: List['ASTNode'] = field(default_factory=list)
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Program(statements={len(self.statements)})"
 
@@ -56,7 +57,7 @@ class LiteralNode(ASTNode):
     value: Union[int, float, str, bool]
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Literal({type(self.value).__name__}: {self.value})"
 
@@ -67,7 +68,7 @@ class IdentifierNode(ASTNode):
     name: str
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Identifier({self.name})"
 
@@ -80,7 +81,7 @@ class BinaryOpNode(ASTNode):
     right: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"BinaryOp({self.left} {self.operator} {self.right})"
 
@@ -92,7 +93,7 @@ class UnaryOpNode(ASTNode):
     operand: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"UnaryOp({self.operator}{self.operand})"
 
@@ -104,7 +105,7 @@ class VariableDeclarationNode(ASTNode):
     value: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"VarDecl({self.name} = {self.value})"
 
@@ -116,9 +117,22 @@ class VariableAssignmentNode(ASTNode):
     value: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"VarAssign({self.name} = {self.value})"
+
+
+@dataclass
+class FunctionDefinitionNode(ASTNode):
+    """Represents a user-defined function."""
+    name: str
+    parameters: List[str]
+    body: ASTNode
+    line: int = 1
+    column: int = 1
+
+    def __repr__(self) -> str:
+        return f"FunctionDef({self.name}, params={len(self.parameters)})"
 
 
 @dataclass
@@ -128,7 +142,7 @@ class FunctionCallNode(ASTNode):
     arguments: List[ASTNode] = field(default_factory=list)
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"FunctionCall({self.name}, args={len(self.arguments)})"
 
@@ -141,7 +155,7 @@ class IfStatementNode(ASTNode):
     else_branch: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"If({self.condition})"
 
@@ -153,7 +167,7 @@ class WhileLoopNode(ASTNode):
     body: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"While({self.condition})"
 
@@ -164,7 +178,7 @@ class BlockNode(ASTNode):
     statements: List[ASTNode] = field(default_factory=list)
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Block({len(self.statements)} statements)"
 
@@ -175,7 +189,7 @@ class ReturnStatementNode(ASTNode):
     value: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Return({self.value})"
 
@@ -188,7 +202,7 @@ class InquisitionExprNode(ASTNode):
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Inquisition({self.target})"
 
@@ -199,7 +213,7 @@ class EmperorExprNode(ASTNode):
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Emperor({self.target})"
 
@@ -210,7 +224,7 @@ class ChaosExprNode(ASTNode):
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Chaos({self.target})"
 
@@ -221,7 +235,7 @@ class PurgeExprNode(ASTNode):
     target: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Purge({self.target})"
 
@@ -232,7 +246,7 @@ class ExterminatusExprNode(ASTNode):
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Exterminatus({self.target})"
 
@@ -243,7 +257,7 @@ class BlessExprNode(ASTNode):
     target: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Bless({self.target})"
 
@@ -254,6 +268,6 @@ class CurseExprNode(ASTNode):
     target: ASTNode
     line: int = 1
     column: int = 1
-    
+
     def __repr__(self) -> str:
         return f"Curse({self.target})"
