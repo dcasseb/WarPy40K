@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WarPy40K"
-version = "0.9.0"
+version = "1.0.0"
 description = "A Warhammer 40K-inspired interpreted programming language"
 readme = "README.md"
 license = {text = "MIT"}
@@ -12,9 +12,9 @@ requires-python = ">=3.8"
 authors = [
     {name = "Davi Casseb", email = "77282586+dcasseb@users.noreply.github.com"}
 ]
-keywords = ["language", "interpreter", "warhammer", "40k", "toy", "recursion"]
+keywords = ["language", "interpreter", "warhammer", "40k", "toy", "recursion", "turing-complete", "minsky-machine"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
