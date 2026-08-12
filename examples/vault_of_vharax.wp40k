@@ -1,0 +1,341 @@
+# WarPy40K 1.0 official showcase
+# The Vault of Vharax
+#
+# A small terminal roguelike/RPG written entirely in WarPy40K.
+# It intentionally uses only language features available in v1.0:
+# functions, lexical scopes, while, if/else, mutable state, strings,
+# input/output, arithmetic, Boolean logic and WarPy40K expressions.
+
+
+def warp_roll() {
+    return Chaos;
+}
+
+
+def sector_name(depth) {
+    if depth == 1 {
+        return "Ash Gate";
+    }
+    else {
+        if depth == 2 {
+            return "Reliquary of Static";
+        }
+        else {
+            if depth == 3 {
+                return "Choir of Rust";
+            }
+            else {
+                return "Throne of the Heretek";
+            }
+        }
+    }
+}
+
+
+def enemy_name(depth) {
+    if depth == 1 {
+        return "Scrap Cultist";
+    }
+    else {
+        if depth == 2 {
+            return "Warp-Touched Skitarii";
+        }
+        else {
+            if depth == 3 {
+                return "Possessed Sentinel";
+            }
+            else {
+                return "Arch-Heretek Vharax";
+            }
+        }
+    }
+}
+
+
+def enemy_health(depth) {
+    if depth == 1 {
+        return 44;
+    }
+    else {
+        if depth == 2 {
+            return 58;
+        }
+        else {
+            if depth == 3 {
+                return 72;
+            }
+            else {
+                return 96;
+            }
+        }
+    }
+}
+
+
+def ranged_damage(faith) {
+    roll = warp_roll();
+    return 12 + roll / 10 + faith / 25;
+}
+
+
+def melee_damage(faith) {
+    roll = warp_roll();
+    return 16 + roll / 8 + faith / 30;
+}
+
+
+def enemy_damage(depth, corruption) {
+    roll = warp_roll();
+    return 5 + depth * 2 + roll / 25 + corruption / 40;
+}
+
+
+def show_status(health, faith, corruption, medicae, relics) {
+    print("Health:", health, " Faith:", faith, " Corruption:", corruption);
+    print("Medicae:", medicae, " Relics:", relics);
+}
+
+
+def opening() {
+    print("============================================================");
+    print("WARPY40K: THE VAULT OF VHARAX");
+    print("Official WarPy40K 1.0 terminal showcase");
+    print("============================================================");
+    print("You are an Inquisitorial acolyte beneath a dead forge-city.");
+    print("Four sealed sectors stand between you and Arch-Heretek Vharax.");
+    print("Keep your health above zero and your corruption below 100.");
+    print("Faith empowers judgment. Relics improve your final score.");
+    print("");
+}
+
+
+def launch_inquisitor() {
+    health = 100;
+    faith = 60;
+    corruption = 5;
+    medicae = 2;
+    relics = 0;
+    depth = 1;
+    alive = True;
+    victory = False;
+    escaped = False;
+
+    opening();
+
+    while alive AND NOT victory AND NOT escaped {
+        print("");
+        print("------------------------------------------------------------");
+        print("Sector", depth, ":", sector_name(depth));
+        show_status(health, faith, corruption, medicae, relics);
+        print("------------------------------------------------------------");
+        print("1 - Advance under arms");
+        print("2 - Search the sector");
+        print("3 - Pray before the Emperor");
+        print("4 - Withdraw from the vault");
+
+        exploration = input("Choose your approach: ");
+
+        if exploration == "4" {
+            escaped = True;
+        }
+        else {
+            if exploration == "2" {
+                search_roll = warp_roll();
+
+                if search_roll < 38 {
+                    medicae = medicae + 1;
+                    print("You recover a sealed medicae charge.");
+                }
+                else {
+                    if search_roll < 72 {
+                        relics = relics + 1;
+                        faith = min(100, Bless faith);
+                        print("A sanctified relic answers your touch.");
+                    }
+                    else {
+                        corruption = corruption + 8;
+                        health = Curse health;
+                        print("The cache was bait. The Warp marks your flesh.");
+                    }
+                }
+            }
+            else {
+                if exploration == "3" {
+                    if Inquisition (faith >= corruption) {
+                        faith = min(100, Bless faith);
+                        health = min(100, health + Emperor 5);
+                        corruption = max(0, corruption - 3);
+                        print("Your prayer steadies both flesh and purpose.");
+                    }
+                    else {
+                        corruption = corruption + 5;
+                        print("Something else answers from beyond the veil.");
+                    }
+                }
+                else {
+                    print("You advance without delay.");
+                }
+            }
+        }
+
+        if NOT escaped {
+            event_roll = warp_roll();
+
+            if event_roll < 14 {
+                corruption = corruption + 7;
+                print("A Warp pulse rolls through the corridor. Corruption rises.");
+            }
+            else {
+                if event_roll < 27 {
+                    corruption = max(0, corruption - 5);
+                    faith = min(100, Bless faith);
+                    print("A forgotten shrine still carries a spark of sanctity.");
+                }
+                else {
+                    if event_roll < 39 {
+                        health = Curse health;
+                        print("A hexed mechanism tears at your body.");
+                    }
+                    else {
+                        print("The vault is silent. Too silent.");
+                    }
+                }
+            }
+
+            enemy = enemy_name(depth);
+            enemy_hp = enemy_health(depth);
+
+            print("");
+            print("CONTACT:", enemy);
+
+            while enemy_hp > 0 AND health > 0 {
+                print("");
+                print("Enemy health:", enemy_hp);
+                show_status(health, faith, corruption, medicae, relics);
+                print("1 - Boltgun: reliable ranged attack");
+                print("2 - Chainsword: stronger, but exposes you");
+                print("3 - Inquisition: spend Faith on a judgment strike");
+                print("4 - Medicae: restore health, if charges remain");
+
+                action = input("Combat action: ");
+                acted = True;
+
+                if action == "1" {
+                    damage = ranged_damage(faith);
+                    enemy_hp = enemy_hp - damage;
+                    print("Bolt shells strike for", damage, "damage.");
+                }
+                else {
+                    if action == "2" {
+                        damage = melee_damage(faith);
+                        enemy_hp = enemy_hp - damage;
+                        print("The chainsword bites for", damage, "damage.");
+                    }
+                    else {
+                        if action == "3" {
+                            if Inquisition (faith >= corruption + 10) {
+                                damage = 20 + faith / 5;
+                                enemy_hp = enemy_hp - damage;
+                                faith = max(0, faith - 6);
+                                corruption = max(0, corruption - 2);
+                                print("INQUISITION! Judgment deals", damage, "damage.");
+                            }
+                            else {
+                                health = health - 8;
+                                corruption = corruption + 6;
+                                print("Your judgment falters. The Warp answers instead.");
+                            }
+                        }
+                        else {
+                            if action == "4" {
+                                if medicae > 0 {
+                                    medicae = medicae - 1;
+                                    health = min(100, health + 30);
+                                    print("Medicae restores your wounds.");
+                                }
+                                else {
+                                    acted = False;
+                                    print("No medicae charges remain.");
+                                }
+                            }
+                            else {
+                                acted = False;
+                                print("Invalid order. Hesitation costs no turn.");
+                            }
+                        }
+                    }
+                }
+
+                if acted AND enemy_hp > 0 AND health > 0 {
+                    incoming = enemy_damage(depth, corruption);
+
+                    if action == "2" {
+                        incoming = incoming + 2;
+                    }
+
+                    if action == "4" {
+                        incoming = incoming + 3;
+                    }
+
+                    health = health - incoming;
+                    print(enemy, "strikes for", incoming, "damage.");
+                }
+
+                if corruption >= 100 {
+                    health = 0;
+                    print("Your identity dissolves into the Warp.");
+                }
+            }
+
+            if health <= 0 {
+                alive = False;
+            }
+            else {
+                if enemy_hp <= 0 {
+                    print("");
+                    print(enemy, "has been purged.");
+                    relics = relics + 1;
+                    health = min(100, health + 20);
+                    faith = min(100, faith + 5);
+
+                    if depth == 4 {
+                        victory = True;
+                    }
+                    else {
+                        depth = depth + 1;
+                    }
+                }
+            }
+        }
+    }
+
+    print("");
+    print("============================================================");
+
+    if victory {
+        print("VICTORY: VHARAX HAS BEEN JUDGED.");
+        corruption = Purge corruption;
+        final_protocol = Exterminatus;
+        print("Vault sanction:", final_protocol);
+        print("Remaining corruption after Purge:", corruption);
+        score = relics * 100 + faith + health;
+        print("Final score:", score);
+    }
+    else {
+        if escaped {
+            print("WITHDRAWAL: You seal the vault behind you.");
+            print("Vharax survives. The Inquisition will remember.");
+            score = relics * 50 + health + faith - corruption;
+            print("Extraction score:", score);
+        }
+        else {
+            print("DEFEAT: Your duty ends beneath the forge-city.");
+            print("Relics recovered before death:", relics);
+        }
+    }
+
+    print("============================================================");
+}
+
+
+launch_inquisitor();
