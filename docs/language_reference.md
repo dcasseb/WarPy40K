@@ -1,348 +1,321 @@
-# WarPy40K Language Reference
+# WarPy40K Language Reference — v1.0
 
-This document provides a complete reference for the WarPy40K programming language.
+This document describes the stable language core available in WarPy40K 1.0.
 
-## 📝 Basic Syntax
+## Lexical basics
 
 ### Comments
 
 Single-line comments start with `#`:
 
-```python
+```text
 # This is a comment
-x = 42  # Inline comment
+x = 42
 ```
 
-### Variables
+### Identifiers
 
-Variables are created by assignment:
-
-```python
-x = 42          # Integer
-name = "John"   # String
-faith = True    # Boolean
-```
-
-Variable names:
-- Can contain letters, numbers, and underscores
-- Cannot start with a number
-- Are case-sensitive
+Identifiers may contain letters, digits, and underscores, but may not begin with a digit. Names are case-sensitive.
 
 ### Literals
 
-#### Numbers
+Currently supported literals:
 
-```python
-42      # Integer
-3.14    # Float
--10     # Negative integer
-2.5e3   # Scientific notation (not yet supported)
-```
-
-#### Strings
-
-```python
-"Hello"         # Double quotes
-'World'         # Single quotes
-"Line 1\nLine 2"  # Newline escape
-```
-
-#### Booleans
-
-```python
+```text
+42
+3.14
+"For the Emperor!"
 True
 False
 ```
 
-## 🔢 Operators
+Strings use double quotes. Scientific-notation numeric literals and single-quoted strings are not part of the v1.0 grammar.
 
-### Arithmetic Operators
+## Variables and assignment
 
-| Operator | Name | Example | Result |
-|----------|------|---------|--------|
-| `+` | Addition | `1 + 2` | `3` |
-| `-` | Subtraction | `5 - 3` | `2` |
-| `*` | Multiplication | `2 * 3` | `6` |
-| `/` | Division | `6 / 2` | `3.0` |
-| `^` | Power | `2 ^ 3` | `8` |
+Variables are created or updated through assignment:
 
-### Comparison Operators
-
-| Operator | Name | Example | Result |
-|----------|------|---------|--------|
-| `==` | Equal | `1 == 1` | `True` |
-| `!=` | Not equal | `1 != 2` | `True` |
-| `>` | Greater than | `2 > 1` | `True` |
-| `<` | Less than | `1 < 2` | `True` |
-| `>=` | Greater or equal | `2 >= 2` | `True` |
-| `<=` | Less or equal | `1 <= 2` | `True` |
-
-### Logical Operators
-
-| Operator | Name | Example | Result |
-|----------|------|---------|--------|
-| `AND` | Logical AND | `True AND False` | `False` |
-| `OR` | Logical OR | `True OR False` | `True` |
-| `NOT` | Logical NOT | `NOT True` | `False` |
-
-### Operator Precedence
-
-From highest to lowest:
-
-1. Parentheses `()`
-2. Power `^`
-3. Multiplication `*`, Division `/`
-4. Addition `+`, Subtraction `-`
-5. Comparison operators (`==`, `!=`, `>`, `<`, `>=`, `<=`)
-6. Logical NOT `NOT`
-7. Logical AND `AND`
-8. Logical OR `OR`
-
-Example:
-```python
-1 + 2 * 3      # 1 + (2 * 3) = 7
-(1 + 2) * 3   # (1 + 2) * 3 = 9
-NOT True AND False  # (NOT True) AND False = False
-```
-
-## 📋 Statements
-
-### Assignment
-
-```python
+```text
 x = 42
 y = x + 10
 ```
 
-### If Statement
+At top level, assignments are stored in the global interpreter environment. Inside a user-defined function, assignments are local to that invocation.
 
-```python
-if condition
-    statement1
-    statement2
-else
-    statement3
-    statement4
+## Operators
+
+### Arithmetic
+
+| Operator | Meaning |
+|---|---|
+| `+` | addition |
+| `-` | subtraction |
+| `*` | multiplication |
+| `/` | division |
+| `^` | exponentiation |
+
+### Comparison
+
+```text
+==  !=  >  <  >=  <=
+```
+
+### Boolean logic
+
+```text
+AND
+OR
+NOT
+```
+
+Parentheses may be used for grouping.
+
+## Blocks
+
+Blocks are delimited by braces:
+
+```text
+{
+    x = 1
+    y = 2
+}
+```
+
+Whitespace and indentation improve readability but do not define block structure.
+
+## Conditional execution
+
+```text
+if condition {
+    statement
+}
+else {
+    other_statement
+}
 ```
 
 Example:
-```python
+
+```text
 x = 10
-if x > 5
-    print("x is greater than 5")
-else
-    print("x is 5 or less")
+
+if x > 5 {
+    print("greater")
+}
+else {
+    print("smaller or equal")
+}
 ```
 
-Nested if:
-```python
-if x > 5
-    if y > 10
-        print("Both conditions true")
-    else
-        print("Only first condition true")
-else
-    print("First condition false")
-```
+`else` is optional.
 
-### Expression Statements
+## While loops
 
-Any expression can be a statement:
+`while` is fully supported in v1.0 and has no artificial iteration limit:
 
-```python
-1 + 2          # Evaluates and discards result
-x = 42         # Assignment
-print("hello")   # Function call
-```
+```text
+counter = 0
 
-## 🔄 Control Flow
-
-### If/Else
-
-See [If Statement](#if-statement) above.
-
-### While Loops
-
-**Note**: While loops are partially implemented but may have issues with infinite loops.
-
-```python
-while condition
-    statement1
-    statement2
-```
-
-Example:
-```python
-counter = 1
-while counter <= 5
+while counter < 5 {
     print(counter)
     counter = counter + 1
+}
 ```
 
-## 📞 Function Calls
+A program may therefore intentionally or accidentally fail to terminate.
 
-### Built-in Functions
+## User-defined functions
 
-| Function | Description | Example |
-|----------|-------------|---------|
-| `print(x)` | Print value to console | `print("Hello")` |
-| `input(prompt)` | Get user input | `name = input("Name: ")` |
-| `random()` | Random float [0, 1) | `r = random()` |
-| `abs(x)` | Absolute value | `abs(-5)` |
-| `min(x, y, ...)` | Minimum value | `min(1, 2, 3)` |
-| `max(x, y, ...)` | Maximum value | `max(1, 2, 3)` |
-| `pow(x, y)` | Power | `pow(2, 3)` |
-| `len(x)` | Length | `len("hello")` |
-| `range(start, end)` | Range | `range(1, 5)` |
-| `exit(code)` | Exit program | `exit(0)` |
+Functions use `def`, a parameter list, and a block body:
 
-### Function Call Syntax
+```text
+def add(a, b) {
+    return a + b
+}
 
-```python
-function_name(arg1, arg2, arg3)
+result = add(20, 22)
 ```
 
-Example:
-```python
-print("Hello", "World")
-result = min(1, 2, 3)
+Function arity is checked at runtime.
+
+### Function scope
+
+Each call receives a fresh local scope for parameters and assignments:
+
+```text
+x = 100
+
+def identity(x) {
+    return x
+}
+
+identity(42)
+x
 ```
 
-## 🌟 WarPy40K Specific Expressions
+The final value of `x` is still `100`.
 
-WarPy40K includes special keywords inspired by the Warhammer 40K universe:
+Function names remain visible through their lexical environment, enabling recursion.
 
-| Expression | Syntax | Description | Example |
-|------------|--------|-------------|---------|
-| Inquisition | `Inquisition [target]` | Truth/judgment | `Inquisition 42` |
-| Emperor | `Emperor [target]` | Divine power | `Emperor 100` |
-| Chaos | `Chaos [target]` | Corruption/randomness | `Chaos` |
-| Purge | `Purge target` | Destruction | `Purge 42` |
-| Exterminatus | `Exterminatus [target]` | Total annihilation | `Exterminatus` |
-| Bless | `Bless target` | Positive modification | `Bless 100` |
-| Curse | `Curse target` | Negative modification | `Curse 100` |
+### Recursion
 
-See [WarPy40K Expressions](warpy_expressions.md) for detailed explanations.
+```text
+def factorial(n) {
+    if n <= 1 {
+        return 1
+    }
 
-## 🏷️ Built-in Constants
+    return n * factorial(n - 1)
+}
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `FAITH` | 100 | Default faith value |
-| `CORRUPTION` | 0 | Default corruption level |
-| `POPULATION` | 1000000 | Default population |
-| `True` | `True` | Boolean true |
-| `False` | `False` | Boolean false |
-
-## 📊 Types
-
-### Numbers
-
-- **Integer**: Whole numbers (`42`, `-10`)
-- **Float**: Decimal numbers (`3.14`, `-0.5`)
-
-### Strings
-
-- Sequences of characters enclosed in quotes
-- Support escape sequences
-
-### Booleans
-
-- `True` or `False`
-- Result of comparisons and logical operations
-
-### None
-
-- Special value representing nothing
-- Returned by `Exterminatus` and some other operations
-
-## 🔧 Type Conversion
-
-WarPy40K performs automatic type conversion in some cases:
-
-```python
-"Hello " + "World"   # String concatenation
-1 + 2               # Integer addition
-1 + 2.5             # Float addition (2 becomes 2.0)
+factorial(6)
 ```
 
-**Note**: Explicit type conversion is not yet supported.
+This evaluates to `720`.
 
-## 📝 Best Practices
+## Return
 
-### Code Style
+`return` exits the nearest user-defined function immediately:
 
-- Use descriptive variable names
-- Add comments to explain complex logic
-- Keep lines short for readability
-- Use consistent indentation
+```text
+def find(limit) {
+    x = 0
 
-### Example of Good Style
-
-```python
-# Calculate the Emperor's blessing on a planet
-planet_population = 1000000
-faith_level = 80
-
-# Check if the planet is worthy
-if Inquisition faith_level
-    # Bless the planet
-    blessed_population = Bless Emperor planet_population
-    print("Blessed population:")
-    print(blessed_population)
-else
-    # Purge the heretics
-    print("The planet must be purged!")
+    while True {
+        if x >= limit {
+            return x
+        }
+        x = x + 1
+    }
+}
 ```
 
-### Example of Poor Style
+A `return` reached inside nested `if` statements, blocks, or loops unwinds the function call. Using `return` outside a user-defined function is a runtime error.
 
-```python
-p=1000000
-f=80
-if Inquisition f
-Bless Emperor p
-else
-Purge p
+## Built-in functions
+
+WarPy40K 1.0 exposes the following built-ins:
+
+| Function | Description |
+|---|---|
+| `print(...)` | print values |
+| `input(prompt)` | read user input |
+| `random()` | random float in `[0, 1)` |
+| `abs(x)` | absolute value |
+| `min(...)` | minimum |
+| `max(...)` | maximum |
+| `pow(x, y)` | exponentiation |
+| `len(x)` | length of a supported host-backed value |
+| `range(...)` | create a host-backed range |
+| `exit(code)` | terminate execution |
+
+Some built-ins still expose Python-hosted runtime values. Reducing this host-language leakage is part of the post-1.0 roadmap.
+
+## Built-in constants
+
+```text
+FAITH
+CORRUPTION
+POPULATION
+True
+False
 ```
 
-## 🐛 Common Mistakes
+Default values are currently:
 
-### Forgetting Variable Assignment
-
-```python
-# Wrong: Trying to use a variable before assignment
-print(x)  # Error: x is not defined
-
-# Right: Assign first
-x = 42
-print(x)  # Output: 42
+```text
+FAITH = 100
+CORRUPTION = 0
+POPULATION = 1000000
 ```
 
-### Incorrect Operator Usage
+## WarPy40K expressions
 
-```python
-# Wrong: Using = for comparison
-if x = 5  # Error: Assignment in condition
-    print("x is 5")
+### `Inquisition`
 
-# Right: Use == for comparison
-if x == 5
-    print("x is 5")
+Evaluates the truthiness of a target. Without a target, it evaluates to `True`.
+
+```text
+Inquisition 42
 ```
 
-### Missing Parentheses
+### `Emperor`
 
-```python
-# Wrong: Missing closing parenthesis
-print("Hello"
+Applies the current faith factor to a numeric target. Without a target, it returns the language's current high-value Emperor marker.
 
-# Right: Include all parentheses
-print("Hello")
+```text
+Emperor 100
 ```
 
-## 📖 Next Steps
+### `Chaos`
 
-- **[WarPy40K Expressions](warpy_expressions.md)** - Learn about special keywords
-- **[Tutorials](tutorials.md)** - Step-by-step programming guides
-- **[Examples](examples.md)** - See complete example programs
+Applies corruption/randomness to a target or produces a random value when used without a target.
+
+```text
+Chaos 100
+```
+
+### `Purge`
+
+Reduces a target according to its runtime type, such as numeric zero or an empty string.
+
+```text
+Purge 42
+```
+
+### `Exterminatus`
+
+Evaluates an optional target for side effects and represents total annihilation.
+
+```text
+Exterminatus 42
+```
+
+### `Bless`
+
+Increases numeric targets by 10% and applies a positive transformation to supported values.
+
+```text
+Bless 100
+```
+
+### `Curse`
+
+Decreases numeric targets by 10% and applies a negative transformation to supported values.
+
+```text
+Curse 100
+```
+
+The deeper semantics of these language-specific concepts will evolve during the 1.x series. See [roadmap.md](roadmap.md).
+
+## Turing completeness
+
+WarPy40K 1.0 includes a constructive Turing-completeness demonstration in [`examples/minsky_universal.wp40k`](../examples/minsky_universal.wp40k).
+
+That source file implements a universal interpreter for encoded deterministic two-counter Minsky machines using WarPy40K itself.
+
+See [turing_completeness.md](turing_completeness.md) for the construction and proof argument.
+
+## Current grammar sketch
+
+The following is descriptive rather than a formal parser specification:
+
+```text
+program        := statement*
+statement      := if_stmt
+                | while_stmt
+                | function_def
+                | return_stmt
+                | block
+                | expression
+
+if_stmt        := "if" expression statement ("else" statement)?
+while_stmt     := "while" expression statement
+function_def   := "def" IDENTIFIER "(" parameters? ")" block
+parameters     := IDENTIFIER ("," IDENTIFIER)*
+return_stmt    := "return" expression?
+block          := "{" statement* "}"
+```
+
+A formal versioned grammar is planned for a later 1.x release.
