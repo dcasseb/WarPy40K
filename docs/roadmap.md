@@ -289,6 +289,51 @@ Full self-hosting is not required for 2.0. The important transition is that the 
 
 ---
 
+## Post-v2.0 — The Forge Era (exploratory)
+
+These milestones are research directions, not release promises. They sequence
+the foundations required before WarPy40K could responsibly attempt real-time
+simulation or 3D graphics.
+
+### v2.1 — Vectors and Matrices
+
+- specified fixed-size vector and matrix values;
+- explicit numeric precision and conversion rules;
+- deterministic algebra suitable for geometry and simulation tests.
+
+### v2.2 — Buffers and Data Layout
+
+- packed numeric buffers and typed views;
+- documented memory/layout rules;
+- efficient transfer of structured data without exposing arbitrary Python objects.
+
+### v2.3 — Sanctioned Native Interface
+
+- capability-gated foreign-function boundary;
+- versioned calling and ownership conventions;
+- narrow adapters for audited native libraries rather than unrestricted imports.
+
+### v2.4 — Real-Time Host Loop
+
+- window, clock, and input abstractions;
+- update/render loop with explicit timing semantics;
+- deterministic headless mode for automated testing.
+
+### v2.5 — Jobs and Concurrency
+
+- bounded task/job model for simulation work;
+- explicit synchronization and deterministic scheduling modes;
+- no shared-state concurrency without specified safety rules.
+
+### v2.6 — Graphics and Simulation Runtime
+
+- mesh, material, camera, and scene abstractions built on earlier milestones;
+- a minimal rendering backend behind the sanctioned native interface;
+- small 3D experiments and conformance scenes, contingent on the stability of
+  the data, real-time, and concurrency foundations.
+
+---
+
 ## Features deliberately not prioritized
 
 The following should not be added merely because Python has them:

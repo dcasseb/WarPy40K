@@ -1,12 +1,15 @@
 # WarPy40K
 
-**Current version: 1.0.0**
+**Current version: 1.0.1**
 
 A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
 
-## WarPy40K 1.0
+## WarPy40K 1.0.1
 
-Version **1.0.0** marks the transition from an experimental themed interpreter to a small but complete computational language core.
+Version **1.0.1** stabilizes the computational language core introduced in
+1.0.0. It adds explicit numeric/text conversions, corrects whole-file CLI
+execution, strengthens the constructive-machine and showcase tests, and makes
+the documented development checks enforceable in CI.
 
 WarPy40K now supports:
 
@@ -23,6 +26,7 @@ WarPy40K now supports:
 - `return` with real control-flow unwind;
 - direct recursion;
 - built-in functions;
+- explicit `int`, `float`, and `str` conversions;
 - WarPy40K-specific expressions;
 - REPL and file execution;
 - token and AST inspection.
@@ -41,7 +45,13 @@ The v1.0 example defines the fixed function:
 run_minsky(program, program_base, field_base, start_pc, c1, c2, max_steps, trace)
 ```
 
-The simulated Minsky program is supplied as a natural number. WarPy40K decodes instructions from that integer and executes the corresponding counter-machine transitions.
+The finite instruction payload is supplied as a natural number. The complete
+machine description used by this implementation is the tuple
+`(program, P, F, start_pc)`; the initial counters are separate runtime inputs.
+WarPy40K decodes instructions from those values and executes the corresponding
+counter-machine transitions. A conventional pairing function could encode the
+finite tuple as one natural number, but this example keeps the components
+explicit and testable.
 
 Instruction set:
 
@@ -59,7 +69,7 @@ An instruction is encoded with a field base `F`:
 word = opcode + F * A + F^2 * B
 ```
 
-and a complete finite program is encoded with program base `P`:
+and the finite instruction payload is encoded with program base `P`:
 
 ```text
 program = sum(word_i * P^i)
@@ -87,13 +97,18 @@ Run it with:
 warpy40k examples/minsky_universal.wp40k
 ```
 
-The automated v1.0 tests also execute different encoded machines, exercise the zero branch of `DECJZ`, and validate a deliberately non-halting program through the optional debugging step guard.
+The automated v1.0.1 tests execute different encoded machines, exercise every
+opcode and both `DECJZ` paths, reject invalid configurations/opcodes, and
+validate a deliberately non-halting program through the optional debugging
+step guard.
 
 ## Why this is stronger than a hard-coded example
 
 `run_minsky` is fixed while `program` is data.
 
-That means the same WarPy40K source interpreter can execute different finite two-counter machine programs simply by receiving different encoded integers.
+That means the same WarPy40K source interpreter can execute different finite
+two-counter machines simply by receiving different encoded machine
+descriptions.
 
 Conceptually:
 
@@ -101,7 +116,7 @@ Conceptually:
 Turing machine
       ↓ simulation
 Two-counter Minsky machine
-      ↓ natural-number encoding
+      ↓ finite tuple with natural-number instruction payload
 WarPy40K run_minsky(program, ...)
       ↓
 WarPy40K runtime
@@ -253,13 +268,22 @@ Result / effects
 - recursion;
 - computational core becomes Turing complete under the usual theoretical model.
 
-### v1.0 — Current
+### v1.0
 
 - universal two-counter Minsky-machine interpreter written in WarPy40K;
 - machine programs encoded as natural-number data;
 - constructive Turing-completeness documentation;
 - automated v1.0 machine-interpreter tests;
-- package metadata promoted to `1.0.0`;
+- package metadata promoted to `1.0.0`.
+
+### v1.0.1 — Current
+
+- explicit `int`, `float`, and `str` conversion built-ins;
+- file execution parses and runs each source exactly once;
+- corrected runnable examples and command-line documentation;
+- broader Minsky-machine and terminal-showcase regression coverage;
+- enforced formatting, linting, typing, and coverage checks;
+- synchronized package metadata and changelog;
 - language roadmap shifts from “mini-Python functionality” toward explicitly WarPy40K semantics.
 
 ## Identity-focused roadmap
@@ -280,6 +304,7 @@ Planned milestones:
 | **1.8** | **Machine-Spirit introspection** — stable AST/runtime tracing and scope inspection |
 | **1.9** | **Forge bytecode** — small documented bytecode plus VM |
 | **2.0** | **Independent runtime** — language semantics increasingly independent of accidental Python behavior |
+| **2.1–2.6** | **Forge Era (exploratory)** — foundations for data-oriented, real-time, simulation, and eventual 3D work |
 
 The guiding rule is simple:
 
@@ -287,11 +312,12 @@ The guiding rule is simple:
 
 ## Documentation
 
-- [`docs/language_reference.md`](docs/language_reference.md) — v1.0 language reference
+- [`docs/language_reference.md`](docs/language_reference.md) — v1.0.1 language reference
 - [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality proof
 - [`docs/roadmap.md`](docs/roadmap.md) — post-1.0 language roadmap
 - [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
 - [`docs/api_reference.md`](docs/api_reference.md) — Python-host API
+- [`CHANGELOG.md`](CHANGELOG.md) — versioned release notes
 
 ## Development
 
@@ -307,6 +333,7 @@ Formatting and type checks:
 black src/ tests/
 isort src/ tests/
 mypy src/warpy40k
+flake8 src/ tests/
 ```
 
 ## License

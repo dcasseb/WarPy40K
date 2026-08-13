@@ -5,12 +5,14 @@ This package provides the lexer, parser, AST interpreter, and Python API
 for the WarPy40K language.
 """
 
+from typing import Any, Optional
+
+from .interpreter import Interpreter
 from .lexer import Lexer
 from .parser import Parser
-from .interpreter import Interpreter
 from .tokens import TokenType
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __all__ = [
     "Lexer",
     "Parser",
@@ -25,14 +27,14 @@ __all__ = [
 class WarPy40KError(Exception):
     """Custom exception for WarPy40K errors."""
 
-    def __init__(self, message: str, line: int = 1, column: int = 1):
+    def __init__(self, message: str, line: int = 1, column: int = 1) -> None:
         self.message = message
         self.line = line
         self.column = column
         super().__init__(f"Error at line {line}, column {column}: {message}")
 
 
-_global_interpreter = None
+_global_interpreter: Optional[Interpreter] = None
 
 
 def get_interpreter() -> Interpreter:
@@ -49,7 +51,7 @@ def reset_interpreter() -> None:
     _global_interpreter = Interpreter()
 
 
-def evaluate(source: str, use_global: bool = True):
+def evaluate(source: str, use_global: bool = True) -> Any:
     """Evaluate WarPy40K source code and return the result."""
     try:
         lexer = Lexer(source)
@@ -70,7 +72,7 @@ def evaluate(source: str, use_global: bool = True):
             parts = error_msg.split()
             try:
                 line_idx = parts.index("line") + 1
-                line = int(parts[line_idx].rstrip(','))
+                line = int(parts[line_idx].rstrip(","))
                 column_idx = parts.index("column") + 1
                 column = int(parts[column_idx])
             except (ValueError, IndexError):

@@ -9,12 +9,27 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
 from .ast import (
-    ASTNode, Program, LiteralNode, IdentifierNode, BinaryOpNode,
-    UnaryOpNode, VariableDeclarationNode, VariableAssignmentNode,
-    FunctionDefinitionNode, FunctionCallNode, IfStatementNode,
-    WhileLoopNode, BlockNode, ReturnStatementNode, InquisitionExprNode,
-    EmperorExprNode, ChaosExprNode, PurgeExprNode, ExterminatusExprNode,
-    BlessExprNode, CurseExprNode
+    ASTNode,
+    BinaryOpNode,
+    BlessExprNode,
+    BlockNode,
+    ChaosExprNode,
+    CurseExprNode,
+    EmperorExprNode,
+    ExterminatusExprNode,
+    FunctionCallNode,
+    FunctionDefinitionNode,
+    IdentifierNode,
+    IfStatementNode,
+    InquisitionExprNode,
+    LiteralNode,
+    Program,
+    PurgeExprNode,
+    ReturnStatementNode,
+    UnaryOpNode,
+    VariableAssignmentNode,
+    VariableDeclarationNode,
+    WhileLoopNode,
 )
 
 
@@ -31,7 +46,7 @@ class UserFunction:
 class _ReturnSignal(Exception):
     """Internal signal used to unwind execution when `return` is reached."""
 
-    def __init__(self, value: Any):
+    def __init__(self, value: Any) -> None:
         super().__init__()
         self.value = value
 
@@ -44,7 +59,7 @@ class Interpreter:
     Function calls add temporary lexical scopes on top of it.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the interpreter."""
         self.environment: Dict[str, Any] = {}
         self._scopes: List[Dict[str, Any]] = [self.environment]
@@ -53,22 +68,25 @@ class Interpreter:
 
     def _init_builtins(self) -> None:
         """Initialize built-in functions and constants."""
-        self.environment['FAITH'] = 100
-        self.environment['CORRUPTION'] = 0
-        self.environment['POPULATION'] = 1000000
-        self.environment['True'] = True
-        self.environment['False'] = False
+        self.environment["FAITH"] = 100
+        self.environment["CORRUPTION"] = 0
+        self.environment["POPULATION"] = 1000000
+        self.environment["True"] = True
+        self.environment["False"] = False
 
-        self.environment['print'] = self._builtin_print
-        self.environment['input'] = self._builtin_input
-        self.environment['random'] = self._builtin_random
-        self.environment['abs'] = abs
-        self.environment['min'] = min
-        self.environment['max'] = max
-        self.environment['pow'] = pow
-        self.environment['len'] = len
-        self.environment['range'] = range
-        self.environment['exit'] = self._builtin_exit
+        self.environment["print"] = self._builtin_print
+        self.environment["input"] = self._builtin_input
+        self.environment["random"] = self._builtin_random
+        self.environment["abs"] = abs
+        self.environment["min"] = min
+        self.environment["max"] = max
+        self.environment["pow"] = pow
+        self.environment["len"] = len
+        self.environment["range"] = range
+        self.environment["int"] = self._builtin_int
+        self.environment["float"] = self._builtin_float
+        self.environment["str"] = self._builtin_str
+        self.environment["exit"] = self._builtin_exit
 
     def _builtin_print(self, *args: Any) -> None:
         print(*args)
@@ -79,10 +97,27 @@ class Interpreter:
 
     def _builtin_exit(self, code: int = 0) -> None:
         import sys
+
         sys.exit(code)
 
     def _builtin_random(self) -> float:
         return random.random()
+
+    def _builtin_int(self, value: Any) -> int:
+        """Convert a numeric value or decimal string to an integer."""
+        if isinstance(value, (bool, int, float, str)):
+            return int(value.strip() if isinstance(value, str) else value)
+        raise TypeError("int() expects a number, Boolean, or decimal string")
+
+    def _builtin_float(self, value: Any) -> float:
+        """Convert a numeric value or decimal string to a float."""
+        if isinstance(value, (bool, int, float, str)):
+            return float(value.strip() if isinstance(value, str) else value)
+        raise TypeError("float() expects a number, Boolean, or decimal string")
+
+    def _builtin_str(self, value: Any) -> str:
+        """Return the stable textual representation of a runtime value."""
+        return str(value)
 
     def _lookup(self, name: str) -> Any:
         for scope in reversed(self._scopes):
@@ -157,33 +192,33 @@ class Interpreter:
         right = self.execute(node.right)
         operator = node.operator
 
-        if operator == '+':
+        if operator == "+":
             return left + right
-        elif operator == '-':
+        elif operator == "-":
             return left - right
-        elif operator == '*':
+        elif operator == "*":
             return left * right
-        elif operator == '/':
+        elif operator == "/":
             if right == 0:
                 raise ZeroDivisionError("Division by zero")
             return left / right
-        elif operator == '^':
-            return left ** right
-        elif operator == '==':
+        elif operator == "^":
+            return left**right
+        elif operator == "==":
             return left == right
-        elif operator == '!=':
+        elif operator == "!=":
             return left != right
-        elif operator == '>':
+        elif operator == ">":
             return left > right
-        elif operator == '<':
+        elif operator == "<":
             return left < right
-        elif operator == '>=':
+        elif operator == ">=":
             return left >= right
-        elif operator == '<=':
+        elif operator == "<=":
             return left <= right
-        elif operator == 'AND' or operator == '&&':
+        elif operator == "AND" or operator == "&&":
             return left and right
-        elif operator == 'OR' or operator == '||':
+        elif operator == "OR" or operator == "||":
             return left or right
 
         raise RuntimeError(f"Unknown operator: {operator}")
@@ -192,9 +227,9 @@ class Interpreter:
         operand = self.execute(node.operand)
         operator = node.operator
 
-        if operator == '-':
+        if operator == "-":
             return -operand
-        elif operator == 'NOT' or operator == '!':
+        elif operator == "NOT" or operator == "!":
             return not operand
 
         raise RuntimeError(f"Unknown unary operator: {operator}")
@@ -295,7 +330,7 @@ class Interpreter:
         return True
 
     def _execute_emperor_expr(self, node: EmperorExprNode) -> Any:
-        faith_factor = self._lookup('FAITH') / 100.0
+        faith_factor = self._lookup("FAITH") / 100.0
 
         if node.target is not None:
             target_value = self.execute(node.target)
@@ -306,7 +341,7 @@ class Interpreter:
         return 1000
 
     def _execute_chaos_expr(self, node: ChaosExprNode) -> Any:
-        corruption = self._lookup('CORRUPTION') / 100.0
+        corruption = self._lookup("CORRUPTION") / 100.0
 
         if node.target is not None:
             target_value = self.execute(node.target)

@@ -1,6 +1,6 @@
 # Constructive Turing-Completeness Demonstration
 
-WarPy40K 1.0 includes a constructive demonstration of Turing completeness in [`examples/minsky_universal.wp40k`](../examples/minsky_universal.wp40k).
+WarPy40K 1.0.1 includes a constructive demonstration of Turing completeness in [`examples/minsky_universal.wp40k`](../examples/minsky_universal.wp40k).
 
 The demonstration is stronger than merely observing that the language has an unrestricted `while`. It implements, in WarPy40K itself, a universal interpreter for deterministic two-counter Minsky machines.
 
@@ -48,11 +48,12 @@ field_at(word, 2, F) -> B
 
 The helper functions `nat_pow`, `nat_div`, and `nat_mod` are all implemented in WarPy40K. They do not rely on a Python-side Minsky-machine helper.
 
-## Encoding an entire program as one natural number
+## Encoding the finite instruction payload
 
 Choose a program base `P` larger than every encoded instruction word.
 
-For instruction word `word_i` at label `i`, encode the complete finite machine program as:
+For instruction word `word_i` at label `i`, encode the finite instruction
+payload as:
 
 ```text
 program = sum(word_i * P^i)
@@ -64,9 +65,23 @@ The universal interpreter retrieves the instruction at the current program count
 instruction_at(program, pc, P)
 ```
 
-Therefore the simulated machine program is data. The WarPy40K interpreter in `run_minsky` is fixed; changing the encoded integer changes the machine being simulated.
+Therefore the simulated instruction table is data. The WarPy40K interpreter in
+`run_minsky` is fixed; changing the encoded payload changes the machine being
+simulated.
+
+The concrete API receives the machine description as the finite tuple
+`(program, P, F, start_pc)`, with `C1` and `C2` supplied as runtime inputs. It
+does not claim that `program` alone also contains the bases and entry point. A
+standard pairing construction could encode that finite tuple as one natural
+number, but keeping the components separate makes the executable demonstration
+clearer and its preconditions explicit.
 
 That distinction is important: the example is not one hard-coded Minsky machine. It is an interpreter for arbitrary machines in this encoded two-counter model.
+
+The caller must choose `F` larger than all opcodes and labels, and `P` larger
+than every instruction word actually used. `run_minsky` rejects negative
+natural-number inputs, non-positive `P`, `F <= 4`, negative step bounds, and
+decoded opcodes outside `0..4`.
 
 ## Universal interpreter
 
@@ -173,7 +188,7 @@ Thus, under the standard unbounded-memory abstraction:
 Turing machine
       ↓ encoded/simulated by
 Two-counter Minsky machine
-      ↓ encoded as a natural number
+      ↓ finite tuple with a natural-number instruction payload
 WarPy40K run_minsky
       ↓ executed by
 WarPy40K language runtime
@@ -187,7 +202,9 @@ WarPy40K is Turing complete.
 
 - the transfer machine from the example (`3 + 4 -> 7` in `C1`);
 - a different encoded program that increments `C1` twice (`40 -> 42`);
-- the zero branch of `DECJZ`;
+- both branches of both counter instructions;
+- all five opcodes;
+- invalid configurations and invalid encoded opcodes;
 - a deliberately non-halting machine controlled by the optional test step guard.
 
 These tests are intended to show that `run_minsky` is interpreting machine data rather than merely reproducing one hard-coded computation.
@@ -199,3 +216,12 @@ Turing completeness says something about **computability**, not convenience, per
 WarPy40K 1.0 is still a small educational language. Python remains vastly richer in data structures, modules, tooling, libraries, object orientation, exceptions, generators, concurrency, typing, packaging, and runtime optimization.
 
 The importance of the v1.0 milestone is narrower and more fundamental: WarPy40K now has both a universal computational core and a constructive artifact demonstrating it.
+
+## References
+
+- Marvin L. Minsky, *Computation: Finite and Infinite Machines*,
+  Prentice-Hall, 1967, especially the register-machine constructions.
+  [ACM bibliographic record](https://dl.acm.org/doi/book/10.5555/1095587).
+- J. C. Shepherdson and H. E. Sturgis, “Computability of Recursive
+  Functions,” *Journal of the ACM* 10(2), 1963, pp. 217–255.
+  [DOI: 10.1145/321160.321170](https://dl.acm.org/doi/10.1145/321160.321170).

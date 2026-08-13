@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WarPy40K"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Warhammer 40K-inspired interpreted programming language"
 readme = "README.md"
 license = {text = "MIT"}

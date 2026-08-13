@@ -1,4 +1,4 @@
-# WarPy40K Language Reference — v1.0
+# WarPy40K Language Reference — v1.0.1
 
 This document describes the stable language core available in WarPy40K 1.0.
 
@@ -140,7 +140,8 @@ Function arity is checked at runtime.
 
 ### Function scope
 
-Each call receives a fresh local scope for parameters and assignments:
+Each function call receives a fresh local scope for parameters and assignments.
+Braced blocks do not create additional scopes in v1.0.1:
 
 ```text
 x = 100
@@ -194,12 +195,15 @@ A `return` reached inside nested `if` statements, blocks, or loops unwinds the f
 
 ## Built-in functions
 
-WarPy40K 1.0 exposes the following built-ins:
+WarPy40K 1.0.1 exposes the following built-ins:
 
 | Function | Description |
 |---|---|
 | `print(...)` | print values |
 | `input(prompt)` | read user input |
+| `int(x)` | convert a number, Boolean, or decimal string to an integer |
+| `float(x)` | convert a number, Boolean, or decimal string to a float |
+| `str(x)` | convert a runtime value to text |
 | `random()` | random float in `[0, 1)` |
 | `abs(x)` | absolute value |
 | `min(...)` | minimum |
@@ -210,6 +214,9 @@ WarPy40K 1.0 exposes the following built-ins:
 | `exit(code)` | terminate execution |
 
 Some built-ins still expose Python-hosted runtime values. Reducing this host-language leakage is part of the post-1.0 roadmap.
+
+`input` always returns a string. Use `int(...)` or `float(...)` before numeric
+arithmetic; multiplying input by `1` does not perform numeric conversion.
 
 ## Built-in constants
 

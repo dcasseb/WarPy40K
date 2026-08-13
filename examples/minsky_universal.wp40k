@@ -1,9 +1,10 @@
 # WarPy40K v1.0 constructive Turing-completeness demonstration
 #
-# This program implements a universal interpreter for deterministic
-# two-counter Minsky machines. The machine program is encoded as one
-# natural number; WarPy40K decodes and executes it using only arithmetic,
-# comparisons, functions, conditionals and unrestricted while loops.
+# This program implements an interpreter for deterministic two-counter
+# Minsky machines. The finite program payload is encoded as a natural number;
+# its bases and starting label are explicit configuration parameters.
+# WarPy40K decodes and executes it using only arithmetic, comparisons,
+# functions, conditionals and unrestricted while loops.
 #
 # Instruction opcodes:
 #   0 = HALT
@@ -107,6 +108,11 @@ def place_instruction(word, label, program_base) {
 def run_minsky(program, program_base, field_base, start_pc, c1, c2, max_steps, trace) {
     # max_steps == 0 means unrestricted execution.
     # The machine's conventional output is counter C1 when HALT is reached.
+    # -3 reports an invalid simulator configuration; -2 an invalid opcode.
+    if program < 0 OR program_base <= 0 OR field_base <= 4 OR start_pc < 0 OR c1 < 0 OR c2 < 0 OR max_steps < 0 {
+        return -3
+    }
+
     pc = start_pc
     steps = 0
     running = True

@@ -4,29 +4,29 @@ Recursive-descent parser for the WarPy40K language.
 
 from typing import List, Optional
 
-from .tokens import Token, TokenType
 from .ast import (
     ASTNode,
-    Program,
-    LiteralNode,
-    IdentifierNode,
     BinaryOpNode,
+    BlessExprNode,
+    BlockNode,
+    ChaosExprNode,
+    CurseExprNode,
+    EmperorExprNode,
+    ExterminatusExprNode,
+    FunctionCallNode,
+    FunctionDefinitionNode,
+    IdentifierNode,
+    IfStatementNode,
+    InquisitionExprNode,
+    LiteralNode,
+    Program,
+    PurgeExprNode,
+    ReturnStatementNode,
     UnaryOpNode,
     VariableAssignmentNode,
-    FunctionDefinitionNode,
-    FunctionCallNode,
-    IfStatementNode,
     WhileLoopNode,
-    BlockNode,
-    ReturnStatementNode,
-    InquisitionExprNode,
-    EmperorExprNode,
-    ChaosExprNode,
-    PurgeExprNode,
-    ExterminatusExprNode,
-    BlessExprNode,
-    CurseExprNode,
 )
+from .tokens import Token, TokenType
 
 
 class Parser:
@@ -93,6 +93,7 @@ class Parser:
 
     def _parse_if_statement(self) -> IfStatementNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         condition = self._parse_expression()
         then_branch = self._parse_statement()
@@ -116,6 +117,7 @@ class Parser:
 
     def _parse_while_statement(self) -> WhileLoopNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         condition = self._parse_expression()
         body = self._parse_statement()
@@ -127,6 +129,7 @@ class Parser:
 
     def _parse_function_definition(self) -> FunctionDefinitionNode:
         def_token = self.current_token
+        assert def_token is not None
         self._advance()
 
         name_token = self._expect(
@@ -167,13 +170,14 @@ class Parser:
 
     def _parse_return_statement(self) -> ReturnStatementNode:
         token = self.current_token
+        assert token is not None
         self._advance()
 
         value = None
-        if (
-            self.current_token
-            and self.current_token.type
-            not in (TokenType.SEMICOLON, TokenType.RBRACE, TokenType.EOF)
+        if self.current_token and self.current_token.type not in (
+            TokenType.SEMICOLON,
+            TokenType.RBRACE,
+            TokenType.EOF,
         ):
             value = self._parse_expression()
 
@@ -197,7 +201,9 @@ class Parser:
             op_token = self.current_token
             self._advance()
             right = self._parse_logical_and()
-            left = BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            left = BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_logical_and(self) -> ASTNode:
@@ -206,51 +212,55 @@ class Parser:
             op_token = self.current_token
             self._advance()
             right = self._parse_comparison()
-            left = BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            left = BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_comparison(self) -> ASTNode:
         left = self._parse_addition()
-        while (
-            self.current_token
-            and self.current_token.type
-            in (
-                TokenType.EQ,
-                TokenType.NEQ,
-                TokenType.GT,
-                TokenType.LT,
-                TokenType.GTE,
-                TokenType.LTE,
-            )
+        while self.current_token and self.current_token.type in (
+            TokenType.EQ,
+            TokenType.NEQ,
+            TokenType.GT,
+            TokenType.LT,
+            TokenType.GTE,
+            TokenType.LTE,
         ):
             op_token = self.current_token
             self._advance()
             right = self._parse_addition()
-            left = BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            left = BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_addition(self) -> ASTNode:
         left = self._parse_multiplication()
-        while (
-            self.current_token
-            and self.current_token.type in (TokenType.PLUS, TokenType.MINUS)
+        while self.current_token and self.current_token.type in (
+            TokenType.PLUS,
+            TokenType.MINUS,
         ):
             op_token = self.current_token
             self._advance()
             right = self._parse_multiplication()
-            left = BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            left = BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_multiplication(self) -> ASTNode:
         left = self._parse_power()
-        while (
-            self.current_token
-            and self.current_token.type in (TokenType.MULTIPLY, TokenType.DIVIDE)
+        while self.current_token and self.current_token.type in (
+            TokenType.MULTIPLY,
+            TokenType.DIVIDE,
         ):
             op_token = self.current_token
             self._advance()
             right = self._parse_power()
-            left = BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            left = BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_power(self) -> ASTNode:
@@ -259,13 +269,15 @@ class Parser:
             op_token = self.current_token
             self._advance()
             right = self._parse_power()
-            return BinaryOpNode(left, op_token.value, right, op_token.line, op_token.column)
+            return BinaryOpNode(
+                left, op_token.value, right, op_token.line, op_token.column
+            )
         return left
 
     def _parse_unary(self) -> ASTNode:
-        if (
-            self.current_token
-            and self.current_token.type in (TokenType.MINUS, TokenType.NOT)
+        if self.current_token and self.current_token.type in (
+            TokenType.MINUS,
+            TokenType.NOT,
         ):
             op_token = self.current_token
             self._advance()
@@ -346,9 +358,9 @@ class Parser:
         token = self._expect(TokenType.LBRACE, "Expected '{'")
         statements: List[ASTNode] = []
 
-        while (
-            self.current_token
-            and self.current_token.type not in (TokenType.RBRACE, TokenType.EOF)
+        while self.current_token and self.current_token.type not in (
+            TokenType.RBRACE,
+            TokenType.EOF,
         ):
             statement = self._parse_statement()
             if statement is not None:
@@ -359,6 +371,7 @@ class Parser:
 
     def _parse_warpy_expr(self) -> ASTNode:
         token = self.current_token
+        assert token is not None
         if token.type == TokenType.INQUISITION:
             return self._parse_inquisition_expr()
         if token.type == TokenType.EMPEROR:
@@ -400,24 +413,28 @@ class Parser:
 
     def _parse_inquisition_expr(self) -> InquisitionExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         target = self._parse_unary() if self._has_optional_target() else None
         return InquisitionExprNode(target, token.line, token.column)
 
     def _parse_emperor_expr(self) -> EmperorExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         target = self._parse_unary() if self._has_optional_target() else None
         return EmperorExprNode(target, token.line, token.column)
 
     def _parse_chaos_expr(self) -> ChaosExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         target = self._parse_unary() if self._has_optional_target() else None
         return ChaosExprNode(target, token.line, token.column)
 
     def _parse_purge_expr(self) -> PurgeExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         if not self._has_optional_target():
             raise SyntaxError(
@@ -427,12 +444,14 @@ class Parser:
 
     def _parse_exterminatus_expr(self) -> ExterminatusExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         target = self._parse_unary() if self._has_optional_target() else None
         return ExterminatusExprNode(target, token.line, token.column)
 
     def _parse_bless_expr(self) -> BlessExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         if not self._has_optional_target():
             raise SyntaxError(
@@ -442,6 +461,7 @@ class Parser:
 
     def _parse_curse_expr(self) -> CurseExprNode:
         token = self.current_token
+        assert token is not None
         self._advance()
         if not self._has_optional_target():
             raise SyntaxError(

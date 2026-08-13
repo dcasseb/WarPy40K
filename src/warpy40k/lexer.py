@@ -62,7 +62,7 @@ class Lexer:
 
         return Token(
             TokenType.WHITESPACE,
-            self.source[start_position:self.position],
+            self.source[start_position : self.position],
             start_line,
             start_column,
         )
@@ -78,7 +78,7 @@ class Lexer:
 
         return Token(
             TokenType.COMMENT,
-            self.source[start_position:self.position],
+            self.source[start_position : self.position],
             start_line,
             start_column,
         )
@@ -189,9 +189,9 @@ class Lexer:
 
         if (
             self.position + 1 < len(self.source)
-            and self.source[self.position:self.position + 2] in two_char_ops
+            and self.source[self.position : self.position + 2] in two_char_ops
         ):
-            op = self.source[self.position:self.position + 2]
+            op = self.source[self.position : self.position + 2]
             self.position += 2
             self.column += 2
             return Token(two_char_ops[op], op, start_line, start_column)
@@ -223,5 +223,6 @@ class Lexer:
             )
 
         raise SyntaxError(
-            f"Unknown character: '{current_char}' at line {self.line}, column {self.column}"
+            f"Unknown character: '{current_char}' at line {self.line}, "
+            f"column {self.column}"
         )
