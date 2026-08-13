@@ -392,9 +392,9 @@ print("------------------")
 a = input("Enter first number: ")
 b = input("Enter second number: ")
 
-# Convert to numbers (assuming valid input)
-a_num = a * 1
-b_num = b * 1
+# Convert to numbers (assuming valid integer input)
+a_num = int(a)
+b_num = int(b)
 
 print("Results:")
 print("Sum: ")
@@ -421,7 +421,7 @@ name = input("Enter subject name: ")
 faith_score = input("Enter faith score (0-100): ")
 
 # Convert to number
-faith_num = faith_score * 1
+faith_num = int(faith_score)
 
 # Check faith
 if Inquisition faith_num

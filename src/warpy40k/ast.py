@@ -3,12 +3,13 @@ Abstract Syntax Tree (AST) nodes for WarPy40K language.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
 from enum import Enum, auto
+from typing import List, Optional, Union
 
 
 class NodeType(Enum):
     """Types of AST nodes."""
+
     PROGRAM = auto()
     EXPRESSION = auto()
     BINARY_OP = auto()
@@ -37,13 +38,15 @@ class NodeType(Enum):
 @dataclass
 class ASTNode:
     """Base class for all AST nodes."""
+
     pass
 
 
 @dataclass
 class Program(ASTNode):
     """Root node representing the entire program."""
-    statements: List['ASTNode'] = field(default_factory=list)
+
+    statements: List["ASTNode"] = field(default_factory=list)
     line: int = 1
     column: int = 1
 
@@ -54,6 +57,7 @@ class Program(ASTNode):
 @dataclass
 class LiteralNode(ASTNode):
     """Represents a literal value (number, string, boolean)."""
+
     value: Union[int, float, str, bool]
     line: int = 1
     column: int = 1
@@ -65,6 +69,7 @@ class LiteralNode(ASTNode):
 @dataclass
 class IdentifierNode(ASTNode):
     """Represents an identifier (variable name, function name)."""
+
     name: str
     line: int = 1
     column: int = 1
@@ -76,6 +81,7 @@ class IdentifierNode(ASTNode):
 @dataclass
 class BinaryOpNode(ASTNode):
     """Represents a binary operation (e.g., 1 + 2)."""
+
     left: ASTNode
     operator: str
     right: ASTNode
@@ -89,6 +95,7 @@ class BinaryOpNode(ASTNode):
 @dataclass
 class UnaryOpNode(ASTNode):
     """Represents a unary operation (e.g., -5, NOT true)."""
+
     operator: str
     operand: ASTNode
     line: int = 1
@@ -101,6 +108,7 @@ class UnaryOpNode(ASTNode):
 @dataclass
 class VariableDeclarationNode(ASTNode):
     """Represents a variable declaration."""
+
     name: str
     value: Optional[ASTNode] = None
     line: int = 1
@@ -113,6 +121,7 @@ class VariableDeclarationNode(ASTNode):
 @dataclass
 class VariableAssignmentNode(ASTNode):
     """Represents a variable assignment."""
+
     name: str
     value: ASTNode
     line: int = 1
@@ -125,6 +134,7 @@ class VariableAssignmentNode(ASTNode):
 @dataclass
 class FunctionDefinitionNode(ASTNode):
     """Represents a user-defined function."""
+
     name: str
     parameters: List[str]
     body: ASTNode
@@ -138,6 +148,7 @@ class FunctionDefinitionNode(ASTNode):
 @dataclass
 class FunctionCallNode(ASTNode):
     """Represents a function call."""
+
     name: str
     arguments: List[ASTNode] = field(default_factory=list)
     line: int = 1
@@ -150,6 +161,7 @@ class FunctionCallNode(ASTNode):
 @dataclass
 class IfStatementNode(ASTNode):
     """Represents an if statement."""
+
     condition: ASTNode
     then_branch: ASTNode
     else_branch: Optional[ASTNode] = None
@@ -163,6 +175,7 @@ class IfStatementNode(ASTNode):
 @dataclass
 class WhileLoopNode(ASTNode):
     """Represents a while loop."""
+
     condition: ASTNode
     body: ASTNode
     line: int = 1
@@ -175,6 +188,7 @@ class WhileLoopNode(ASTNode):
 @dataclass
 class BlockNode(ASTNode):
     """Represents a block of statements."""
+
     statements: List[ASTNode] = field(default_factory=list)
     line: int = 1
     column: int = 1
@@ -186,6 +200,7 @@ class BlockNode(ASTNode):
 @dataclass
 class ReturnStatementNode(ASTNode):
     """Represents a return statement."""
+
     value: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
@@ -196,9 +211,11 @@ class ReturnStatementNode(ASTNode):
 
 # WarPy40K Specific Nodes
 
+
 @dataclass
 class InquisitionExprNode(ASTNode):
     """Represents an Inquisition expression - evaluates to truth/faith value."""
+
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
@@ -210,6 +227,7 @@ class InquisitionExprNode(ASTNode):
 @dataclass
 class EmperorExprNode(ASTNode):
     """Represents an Emperor expression - divine protection/blessing."""
+
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
@@ -221,6 +239,7 @@ class EmperorExprNode(ASTNode):
 @dataclass
 class ChaosExprNode(ASTNode):
     """Represents a Chaos expression - corruption/uncertainty."""
+
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
@@ -232,6 +251,7 @@ class ChaosExprNode(ASTNode):
 @dataclass
 class PurgeExprNode(ASTNode):
     """Represents a Purge expression - destruction/removal."""
+
     target: ASTNode
     line: int = 1
     column: int = 1
@@ -243,6 +263,7 @@ class PurgeExprNode(ASTNode):
 @dataclass
 class ExterminatusExprNode(ASTNode):
     """Represents an Exterminatus expression - total annihilation."""
+
     target: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
@@ -254,6 +275,7 @@ class ExterminatusExprNode(ASTNode):
 @dataclass
 class BlessExprNode(ASTNode):
     """Represents a Bless expression - positive modification."""
+
     target: ASTNode
     line: int = 1
     column: int = 1
@@ -265,6 +287,7 @@ class BlessExprNode(ASTNode):
 @dataclass
 class CurseExprNode(ASTNode):
     """Represents a Curse expression - negative modification."""
+
     target: ASTNode
     line: int = 1
     column: int = 1

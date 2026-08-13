@@ -2,8 +2,8 @@
 Token definitions for the WarPy40K language.
 """
 
-from enum import Enum, auto
 from dataclasses import dataclass
+from enum import Enum, auto
 
 
 class TokenType(Enum):
@@ -17,24 +17,24 @@ class TokenType(Enum):
     IDENTIFIER = auto()
 
     # Control-flow and function keywords
-    IF = auto()                # 'if'
-    ELSE = auto()              # 'else'
-    WHILE = auto()             # 'while'
-    DEF = auto()               # 'def'
-    RETURN = auto()            # 'return'
+    IF = auto()  # 'if'
+    ELSE = auto()  # 'else'
+    WHILE = auto()  # 'while'
+    DEF = auto()  # 'def'
+    RETURN = auto()  # 'return'
 
     # Warhammer 40K specific keywords
-    INQUISITION = auto()       # 'Inquisition'
-    EMPEROR = auto()           # 'Emperor'
-    CHAOS = auto()             # 'Chaos'
-    XENOS = auto()             # 'Xenos'
-    HERETIC = auto()           # 'Heretic'
-    PURGE = auto()             # 'Purge'
-    EXTERMINATUS = auto()      # 'Exterminatus'
-    BLESS = auto()             # 'Bless'
-    CURSE = auto()             # 'Curse'
-    FAITH = auto()             # 'Faith'
-    WARP = auto()              # 'Warp'
+    INQUISITION = auto()  # 'Inquisition'
+    EMPEROR = auto()  # 'Emperor'
+    CHAOS = auto()  # 'Chaos'
+    XENOS = auto()  # 'Xenos'
+    HERETIC = auto()  # 'Heretic'
+    PURGE = auto()  # 'Purge'
+    EXTERMINATUS = auto()  # 'Exterminatus'
+    BLESS = auto()  # 'Bless'
+    CURSE = auto()  # 'Curse'
+    FAITH = auto()  # 'Faith'
+    WARP = auto()  # 'Warp'
 
     # Operators
     PLUS = auto()

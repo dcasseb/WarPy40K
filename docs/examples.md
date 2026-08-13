@@ -45,19 +45,15 @@ print("--------------------------")
 a = input("Enter first number: ")
 b = input("Enter second number: ")
 
-# Convert to numbers (assuming user enters valid numbers)
-a_num = a * 1  # Trick to convert string to number
-b_num = b * 1
+# Convert to numbers (assuming user enters valid integers)
+a_num = int(a)
+b_num = int(b)
 
 print("Results:")
-print("Sum: ")
-print(a_num + b_num)
-print("Difference: ")
-print(a_num - b_num)
-print("Product: ")
-print(a_num * b_num)
-print("Quotient: ")
-print(a_num / b_num)
+print("Sum:", a_num + b_num)
+print("Difference:", a_num - b_num)
+print("Product:", a_num * b_num)
+print("Quotient:", a_num / b_num)
 ```
 
 **Run:**
@@ -72,14 +68,10 @@ Simple WarPy40K Calculator
 Enter first number: 10
 Enter second number: 5
 Results:
-Sum: 
-15
-Difference: 
-5
-Product: 
-50
-Quotient: 
-2.0
+Sum: 15
+Difference: 5
+Product: 50
+Quotient: 2.0
 ```
 
 ---
@@ -396,7 +388,7 @@ name = input("Enter subject name: ")
 faith_score = input("Enter faith score (0-100): ")
 
 # Convert to number
-faith_num = faith_score * 1
+faith_num = int(faith_score)
 
 # Check faith
 if Inquisition faith_num
@@ -486,8 +478,8 @@ imperial_army = input("Enter Imperial Army size: ")
 chaos_army = input("Enter Chaos Army size: ")
 
 # Convert to numbers
-imperial_num = imperial_army * 1
-chaos_num = chaos_army * 1
+imperial_num = int(imperial_army)
+chaos_num = int(chaos_army)
 
 # Apply modifiers
 imperial_power = Bless Emperor imperial_num
@@ -532,8 +524,8 @@ faith = input("Enter faith level (0-100): ")
 loyalty = input("Enter loyalty score (0-100): ")
 
 # Convert to numbers
-faith_num = faith * 1
-loyalty_num = loyalty * 1
+faith_num = int(faith)
+loyalty_num = int(loyalty)
 
 # Trial by Inquisition
 print()
@@ -613,7 +605,7 @@ input1 = input("Prompt 1: ")
 input2 = input("Prompt 2: ")
 
 # Process input
-# Convert to numbers if needed: num = input * 1
+# Convert to numbers if needed: num = int(input1)
 
 # Perform calculations
 result = calculation
@@ -632,7 +624,7 @@ print(result)
 value = input("Enter value: ")
 
 # Convert if needed
-num = value * 1
+num = int(value)
 
 # Check conditions
 if condition1

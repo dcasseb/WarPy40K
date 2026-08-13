@@ -43,47 +43,40 @@ def test_function_and_return_parse_to_ast_nodes():
 
 
 def test_while_executes_multiple_iterations():
-    result = evaluate(
-        """
+    result = evaluate("""
         x = 0
         while x < 5 {
             x = x + 1
         }
         x
-        """
-    )
+        """)
     assert result == 5
 
 
 def test_user_defined_function_call():
-    result = evaluate(
-        """
+    result = evaluate("""
         def add(a, b) {
             return a + b
         }
         add(20, 22)
-        """
-    )
+        """)
     assert result == 42
 
 
 def test_function_parameters_are_local():
-    result = evaluate(
-        """
+    result = evaluate("""
         x = 99
         def identity(x) {
             return x
         }
         identity(42)
         x
-        """
-    )
+        """)
     assert result == 99
 
 
 def test_recursive_factorial():
-    result = evaluate(
-        """
+    result = evaluate("""
         def factorial(n) {
             if n <= 1 {
                 return 1
@@ -91,14 +84,12 @@ def test_recursive_factorial():
             return n * factorial(n - 1)
         }
         factorial(6)
-        """
-    )
+        """)
     assert result == 720
 
 
 def test_recursive_fibonacci():
-    result = evaluate(
-        """
+    result = evaluate("""
         def fib(n) {
             if n <= 1 {
                 return n
@@ -106,14 +97,12 @@ def test_recursive_fibonacci():
             return fib(n - 1) + fib(n - 2)
         }
         fib(10)
-        """
-    )
+        """)
     assert result == 55
 
 
 def test_return_unwinds_from_inside_while():
-    result = evaluate(
-        """
+    result = evaluate("""
         def first_at_least(limit) {
             x = 0
             while True {
@@ -124,19 +113,16 @@ def test_return_unwinds_from_inside_while():
             }
         }
         first_at_least(7)
-        """
-    )
+        """)
     assert result == 7
 
 
 def test_function_arity_is_validated():
     with pytest.raises(WarPy40KError, match="expected 2 argument"):
-        evaluate(
-            """
+        evaluate("""
             def add(a, b) { return a + b }
             add(1)
-            """
-        )
+            """)
 
 
 def test_return_outside_function_is_rejected():

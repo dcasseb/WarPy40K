@@ -38,7 +38,7 @@ pip install -r requirements-dev.txt
 warpy40k my_program.wp40k
 
 # Execute a single line of code
-warpy40k -c "print('Hello from WarPy40K!')"
+warpy40k -c 'print("Hello from WarPy40K!")'
 
 # Start interactive REPL
 warpy40k -i

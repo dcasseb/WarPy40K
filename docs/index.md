@@ -1,14 +1,14 @@
-# WarPy40K Documentation
+# WarPy40K 1.0.1 Documentation
 
-Welcome to the documentation for **WarPy40K 1.0**, a small Warhammer 40K-inspired interpreted programming language with its own lexer, parser, AST, runtime semantics, unrestricted loops, user-defined functions, recursion, and a constructive Turing-completeness demonstration.
+Welcome to the documentation for **WarPy40K 1.0.1**, a small Warhammer 40K-inspired interpreted programming language with its own lexer, parser, AST, runtime semantics, unrestricted loops, user-defined functions, recursion, and a constructive Turing-completeness demonstration.
 
 ## Documentation
 
 - **[Getting Started](getting_started.md)** — installation and basic usage
-- **[Language Reference](language_reference.md)** — current v1.0 syntax and semantics
+- **[Language Reference](language_reference.md)** — current v1.0.1 syntax and semantics
 - **[Official v1.0 Showcase](showcase_v10.md)** — *The Vault of Vharax*, a terminal roguelike/RPG written entirely in WarPy40K
 - **[Turing Completeness](turing_completeness.md)** — constructive proof using a universal two-counter Minsky-machine interpreter
-- **[Language Roadmap](roadmap.md)** — identity-focused roadmap from v1.0 toward v2.0
+- **[Language Roadmap](roadmap.md)** — identity-focused roadmap through the exploratory post-v2.0 Forge Era
 - **[WarPy40K Expressions](warpy_expressions.md)** — themed expressions and their current behavior
 - **[Tutorials](tutorials.md)** — guided examples
 - **[Examples](examples.md)** — program examples
@@ -38,7 +38,7 @@ These examples deliberately serve different purposes: *The Vault of Vharax* demo
 
 ## Current language core
 
-WarPy40K 1.0 supports:
+WarPy40K 1.0.1 supports:
 
 - variables and mutable assignment;
 - arithmetic and comparisons;
@@ -51,6 +51,7 @@ WarPy40K 1.0 supports:
 - `return`;
 - direct recursion;
 - built-in functions;
+- explicit `int`, `float`, and `str` conversions;
 - WarPy40K-specific expressions;
 - REPL, token inspection, and AST inspection.
 
