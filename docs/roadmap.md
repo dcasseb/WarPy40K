@@ -1,124 +1,127 @@
 # WarPy40K Language Roadmap
 
-This roadmap defines the evolution of WarPy40K after 1.0. The goal is not to reproduce Python feature-for-feature with Warhammer 40K names. Future features should give the language a recognizable semantic identity while preserving a small, understandable interpreter core.
+WarPy40K should evolve as its own small language, not as Python with Warhammer terminology. New features should change how programs are modeled, validated, executed, or inspected while preserving a compact and understandable implementation.
 
 ## Design principles
 
-### 1. Theme must affect semantics
-
-A feature should not exist only because a Python keyword was renamed. New concepts should change how programs are modeled, validated, or executed.
-
-### 2. Keep the deterministic core explicit
-
-Ordinary WarPy40K code should remain predictable. Randomness, I/O, mutation across module boundaries, and other effects should become increasingly explicit rather than silently spreading through the runtime.
-
-### 3. Preserve inspectability
-
-WarPy40K is an educational language. Users should be able to inspect tokens, AST nodes, runtime state, and eventually bytecode without requiring a large compiler toolchain.
-
-### 4. Prefer a small number of strong abstractions
-
-The language should avoid accumulating every Python convenience feature. A smaller orthogonal set of constructs is preferable to many overlapping forms.
-
-### 5. Treat 1.x as a compatibility line
-
-Programs written for 1.0 should continue to work throughout the 1.x series unless a behavior is clearly documented as experimental.
+1. **Theme must affect semantics.** A themed keyword should do more than rename a Python construct.
+2. **Keep the deterministic core explicit.** Randomness and external effects should become visible execution concepts.
+3. **Preserve inspectability.** Tokens, AST, scopes, runtime values, and eventually bytecode should remain understandable.
+4. **Prefer a few strong abstractions.** Avoid accumulating every Python convenience feature.
+5. **Treat 1.x as a compatibility line.** Stable 1.0 programs should continue to run throughout 1.x unless behavior is explicitly experimental.
+6. **Own the runtime data model.** Public WarPy40K values should have specified WarPy40K semantics rather than accidental Python container behavior.
 
 ---
 
 ## v1.0 — Universal Core
 
-**Theme:** The Machine Spirit awakens.
+**Theme:** The Machine Spirit awakens.  
+**Status:** implemented.
 
-Status: implemented.
+Delivered:
 
-Goals:
+- unrestricted `while`;
+- user-defined functions, lexical call scopes, recursion, and real `return`;
+- constructive two-counter Minsky-machine universality demonstration;
+- official terminal showcase *The Vault of Vharax*;
+- regression/quality CI hardened in v1.0.1.
 
-- stabilize unrestricted `while`;
-- stabilize user-defined functions, lexical call scopes, recursion, and `return`;
-- provide a constructive Turing-completeness demonstration;
-- implement a universal two-counter Minsky-machine interpreter in WarPy40K itself;
-- add regression tests proving that the interpreter can execute different encoded machines;
-- publish the formal construction in `docs/turing_completeness.md`.
-
-Identity contribution:
-
-WarPy40K 1.0 establishes that the language is not merely a themed expression evaluator. It has a complete computational core that can interpret another universal machine model from encoded data.
+Identity contribution: WarPy40K has a complete computational core and can interpret another universal machine model from encoded data.
 
 ---
 
 ## v1.1 — Squads and Dataslates
 
-**Theme:** Native data should feel organized rather than borrowed from Python.
-
-Introduce two first-class data abstractions.
+**Theme:** Native data should feel organized rather than borrowed from Python.  
+**Status:** implemented.
 
 ### `Squad`
 
-An ordered mutable collection with language-level operations for composition and extraction. It should be a WarPy40K runtime type rather than exposing Python `list` directly.
+`Squad` is a first-class ordered mutable WarPy40K collection:
 
-Proposed capabilities:
+```text
+squad = Squad["Acolyte", "Interrogator"]
+Deploy(squad, "Servo Skull")
+Reassign(squad, 0, "Veteran Acolyte")
+removed = Extract(squad, 1)
+print(squad[0])
+```
 
-- literal syntax for creating a squad;
-- indexing;
-- append/remove operations;
-- iteration support once a native iteration protocol exists;
-- equality and length;
-- explicit copying semantics.
+Implemented semantics:
+
+- `Squad[...]` literal syntax;
+- zero-based indexing;
+- chained access such as `party[0].health`;
+- `len()`;
+- stable `Squad[...]` representation;
+- explicit mutation with `Deploy`, `Extract`, and `Reassign`;
+- `Purge squad` returns an empty Squad.
 
 ### `Dataslate`
 
-A key/value record abstraction designed for named structured state.
+`Dataslate` is a first-class immutable-by-default structured record:
 
-Proposed capabilities:
+```text
+marine = Dataslate{name: "Titus", health: 100}
+wounded = Inscribe(marine, "health", 75)
+print(marine.health)
+print(wounded.health)
+```
 
-- literal syntax;
-- field lookup;
-- immutable-by-default values with explicit update operations;
+Implemented semantics:
+
+- `Dataslate{field: value}` literal syntax;
+- identifier or string field names;
+- duplicate-field rejection;
+- `.field` lookup;
 - structural equality;
-- predictable serialization for debugging and REPL display.
+- stable representation;
+- `len()`;
+- persistent `Inscribe` update/add operation;
+- persistent `Erase` operation;
+- `Purge dataslate` returns an empty Dataslate.
 
-Why this matters:
+### Showcase validation
 
-Instead of simply exposing Python lists and dictionaries, WarPy40K begins to own its runtime data model.
+*The Vault of Vharax* now stores its sector manifest as a `Squad` of `Dataslate` records and its recovered relics as structured native values.
+
+Identity contribution: WarPy40K now owns a meaningful structured-data model instead of exposing Python `list` and `dict` as surface semantics.
 
 ---
 
 ## v1.2 — Orders and Pattern Dispatch
 
-**Theme:** Programs express decisions as orders rather than long chains of nested conditionals.
+**Theme:** Decisions are expressed as orders over structured data.
 
-Add a pattern-dispatch construct tentatively named `Order`.
-
-Conceptually:
+Proposed form:
 
 ```text
 Order target {
     When 0 { ... }
-    When 1 { ... }
+    When Dataslate{status: "Heretic"} { ... }
     Otherwise { ... }
 }
 ```
 
-The final grammar may differ, but the semantic goals are:
+Goals:
 
 - exact-value patterns;
 - Boolean guards;
-- destructuring of `Squad` and `Dataslate` values;
-- exhaustiveness diagnostics where possible;
-- no implicit fall-through.
+- pattern matching against `Squad` and `Dataslate` values;
+- simple destructuring/binding;
+- no implicit fall-through;
+- exhaustiveness diagnostics where practical;
+- lowering into a small AST/runtime core rather than a large hidden subsystem.
 
-This should not merely clone Python `match`. The language should favor explicit command-style dispatch and simple inspectable AST semantics.
+The final grammar should be prototyped against *The Vault of Vharax*: enemy and event dispatch should become clearer than the current nested `if` trees.
 
 ---
 
 ## v1.3 — The Warp Effect Model
 
-**Theme:** Nondeterminism should be visible in source code.
+**Theme:** Nondeterminism becomes explicit in source code.
 
-`Chaos` is currently a normal expression backed by randomness. v1.3 should evolve randomness into an explicit effect system centered on `Warp` regions.
-
-Proposed semantics:
+Concept:
 
 ```text
 Warp seed 42 {
@@ -130,55 +133,37 @@ Goals:
 
 - deterministic seeded replay;
 - explicit scope for randomness;
-- ability to record/replay Warp outcomes in tests;
-- runtime error or warning for uncontrolled nondeterminism outside an allowed Warp context, depending on compatibility decisions;
-- preserve `Chaos` as a domain-specific source of nondeterministic values rather than a thin alias of `random()`.
-
-Identity contribution:
-
-The Warp becomes a real execution concept: a controlled boundary between deterministic computation and nondeterministic effects.
+- record/replay of Warp outcomes in tests;
+- controlled behavior for `Chaos` outside sanctioned Warp contexts;
+- make RNG a language concept rather than a thin call into Python randomness.
 
 ---
 
 ## v1.4 — Inquisition Contracts
 
-**Theme:** `Inquisition` becomes more than truthiness.
-
-Extend the existing concept into language-level contracts and assertions.
-
-Potential forms:
-
-```text
-Inquisition condition
-Inquisition value satisfies predicate
-```
+**Theme:** Judgment becomes executable specification.
 
 Goals:
 
 - assertions with source locations;
 - function preconditions and postconditions;
 - optional runtime contract checking;
-- useful diagnostic output showing the failed condition and current values;
-- preserve the short expression form for Boolean judgment where compatibility requires it.
-
-This gives a core WarPy40K keyword a deeper semantic role instead of adding unrelated new syntax.
+- diagnostics showing failed conditions and relevant values;
+- compatibility with the existing truth/judgment expression.
 
 ---
 
 ## v1.5 — Codex Modules
 
-**Theme:** Programs become collections of named codices rather than Python-backed files with incidental visibility.
-
-Introduce a native module system tentatively centered on `Codex`.
+**Theme:** Programs become collections of explicit codices.
 
 Goals:
 
-- explicit exports;
-- explicit imports;
 - module-local scope;
-- deterministic resolution rules;
-- no automatic access to arbitrary Python modules;
-- standard-library modules implemented behind the same public abstraction.
+- explicit imports and exports;
+- deterministic module resolution;
+- standard-library modules behind the same abstraction;
+- no arbitrary Python imports.
 
 Possible conceptual syntax:
 
@@ -186,51 +171,43 @@ Possible conceptual syntax:
 Invoke Math from Codex Core
 ```
 
-The exact syntax should be prototyped before stabilization.
-
 ---
 
 ## v1.6 — Sanctioned Effects
 
 **Theme:** Side effects become capabilities rather than ambient privileges.
 
-Introduce explicit capability boundaries for operations such as:
+Target capabilities:
 
-- console/file I/O;
+- console and file I/O;
 - environment access;
 - process exit;
 - time;
-- networking if it is ever added.
+- networking if eventually supported.
 
-Pure functions should be distinguishable from functions that require sanctioned capabilities.
-
-Potential concepts:
-
-- `Sanctioned` effect blocks;
-- effect metadata on functions;
-- REPL display of required capabilities;
-- test mode that denies undeclared effects.
-
-Identity contribution:
-
-The language gains a thematic but technically meaningful distinction between pure computation and externally authorized effects.
+Pure computation should be distinguishable from functions requiring sanctioned effects.
 
 ---
 
 ## v1.7 — Crusades: Structured Iteration
 
-**Theme:** Iteration should express campaigns over data rather than only manual counter loops.
-
-Add a native iterable protocol and one high-level loop construct, tentatively named `Crusade`.
+**Theme:** Campaign over data instead of manual index bookkeeping.
 
 Goals:
 
-- iterate over `Squad` values, ranges, and module-defined iterables;
-- clear ownership of the loop variable;
-- no hidden mutation of the collection being traversed;
-- compatibility with `while` rather than replacement of it.
+- native iterable protocol;
+- high-level iteration over `Squad`, ranges, and module-defined iterables;
+- clear loop-variable scope;
+- specified behavior when mutation is attempted during traversal;
+- lower into the existing small control-flow core.
 
-The construct should compile or lower into a small existing core so the interpreter remains understandable.
+Conceptually:
+
+```text
+Crusade unit in squad {
+    print(unit.name)
+}
+```
 
 ---
 
@@ -238,18 +215,15 @@ The construct should compile or lower into a small existing core so the interpre
 
 **Theme:** The runtime explains itself.
 
-Expand WarPy40K's educational tooling into first-class introspection.
-
 Goals:
 
 - stable textual AST format;
 - execution trace mode;
 - environment/scope inspection;
-- function call tracing;
-- Minsky-machine trace visualization data;
-- deterministic snapshots suitable for tests and tutorials.
-
-This version should make WarPy40K especially useful for teaching interpreters, control flow, scopes, and computation models.
+- function-call tracing;
+- native-data inspection;
+- deterministic snapshots for tests/tutorials;
+- Minsky-machine trace visualization data.
 
 ---
 
@@ -257,18 +231,13 @@ This version should make WarPy40K especially useful for teaching interpreters, c
 
 **Theme:** Separate language semantics from the Python tree-walking implementation.
 
-Introduce a compact WarPy40K bytecode and a small virtual machine.
-
 Goals:
 
-- lower AST to bytecode;
-- preserve tree-walking interpreter as a reference implementation during transition;
-- deterministic bytecode format;
-- disassembler;
-- differential tests: AST interpreter result == bytecode VM result;
-- no dependency on Python `eval` or `exec`.
-
-The bytecode should be intentionally small and documented.
+- lower AST to a small documented bytecode;
+- add a compact VM and disassembler;
+- preserve the tree-walking interpreter as a reference implementation;
+- differential tests: AST result == bytecode VM result;
+- keep bytecode deterministic and inspectable.
 
 ---
 
@@ -278,81 +247,77 @@ The bytecode should be intentionally small and documented.
 
 Candidate milestones:
 
-- bytecode VM becomes the primary execution engine;
+- bytecode VM becomes the primary engine;
 - stable module/data/effect semantics;
 - versioned language specification;
-- standard library built around WarPy40K abstractions rather than direct Python objects;
-- self-host one meaningful compiler/interpreter component, such as the Minsky encoder, parser utilities, or a subset compiler;
-- conformance test suite independent of implementation details.
+- standard library built on WarPy40K abstractions;
+- conformance suite independent of Python implementation details;
+- self-host at least one meaningful compiler/interpreter component.
 
-Full self-hosting is not required for 2.0. The important transition is that the externally visible language semantics no longer depend on accidental Python behavior.
+Full self-hosting is not required. The key transition is that visible language semantics no longer depend on accidental Python behavior.
 
 ---
 
 ## Post-v2.0 — The Forge Era (exploratory)
 
-These milestones are research directions, not release promises. They sequence
-the foundations required before WarPy40K could responsibly attempt real-time
-simulation or 3D graphics.
+These are research directions rather than release promises. They sequence the foundations necessary for simulation and eventual 3D applications.
 
 ### v2.1 — Vectors and Matrices
 
-- specified fixed-size vector and matrix values;
+- fixed-size vector/matrix values;
 - explicit numeric precision and conversion rules;
-- deterministic algebra suitable for geometry and simulation tests.
+- deterministic geometry/simulation algebra.
 
 ### v2.2 — Buffers and Data Layout
 
 - packed numeric buffers and typed views;
 - documented memory/layout rules;
-- efficient transfer of structured data without exposing arbitrary Python objects.
+- efficient structured-data transfer.
 
 ### v2.3 — Sanctioned Native Interface
 
 - capability-gated foreign-function boundary;
-- versioned calling and ownership conventions;
-- narrow adapters for audited native libraries rather than unrestricted imports.
+- versioned ownership/calling conventions;
+- audited adapters for native libraries rather than arbitrary imports.
 
 ### v2.4 — Real-Time Host Loop
 
 - window, clock, and input abstractions;
-- update/render loop with explicit timing semantics;
-- deterministic headless mode for automated testing.
+- update/render timing semantics;
+- deterministic headless mode for tests.
 
 ### v2.5 — Jobs and Concurrency
 
-- bounded task/job model for simulation work;
-- explicit synchronization and deterministic scheduling modes;
-- no shared-state concurrency without specified safety rules.
+- bounded job/task model;
+- explicit synchronization;
+- deterministic scheduling modes;
+- no unspecified shared-state concurrency.
 
 ### v2.6 — Graphics and Simulation Runtime
 
-- mesh, material, camera, and scene abstractions built on earlier milestones;
-- a minimal rendering backend behind the sanctioned native interface;
-- small 3D experiments and conformance scenes, contingent on the stability of
-  the data, real-time, and concurrency foundations.
+- mesh, material, camera, scene, and simulation abstractions;
+- minimal rendering backend through the sanctioned native interface;
+- small conformance scenes and 3D experiments.
+
+A concrete long-term benchmark is **1,000 WarPy40K-controlled entities updating in a 3D environment in real time, with simulation logic written in WarPy40K and rendering delegated through a specified native backend**.
 
 ---
 
-## Features deliberately not prioritized
+## Deliberately not prioritized
 
-The following should not be added merely because Python has them:
+Do not add these merely because Python has them:
 
-- classes and inheritance;
+- classes/inheritance;
 - decorators;
-- list/dict comprehensions;
+- comprehensions;
 - multiple equivalent loop syntaxes;
-- implicit operator overloading;
 - unrestricted reflection into Python objects;
 - arbitrary Python imports;
-- async syntax before the language has a clear concurrency model.
-
-Any of these may eventually be justified, but only if they fit WarPy40K's own semantic model.
+- implicit operator overloading;
+- async syntax before a clear concurrency model exists.
 
 ## Long-term identity
 
-The intended identity is:
+> A small, inspectable, Turing-complete language with its own structured data, Warhammer-inspired semantics around judgment and corruption/nondeterminism, explicit effect authorization, and machine introspection.
 
-> A small, inspectable, Turing-complete language with Warhammer-inspired semantics around judgment, corruption/nondeterminism, structured data, authorization of effects, and machine introspection.
-
-Python remains the implementation host in the near term. The language itself should progressively expose fewer accidental Python semantics and more explicitly specified WarPy40K behavior.
+Python remains the implementation host in the near term. WarPy40K should progressively expose fewer accidental Python semantics and more explicitly specified behavior.
