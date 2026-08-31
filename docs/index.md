@@ -1,12 +1,13 @@
-# WarPy40K 1.1 Documentation
+# WarPy40K 1.2 Documentation
 
-Welcome to the documentation for **WarPy40K 1.1**, a small Warhammer 40K-inspired interpreted language with its own lexer, parser, AST, runtime semantics, native structured data, unrestricted loops, functions, recursion, and a constructive Turing-completeness demonstration.
+Welcome to the documentation for **WarPy40K 1.2**, a small Warhammer 40K-inspired interpreted language with its own lexer, parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, unrestricted loops, functions, recursion, and a constructive Turing-completeness demonstration.
 
 ## Documentation
 
 - **[Getting Started](getting_started.md)** — installation and basic usage
-- **[Language Reference](language_reference.md)** — current v1.1 syntax and semantics, including Squad/Dataslate
-- **[Official Showcase](showcase_v10.md)** — design notes for *The Vault of Vharax*; the executable example is now refactored for v1.1 native data
+- **[Language Reference](language_reference.md)** — current v1.2 syntax and semantics
+- **[Orders and Pattern Dispatch](orders.md)** — `Order`, `When`, `Otherwise`, bindings, guards, Squad patterns, and Dataslate patterns
+- **[Official Showcase](showcase_v10.md)** — design notes for *The Vault of Vharax*; the executable example evolves with each release
 - **[Turing Completeness](turing_completeness.md)** — constructive two-counter Minsky-machine demonstration
 - **[Language Roadmap](roadmap.md)** — identity-focused roadmap through the exploratory Forge Era
 - **[WarPy40K Expressions](warpy_expressions.md)** — themed expressions and their current behavior
@@ -34,38 +35,40 @@ Run the constructive universal-machine demonstration:
 warpy40k examples/minsky_universal.wp40k
 ```
 
-The two examples deliberately serve different purposes: *The Vault of Vharax* demonstrates practical interactive programming and native structured data; the Minsky-machine example demonstrates computational universality.
+## What v1.2 adds
 
-## What v1.1 adds
-
-WarPy40K 1.1 introduces a language-owned data model:
+WarPy40K 1.2 introduces native pattern-oriented command dispatch:
 
 ```text
-party = Squad[
-    Dataslate{name: "Acolyte", health: 100},
-    Dataslate{name: "Interrogator", health: 120}
-]
+target = Dataslate{status: "Heretic", threat: 8, name: "Vharax"}
 
-print(party[0].health)
-Deploy(party, Dataslate{name: "Servo Skull", health: 20})
+Order target {
+    When Dataslate{status: "Heretic", threat: level} if level > 5 {
+        print("Exterminatus review")
+    }
 
-wounded = Inscribe(party[0], "health", 75)
-print(wounded.health)
+    When Dataslate{status: "Heretic"} {
+        print("Purge")
+    }
+
+    Otherwise {
+        print("Observe")
+    }
+}
 ```
 
-- `Squad` is ordered and explicitly mutable through `Deploy`, `Extract`, and `Reassign`.
-- `Dataslate` is immutable by default; `Inscribe` and `Erase` return new records.
-- Index and field access are native AST/runtime operations, not Python attribute/container access.
+`Order` uses ordered first-match-wins semantics without fall-through. Patterns can match literals, wildcard `_`, bindings, exact-shape Squads, and partial Dataslates. Bindings can be referenced by guards and clause bodies.
 
 ## Current language core
 
-WarPy40K 1.1 supports:
+WarPy40K 1.2 supports:
 
 - scalar values, variables, arithmetic, comparisons, and Boolean logic;
 - braces-delimited blocks;
 - `if` / `else` and unrestricted `while`;
 - functions, lexical call scopes, `return`, and recursion;
 - native `Squad` collections and `Dataslate` records;
+- `Order` / `When` / `Otherwise` structured dispatch with guards and bindings;
 - built-ins and explicit `int`, `float`, and `str` conversions;
 - WarPy40K-specific expressions;
 - whole-file CLI execution, REPL, token inspection, and AST inspection.
@@ -74,6 +77,6 @@ Under the usual theoretical unbounded-memory abstraction, WarPy40K is Turing com
 
 ## Next milestone
 
-The next planned language release is **v1.2 — Orders and Pattern Dispatch**, intended to replace many nested decision trees with a WarPy40K-native dispatch model capable of matching ordinary values and structured `Squad`/`Dataslate` data.
+The next planned release is **v1.3 — The Warp Effect Model**. It will turn `Chaos` randomness into an explicit, seedable and replayable language effect so complete game/simulation traces can be reproduced deterministically.
 
-See the [Language Roadmap](roadmap.md) for the full plan.
+See the [Language Roadmap](roadmap.md) for the acceptance criteria and full release plan.
