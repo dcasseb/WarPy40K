@@ -1,6 +1,6 @@
-# WarPy40K Language Reference — v1.1.0
+# WarPy40K Language Reference — v1.2.0
 
-This document describes the stable language core available in WarPy40K 1.1.
+This document describes the stable language core available in WarPy40K 1.2.
 
 ## Lexical basics
 
@@ -29,29 +29,13 @@ Top-level assignments live in the global environment. Function parameters and as
 
 ## Operators
 
-Arithmetic:
-
-```text
-+  -  *  /  ^
-```
-
-Comparison:
-
-```text
-==  !=  >  <  >=  <=
-```
-
-Boolean logic:
-
-```text
-AND  OR  NOT
-```
+Arithmetic: `+ - * / ^`  
+Comparison: `== != > < >= <=`  
+Boolean logic: `AND OR NOT`
 
 Parentheses may be used for grouping.
 
 ## Blocks and control flow
-
-Blocks use braces:
 
 ```text
 if condition {
@@ -84,7 +68,7 @@ def factorial(n) {
 }
 ```
 
-Function arity is checked at runtime. Each invocation receives fresh parameter/local state while retaining lexical visibility of enclosing definitions. Braced blocks do not create additional scopes in v1.1.
+Function arity is checked at runtime. Each invocation receives fresh parameter/local state while retaining lexical visibility of enclosing definitions. Braced blocks do not create additional scopes.
 
 `return` exits the nearest user-defined function immediately, including from nested blocks or loops. `return` outside a function is a runtime error.
 
@@ -92,23 +76,16 @@ Function arity is checked at runtime. Each invocation receives fresh parameter/l
 
 ### Squad
 
-`Squad` is an ordered mutable WarPy40K collection.
-
-Literal syntax:
+`Squad` is an ordered mutable WarPy40K collection:
 
 ```text
-numbers = Squad[10, 20, 30]
 party = Squad[
     Dataslate{name: "Acolyte", health: 100},
     Dataslate{name: "Interrogator", health: 120}
 ]
-```
 
-Access is zero-based:
-
-```text
-numbers[1]          # 20
-party[0].health     # 100
+print(party[0].health)
+Deploy(party, Dataslate{name: "Servo Skull", health: 20})
 ```
 
 Supported operations:
@@ -116,38 +93,20 @@ Supported operations:
 | Operation | Semantics |
 |---|---|
 | `len(squad)` | number of members |
-| `Deploy(squad, value)` | append a member in place and return the Squad |
-| `Extract(squad)` | remove and return the final member |
-| `Extract(squad, index)` | remove and return a member by index |
-| `Reassign(squad, index, value)` | replace a member in place and return the Squad |
+| `Deploy(squad, value)` | append in place and return the Squad |
+| `Extract(squad)` | remove and return the last member |
+| `Extract(squad, index)` | remove and return member at index |
+| `Reassign(squad, index, value)` | replace member in place |
 | `Purge squad` | return a new empty Squad |
 
-Squad indexing requires an integer. Mutation is intentionally explicit.
+Indexing is zero-based and requires an integer.
 
 ### Dataslate
 
-`Dataslate` is an immutable-by-default structured record.
+`Dataslate` is an immutable-by-default structured record:
 
 ```text
-marine = Dataslate{
-    name: "Titus",
-    health: 100,
-    rank: "Captain"
-}
-```
-
-Fields can be accessed with `.`:
-
-```text
-marine.name
-marine.health
-```
-
-Field names in a literal may be identifiers or strings. Duplicate fields are rejected by the parser.
-
-Dataslate updates are persistent:
-
-```text
+marine = Dataslate{name: "Titus", health: 100}
 wounded = Inscribe(marine, "health", 75)
 
 print(marine.health)   # 100
@@ -164,42 +123,134 @@ Supported operations:
 | `Purge dataslate` | return a new empty Dataslate |
 | `==` / `!=` | structural equality |
 
-Access to a missing field is a runtime error. `Inscribe` and `Erase` never mutate the original Dataslate.
+Field names may be identifiers or strings. Duplicate fields are rejected. Missing-field access is a runtime error.
 
 ### Chained access
 
-Postfix access composes:
-
 ```text
-party = Squad[
-    Dataslate{name: "Acolyte", stats: Dataslate{health: 88}}
-]
-
 party[0].stats.health
 ```
 
-This is parsed into explicit WarPy40K index/field AST nodes rather than delegated to Python attribute access.
+Postfix access is represented by explicit WarPy40K AST nodes rather than Python attribute/container access.
+
+## Order pattern dispatch
+
+`Order` is a statement that matches a target against ordered `When` patterns:
+
+```text
+Order action {
+    When "1" {
+        print("Boltgun")
+    }
+
+    When "2" {
+        print("Chainsword")
+    }
+
+    Otherwise {
+        print("Invalid order")
+    }
+}
+```
+
+Semantics:
+
+- clauses are tested top-to-bottom;
+- the first matching clause executes;
+- there is no fall-through;
+- `Otherwise` is optional and must be last;
+- an unmatched Order without `Otherwise` performs no action.
+
+### Pattern kinds
+
+Literal patterns:
+
+```text
+When 42 { ... }
+When -1 { ... }
+When "Heretic" { ... }
+When True { ... }
+```
+
+Wildcard:
+
+```text
+When _ { ... }
+```
+
+Binding:
+
+```text
+Order 42 {
+    When value {
+        print(value)
+    }
+}
+```
+
+A plain identifier in a pattern creates a temporary binding. It does not look up a variable with that name.
+
+Partial Dataslate pattern:
+
+```text
+Order target {
+    When Dataslate{status: "Heretic", threat: level} {
+        print(level)
+    }
+}
+```
+
+Extra fields on the target Dataslate are allowed.
+
+Exact-shape Squad pattern:
+
+```text
+Order Squad["Titus", 100] {
+    When Squad[name, health] {
+        print(name, health)
+    }
+}
+```
+
+The number of members must currently match exactly.
+
+### Guards
+
+Bindings are visible in an optional `if` guard:
+
+```text
+Order target {
+    When Dataslate{status: "Heretic", threat: level} if level > 5 {
+        print("Exterminatus review")
+    }
+
+    When Dataslate{status: "Heretic"} {
+        print("Purge")
+    }
+}
+```
+
+If a structural pattern matches but its guard is false, matching proceeds to the next `When`.
+
+Pattern bindings are restored/removed after the clause. Ordinary assignments to other variables retain normal surrounding-scope behavior.
+
+See [orders.md](orders.md) for the dedicated v1.2 guide.
 
 ## Built-in functions
 
 | Function | Description |
 |---|---|
 | `print(...)` | print values |
-| `input(prompt)` | read a string from standard input |
-| `int(x)` | convert a number, Boolean, or decimal string to integer |
-| `float(x)` | convert a number, Boolean, or decimal string to float |
-| `str(x)` | convert a runtime value to text |
+| `input(prompt)` | read a string |
+| `int(x)` / `float(x)` / `str(x)` | explicit conversion |
 | `random()` | random float in `[0, 1)` |
 | `abs(x)` | absolute value |
 | `min(...)` / `max(...)` | extrema |
 | `pow(x, y)` | exponentiation |
-| `len(x)` | length for supported values, including Squad/Dataslate |
+| `len(x)` | length for supported values |
 | `range(...)` | host-backed range value |
-| `Deploy(...)` | Squad append |
-| `Extract(...)` | Squad removal |
-| `Reassign(...)` | Squad indexed replacement |
-| `Inscribe(...)` | persistent Dataslate update/add |
-| `Erase(...)` | persistent Dataslate field removal |
+| `Deploy`, `Extract`, `Reassign` | Squad operations |
+| `Inscribe`, `Erase` | persistent Dataslate transformations |
 | `exit(code)` | terminate execution |
 
 Some built-ins remain Python-hosted. Reducing host-language leakage remains a roadmap goal.
@@ -218,15 +269,15 @@ False
 
 | Expression | Current semantics |
 |---|---|
-| `Inquisition target` | evaluate target truthiness; without target => `True` |
-| `Emperor target` | apply the current faith factor to numeric targets |
-| `Chaos target` | apply corruption/randomness to a target; without target => random value |
-| `Purge target` | reset according to runtime type, including empty Squad/Dataslate |
-| `Exterminatus target` | evaluate optional target and represent total annihilation |
-| `Bless target` | positive transformation; numeric values increase by 10% |
-| `Curse target` | negative transformation; numeric values decrease by 10% |
+| `Inquisition target` | truth/judgment |
+| `Emperor target` | faith-factor transformation |
+| `Chaos target` | corruption/randomness |
+| `Purge target` | reset according to runtime type |
+| `Exterminatus target` | total-annihilation marker |
+| `Bless target` | positive transformation |
+| `Curse target` | negative transformation |
 
-The thematic semantics will deepen during the 1.x line. See [roadmap.md](roadmap.md).
+The next milestone, v1.3, develops `Chaos` into an explicit Warp nondeterminism model.
 
 ## Turing completeness
 
@@ -236,36 +287,34 @@ See [turing_completeness.md](turing_completeness.md) for the construction and sc
 
 ## Grammar sketch
 
-This is descriptive rather than a formal specification:
-
 ```text
 program          := statement*
 statement        := if_stmt
                   | while_stmt
                   | function_def
                   | return_stmt
+                  | order_stmt
                   | block
                   | expression
 
-if_stmt          := "if" expression statement ("else" statement)?
-while_stmt       := "while" expression statement
-function_def     := "def" IDENTIFIER "(" parameters? ")" block
-parameters       := IDENTIFIER ("," IDENTIFIER)*
-return_stmt      := "return" expression?
-block            := "{" statement* "}"
+order_stmt       := "Order" expression "{" order_clause+ "}" ";"?
+order_clause     := "When" pattern ("if" expression)? statement
+                  | "Otherwise" statement
 
-primary          := scalar_literal
+pattern          := scalar_literal
+                  | "-" NUMBER
                   | IDENTIFIER
-                  | function_call
-                  | squad_literal
-                  | dataslate_literal
-                  | "(" expression ")"
-                  | warpy_expression
+                  | "_"
+                  | dataslate_pattern
+                  | squad_pattern
+
+dataslate_pattern:= "Dataslate" "{" (pattern_field ("," pattern_field)*)? "}"
+pattern_field    := (IDENTIFIER | STRING) ":" pattern
+squad_pattern    := "Squad" "[" (pattern ("," pattern)*)? "]"
 
 squad_literal    := "Squad" "[" (expression ("," expression)*)? "]"
 dataslate_literal:= "Dataslate" "{" (field ("," field)*)? "}"
 field            := (IDENTIFIER | STRING) ":" expression
-postfix_access   := primary ("[" expression "]" | "." IDENTIFIER)*
 ```
 
 A formal versioned grammar remains planned for a later 1.x release.
