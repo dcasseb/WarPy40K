@@ -10,6 +10,7 @@ WarPy40K should evolve as its own small language, not as Python with Warhammer t
 4. **Prefer a few strong abstractions.** Avoid accumulating every Python convenience feature.
 5. **Treat 1.x as a compatibility line.** Stable 1.0 programs should continue to run throughout 1.x unless behavior is explicitly experimental.
 6. **Own the runtime data model.** Public WarPy40K values should have specified WarPy40K semantics rather than accidental Python container behavior.
+7. **Use the official showcase as a language benchmark.** New features should improve real WarPy40K source, not exist only as isolated syntax demonstrations.
 
 ---
 
@@ -35,107 +36,141 @@ Identity contribution: WarPy40K has a complete computational core and can interp
 **Theme:** Native data should feel organized rather than borrowed from Python.  
 **Status:** implemented.
 
-### `Squad`
+Delivered:
 
-`Squad` is a first-class ordered mutable WarPy40K collection:
+- `Squad[...]` ordered mutable collections;
+- zero-based indexing and chained access;
+- explicit `Deploy`, `Extract`, and `Reassign` mutation;
+- `Dataslate{field: value}` immutable-by-default structured records;
+- `.field` lookup and structural equality;
+- persistent `Inscribe` and `Erase` transformations;
+- `Purge` semantics for native data;
+- official showcase refactored around a Squad/Dataslate sector and relic model.
 
-```text
-squad = Squad["Acolyte", "Interrogator"]
-Deploy(squad, "Servo Skull")
-Reassign(squad, 0, "Veteran Acolyte")
-removed = Extract(squad, 1)
-print(squad[0])
-```
-
-Implemented semantics:
-
-- `Squad[...]` literal syntax;
-- zero-based indexing;
-- chained access such as `party[0].health`;
-- `len()`;
-- stable `Squad[...]` representation;
-- explicit mutation with `Deploy`, `Extract`, and `Reassign`;
-- `Purge squad` returns an empty Squad.
-
-### `Dataslate`
-
-`Dataslate` is a first-class immutable-by-default structured record:
-
-```text
-marine = Dataslate{name: "Titus", health: 100}
-wounded = Inscribe(marine, "health", 75)
-print(marine.health)
-print(wounded.health)
-```
-
-Implemented semantics:
-
-- `Dataslate{field: value}` literal syntax;
-- identifier or string field names;
-- duplicate-field rejection;
-- `.field` lookup;
-- structural equality;
-- stable representation;
-- `len()`;
-- persistent `Inscribe` update/add operation;
-- persistent `Erase` operation;
-- `Purge dataslate` returns an empty Dataslate.
-
-### Showcase validation
-
-*The Vault of Vharax* now stores its sector manifest as a `Squad` of `Dataslate` records and its recovered relics as structured native values.
-
-Identity contribution: WarPy40K now owns a meaningful structured-data model instead of exposing Python `list` and `dict` as surface semantics.
+Identity contribution: WarPy40K owns a meaningful structured-data model instead of exposing Python `list` and `dict` as surface semantics.
 
 ---
 
 ## v1.2 — Orders and Pattern Dispatch
 
-**Theme:** Decisions are expressed as orders over structured data.
+**Theme:** Decisions are expressed as orders over structured data.  
+**Status:** implemented.
 
-Proposed form:
+Basic form:
 
 ```text
-Order target {
-    When 0 { ... }
-    When Dataslate{status: "Heretic"} { ... }
-    Otherwise { ... }
+Order action {
+    When "1" {
+        print("Boltgun")
+    }
+
+    When "2" {
+        print("Chainsword")
+    }
+
+    Otherwise {
+        print("Invalid order")
+    }
 }
 ```
 
-Goals:
+Delivered semantics:
 
-- exact-value patterns;
-- Boolean guards;
-- pattern matching against `Squad` and `Dataslate` values;
-- simple destructuring/binding;
+- ordered first-match-wins dispatch;
 - no implicit fall-through;
-- exhaustiveness diagnostics where practical;
-- lowering into a small AST/runtime core rather than a large hidden subsystem.
+- optional `Otherwise` fallback;
+- exact literal patterns;
+- negative numeric patterns;
+- `_` wildcard patterns;
+- identifier bindings scoped to the selected clause;
+- optional Boolean guards using `When pattern if condition`;
+- partial structural `Dataslate` patterns;
+- exact-shape `Squad` patterns;
+- nested pattern bindings;
+- duplicate-binding and invalid-clause diagnostics;
+- unmatched Orders without `Otherwise` perform no action;
+- explicit Order/pattern AST nodes and interpreter matching logic.
 
-The final grammar should be prototyped against *The Vault of Vharax*: enemy and event dispatch should become clearer than the current nested `if` trees.
+Example with structured data:
+
+```text
+Order target {
+    When Dataslate{status: "Heretic", threat: level} if level > 5 {
+        print("Exterminatus review")
+    }
+
+    When Dataslate{status: "Heretic"} {
+        print("Purge")
+    }
+
+    Otherwise {
+        print("Observe")
+    }
+}
+```
+
+The v1.2 *Vault of Vharax* showcase uses `Order` for exploration and combat command dispatch, replacing the largest nested action-selection `if` trees.
+
+Not yet included:
+
+- rest/spread patterns for Squads;
+- static exhaustiveness analysis;
+- `Order` as a value-producing expression;
+- user-defined pattern protocols.
+
+Identity contribution: command-style dispatch now composes directly with WarPy40K's native structured data rather than copying a conventional `switch` statement.
+
+See [orders.md](orders.md) for the full v1.2 semantics.
 
 ---
 
 ## v1.3 — The Warp Effect Model
 
-**Theme:** Nondeterminism becomes explicit in source code.
+**Theme:** Nondeterminism becomes explicit in source code.  
+**Status:** next milestone.
 
-Concept:
+Today, `Chaos` delegates directly to runtime randomness. v1.3 should make nondeterminism a visible, controllable language effect.
+
+Proposed form:
 
 ```text
 Warp seed 42 {
-    x = Chaos 100
+    roll = Chaos 100
+    print(roll)
 }
 ```
 
-Goals:
+Target semantics:
 
+- explicit Warp regions for nondeterministic computation;
 - deterministic seeded replay;
-- explicit scope for randomness;
-- record/replay of Warp outcomes in tests;
-- controlled behavior for `Chaos` outside sanctioned Warp contexts;
-- make RNG a language concept rather than a thin call into Python randomness.
+- a per-Warp random stream rather than ambient process-global randomness;
+- nested Warp behavior with specified seed/stream rules;
+- recording and replaying Chaos outcomes for tests;
+- deterministic headless showcase runs without monkeypatching Python randomness;
+- explicit policy for legacy `Chaos` outside Warp regions during the 1.x compatibility line.
+
+### Proposed runtime model
+
+```text
+Deterministic WarPy execution
+          ↓ enters
+Warp region(seed / replay source)
+          ↓
+Chaos draws from region-local stream
+          ↓ exits
+Deterministic WarPy execution
+```
+
+### v1.3 showcase benchmark
+
+*The Vault of Vharax* should gain a seeded mode such that the same Warp seed and the same player choices reproduce the same exploration events, attacks, damage, and outcome.
+
+A concrete acceptance criterion:
+
+> Running a complete scripted game twice with the same Warp seed must produce byte-for-byte identical gameplay output, while a different seed must be able to produce a different trace.
+
+This will make the Warp a real execution concept rather than only a thematic spelling of random-number generation.
 
 ---
 
@@ -150,6 +185,14 @@ Goals:
 - optional runtime contract checking;
 - diagnostics showing failed conditions and relevant values;
 - compatibility with the existing truth/judgment expression.
+
+Potential direction:
+
+```text
+Inquisition health > 0
+```
+
+and later contract forms attached to functions.
 
 ---
 
@@ -221,7 +264,7 @@ Goals:
 - execution trace mode;
 - environment/scope inspection;
 - function-call tracing;
-- native-data inspection;
+- native-data and Order-pattern inspection;
 - deterministic snapshots for tests/tutorials;
 - Minsky-machine trace visualization data.
 
@@ -318,6 +361,6 @@ Do not add these merely because Python has them:
 
 ## Long-term identity
 
-> A small, inspectable, Turing-complete language with its own structured data, Warhammer-inspired semantics around judgment and corruption/nondeterminism, explicit effect authorization, and machine introspection.
+> A small, inspectable, Turing-complete language with its own structured data, pattern-oriented command dispatch, Warhammer-inspired semantics around judgment and corruption/nondeterminism, explicit effect authorization, and machine introspection.
 
 Python remains the implementation host in the near term. WarPy40K should progressively expose fewer accidental Python semantics and more explicitly specified behavior.
