@@ -1,9 +1,9 @@
-# WarPy40K 1.1 official showcase
+# WarPy40K 1.2 official showcase
 # The Vault of Vharax
 #
 # A small terminal roguelike/RPG written entirely in WarPy40K.
-# v1.1 uses native Squad and Dataslate values to model the vault sectors
-# and the player's recovered relics, while preserving the v1.0 gameplay.
+# v1.2 uses native Squad and Dataslate values plus Order pattern dispatch
+# to model data and command choices without nested if/else dispatch trees.
 
 
 def warp_roll() {
@@ -66,7 +66,7 @@ def show_status(health, faith, corruption, medicae, relics) {
 def opening() {
     print("============================================================");
     print("WARPY40K: THE VAULT OF VHARAX");
-    print("Official WarPy40K 1.1 terminal showcase");
+    print("Official WarPy40K 1.2 terminal showcase");
     print("============================================================");
     print("You are an Inquisitorial acolyte beneath a dead forge-city.");
     print("Four sealed sectors stand between you and Arch-Heretek Vharax.");
@@ -105,11 +105,12 @@ def launch_inquisitor() {
 
         exploration = input("Choose your approach: ");
 
-        if exploration == "4" {
-            escaped = True;
-        }
-        else {
-            if exploration == "2" {
+        Order exploration {
+            When "4" {
+                escaped = True;
+            }
+
+            When "2" {
                 search_roll = warp_roll();
 
                 if search_roll < 38 {
@@ -134,24 +135,24 @@ def launch_inquisitor() {
                     }
                 }
             }
-            else {
-                if exploration == "3" {
-                    if Inquisition (faith >= corruption) {
-                        faith = min(100, Bless faith);
-                        health = min(100, health + Emperor 5);
-                        corruption = max(0, corruption - 3);
-                        print("Your prayer steadies both flesh and purpose.");
-                    }
-                    else {
-                        corruption = corruption + 5;
-                        print("Something else answers from beyond the veil.");
-                    }
+
+            When "3" {
+                if Inquisition (faith >= corruption) {
+                    faith = min(100, Bless faith);
+                    health = min(100, health + Emperor 5);
+                    corruption = max(0, corruption - 3);
+                    print("Your prayer steadies both flesh and purpose.");
                 }
                 else {
-                    print("You advance without delay.");
+                    corruption = corruption + 5;
+                    print("Something else answers from beyond the veil.");
                 }
             }
-        }
+
+            Otherwise {
+                print("You advance without delay.");
+            }
+        };
 
         if NOT escaped {
             event_roll = warp_roll();
@@ -195,51 +196,51 @@ def launch_inquisitor() {
                 action = input("Combat action: ");
                 acted = True;
 
-                if action == "1" {
-                    damage = ranged_damage(faith);
-                    enemy_hp = enemy_hp - damage;
-                    print("Bolt shells strike for", damage, "damage.");
-                }
-                else {
-                    if action == "2" {
+                Order action {
+                    When "1" {
+                        damage = ranged_damage(faith);
+                        enemy_hp = enemy_hp - damage;
+                        print("Bolt shells strike for", damage, "damage.");
+                    }
+
+                    When "2" {
                         damage = melee_damage(faith);
                         enemy_hp = enemy_hp - damage;
                         print("The chainsword bites for", damage, "damage.");
                     }
-                    else {
-                        if action == "3" {
-                            if Inquisition (faith >= corruption + 10) {
-                                damage = 20 + faith / 5;
-                                enemy_hp = enemy_hp - damage;
-                                faith = max(0, faith - 6);
-                                corruption = max(0, corruption - 2);
-                                print("INQUISITION! Judgment deals", damage, "damage.");
-                            }
-                            else {
-                                health = health - 8;
-                                corruption = corruption + 6;
-                                print("Your judgment falters. The Warp answers instead.");
-                            }
+
+                    When "3" {
+                        if Inquisition (faith >= corruption + 10) {
+                            damage = 20 + faith / 5;
+                            enemy_hp = enemy_hp - damage;
+                            faith = max(0, faith - 6);
+                            corruption = max(0, corruption - 2);
+                            print("INQUISITION! Judgment deals", damage, "damage.");
                         }
                         else {
-                            if action == "4" {
-                                if medicae > 0 {
-                                    medicae = medicae - 1;
-                                    health = min(100, health + 30);
-                                    print("Medicae restores your wounds.");
-                                }
-                                else {
-                                    acted = False;
-                                    print("No medicae charges remain.");
-                                }
-                            }
-                            else {
-                                acted = False;
-                                print("Invalid order. Hesitation costs no turn.");
-                            }
+                            health = health - 8;
+                            corruption = corruption + 6;
+                            print("Your judgment falters. The Warp answers instead.");
                         }
                     }
-                }
+
+                    When "4" {
+                        if medicae > 0 {
+                            medicae = medicae - 1;
+                            health = min(100, health + 30);
+                            print("Medicae restores your wounds.");
+                        }
+                        else {
+                            acted = False;
+                            print("No medicae charges remain.");
+                        }
+                    }
+
+                    Otherwise {
+                        acted = False;
+                        print("Invalid order. Hesitation costs no turn.");
+                    }
+                };
 
                 if acted AND enemy_hp > 0 AND health > 0 {
                     incoming = enemy_damage(depth, corruption);
