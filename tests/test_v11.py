@@ -18,8 +18,7 @@ def test_squad_literal_and_index_access():
 
 def test_nested_squad_dataslate_access():
     result = execute(
-        'party = Squad[Dataslate{name: "Acolyte", health: 88}]; '
-        "party[0].health"
+        'party = Squad[Dataslate{name: "Acolyte", health: 88}]; ' "party[0].health"
     )
     assert result == 88
 
@@ -33,8 +32,7 @@ def test_squad_is_runtime_owned_value():
 
 def test_deploy_extract_and_reassign_mutate_squad_explicitly():
     result = execute(
-        "s = Squad[1, 2]; Deploy(s, 3); Reassign(s, 0, 9); "
-        "Extract(s, 1); s"
+        "s = Squad[1, 2]; Deploy(s, 3); Reassign(s, 0, 9); " "Extract(s, 1); s"
     )
     assert isinstance(result, SquadValue)
     assert result.members == [9, 3]
