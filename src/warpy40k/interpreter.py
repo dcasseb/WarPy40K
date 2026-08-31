@@ -6,16 +6,18 @@ Executes the Abstract Syntax Tree (AST) and produces results.
 
 import random
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .ast import (
     ASTNode,
     BinaryOpNode,
+    BindingPatternNode,
     BlessExprNode,
     BlockNode,
     ChaosExprNode,
     CurseExprNode,
     DataslateLiteralNode,
+    DataslatePatternNode,
     EmperorExprNode,
     ExterminatusExprNode,
     FieldAccessNode,
@@ -26,14 +28,19 @@ from .ast import (
     IndexAccessNode,
     InquisitionExprNode,
     LiteralNode,
+    LiteralPatternNode,
+    OrderStatementNode,
+    PatternNode,
     Program,
     PurgeExprNode,
     ReturnStatementNode,
     SquadLiteralNode,
+    SquadPatternNode,
     UnaryOpNode,
     VariableAssignmentNode,
     VariableDeclarationNode,
     WhileLoopNode,
+    WildcardPatternNode,
 )
 
 
@@ -65,6 +72,9 @@ class DataslateValue:
                 return value
         raise KeyError(f"Dataslate has no field '{key}'")
 
+    def has(self, key: str) -> bool:
+        return any(field_name == key for field_name, _ in self.fields)
+
     def inscribe(self, key: str, value: Any) -> "DataslateValue":
         updated = []
         found = False
@@ -79,7 +89,7 @@ class DataslateValue:
         return DataslateValue(tuple(updated))
 
     def erase(self, key: str) -> "DataslateValue":
-        if not any(field_name == key for field_name, _ in self.fields):
+        if not self.has(key):
             raise KeyError(f"Dataslate has no field '{key}'")
         return DataslateValue(
             tuple(
@@ -138,8 +148,6 @@ class Interpreter:
         self.environment["str"] = self._builtin_str
         self.environment["exit"] = self._builtin_exit
 
-        # v1.1 native data operations. Squad mutation is explicit; Dataslate
-        # transformations are persistent and return a new value.
         self.environment["Deploy"] = self._builtin_deploy
         self.environment["Extract"] = self._builtin_extract
         self.environment["Reassign"] = self._builtin_reassign
@@ -251,6 +259,8 @@ class Interpreter:
             return self._execute_if_statement(node)
         if isinstance(node, WhileLoopNode):
             return self._execute_while_loop(node)
+        if isinstance(node, OrderStatementNode):
+            return self._execute_order_statement(node)
         if isinstance(node, BlockNode):
             return self._execute_block(node)
         if isinstance(node, ReturnStatementNode):
@@ -389,6 +399,71 @@ class Interpreter:
         while self.execute(node.condition):
             result = self.execute(node.body)
         return result
+
+    def _execute_order_statement(self, node: OrderStatementNode) -> Any:
+        target = self.execute(node.target)
+        for case in node.cases:
+            bindings = self._match_pattern(case.pattern, target)
+            if bindings is None:
+                continue
+            self._scopes.append(bindings)
+            try:
+                if case.guard is not None and not self.execute(case.guard):
+                    continue
+                return self.execute(case.body)
+            finally:
+                self._scopes.pop()
+        if node.otherwise is not None:
+            return self.execute(node.otherwise)
+        return None
+
+    def _match_pattern(
+        self, pattern: PatternNode, value: Any
+    ) -> Optional[Dict[str, Any]]:
+        bindings: Dict[str, Any] = {}
+        if self._match_into(pattern, value, bindings):
+            return bindings
+        return None
+
+    def _match_into(
+        self, pattern: PatternNode, value: Any, bindings: Dict[str, Any]
+    ) -> bool:
+        if isinstance(pattern, WildcardPatternNode):
+            return True
+        if isinstance(pattern, LiteralPatternNode):
+            return value == pattern.value
+        if isinstance(pattern, BindingPatternNode):
+            bindings[pattern.name] = value
+            return True
+        if isinstance(pattern, DataslatePatternNode):
+            if not isinstance(value, DataslateValue):
+                return False
+            snapshot = dict(bindings)
+            for field_name, field_pattern in pattern.fields:
+                if not value.has(field_name):
+                    bindings.clear()
+                    bindings.update(snapshot)
+                    return False
+                if not self._match_into(
+                    field_pattern, value.get(field_name), bindings
+                ):
+                    bindings.clear()
+                    bindings.update(snapshot)
+                    return False
+            return True
+        if isinstance(pattern, SquadPatternNode):
+            if not isinstance(value, SquadValue):
+                return False
+            if len(value.members) != len(pattern.members):
+                return False
+            snapshot = dict(bindings)
+            for member_pattern, member_value in zip(pattern.members, value.members):
+                if not self._match_into(member_pattern, member_value, bindings):
+                    bindings.clear()
+                    bindings.update(snapshot)
+                    return False
+            return True
+        raise RuntimeError(f"Unknown pattern node: {type(pattern).__name__}")
 
     def _execute_block(self, node: BlockNode) -> Any:
         result = None
