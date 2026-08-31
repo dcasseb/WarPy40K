@@ -23,6 +23,11 @@ class TokenType(Enum):
     DEF = auto()  # 'def'
     RETURN = auto()  # 'return'
 
+    # Pattern-oriented dispatch
+    ORDER = auto()  # 'Order'
+    WHEN = auto()  # 'When'
+    OTHERWISE = auto()  # 'Otherwise'
+
     # Native WarPy40K data constructors
     SQUAD = auto()  # 'Squad'
     DATASLATE = auto()  # 'Dataslate'
