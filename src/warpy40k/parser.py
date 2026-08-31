@@ -2,16 +2,18 @@
 Recursive-descent parser for the WarPy40K language.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from .ast import (
     ASTNode,
     BinaryOpNode,
+    BindingPatternNode,
     BlessExprNode,
     BlockNode,
     ChaosExprNode,
     CurseExprNode,
     DataslateLiteralNode,
+    DataslatePatternNode,
     EmperorExprNode,
     ExterminatusExprNode,
     FieldAccessNode,
@@ -22,13 +24,19 @@ from .ast import (
     IndexAccessNode,
     InquisitionExprNode,
     LiteralNode,
+    LiteralPatternNode,
+    OrderCaseNode,
+    OrderStatementNode,
+    PatternNode,
     Program,
     PurgeExprNode,
     ReturnStatementNode,
     SquadLiteralNode,
+    SquadPatternNode,
     UnaryOpNode,
     VariableAssignmentNode,
     WhileLoopNode,
+    WildcardPatternNode,
 )
 from .tokens import Token, TokenType
 
@@ -54,7 +62,6 @@ class Parser:
             token = self.current_token
             self._advance()
             return token
-
         expected = token_type.name
         got = self.current_token.type.name if self.current_token else "EOF"
         line = self.current_token.line if self.current_token else "unknown"
@@ -84,6 +91,8 @@ class Parser:
             return self._parse_function_definition()
         if token.type == TokenType.RETURN:
             return self._parse_return_statement()
+        if token.type == TokenType.ORDER:
+            return self._parse_order_statement()
         if token.type == TokenType.LBRACE:
             return self._parse_block()
         return self._parse_expression_statement()
@@ -168,6 +177,131 @@ class Parser:
         if self.current_token and self.current_token.type == TokenType.SEMICOLON:
             self._advance()
         return ReturnStatementNode(value, token.line, token.column)
+
+    def _parse_order_statement(self) -> OrderStatementNode:
+        token = self._expect(TokenType.ORDER)
+        target = self._parse_expression()
+        self._expect(TokenType.LBRACE, "Expected '{' after Order target")
+        cases: List[OrderCaseNode] = []
+        otherwise: Optional[ASTNode] = None
+        saw_otherwise = False
+
+        while self.current_token and self.current_token.type != TokenType.RBRACE:
+            if self.current_token.type == TokenType.WHEN:
+                if saw_otherwise:
+                    raise SyntaxError("When cannot appear after Otherwise")
+                when = self.current_token
+                self._advance()
+                bindings: Set[str] = set()
+                pattern = self._parse_pattern(bindings)
+                guard = None
+                if self.current_token and self.current_token.type == TokenType.IF:
+                    self._advance()
+                    guard = self._parse_expression()
+                body = self._parse_statement()
+                if body is None:
+                    raise SyntaxError("When requires a body")
+                cases.append(OrderCaseNode(pattern, body, guard, when.line, when.column))
+                continue
+            if self.current_token.type == TokenType.OTHERWISE:
+                if saw_otherwise:
+                    raise SyntaxError("Order may contain only one Otherwise")
+                self._advance()
+                otherwise = self._parse_statement()
+                if otherwise is None:
+                    raise SyntaxError("Otherwise requires a body")
+                saw_otherwise = True
+                continue
+            raise SyntaxError(
+                "Order body accepts only When and Otherwise clauses "
+                f"at line {self.current_token.line}, column {self.current_token.column}"
+            )
+
+        self._expect(TokenType.RBRACE, "Expected '}' after Order clauses")
+        if not cases and otherwise is None:
+            raise SyntaxError("Order requires at least one When or Otherwise clause")
+        return OrderStatementNode(target, cases, otherwise, token.line, token.column)
+
+    def _parse_pattern(self, bindings: Set[str]) -> PatternNode:
+        token = self.current_token
+        if token is None:
+            raise SyntaxError("Unexpected end of input in pattern")
+        if token.type == TokenType.MINUS:
+            self._advance()
+            number = self.current_token
+            if number is None or number.type not in (TokenType.INTEGER, TokenType.FLOAT):
+                raise SyntaxError("Negative pattern requires a numeric literal")
+            self._advance()
+            value = -int(number.value) if number.type == TokenType.INTEGER else -float(number.value)
+            return LiteralPatternNode(value, token.line, token.column)
+        if token.type == TokenType.INTEGER:
+            self._advance()
+            return LiteralPatternNode(int(token.value), token.line, token.column)
+        if token.type == TokenType.FLOAT:
+            self._advance()
+            return LiteralPatternNode(float(token.value), token.line, token.column)
+        if token.type == TokenType.STRING:
+            self._advance()
+            return LiteralPatternNode(token.value, token.line, token.column)
+        if token.type == TokenType.BOOLEAN:
+            self._advance()
+            return LiteralPatternNode(token.value == "True", token.line, token.column)
+        if token.type == TokenType.IDENTIFIER:
+            self._advance()
+            if token.value == "_":
+                return WildcardPatternNode(token.line, token.column)
+            if token.value in bindings:
+                raise SyntaxError(f"Duplicate pattern binding '{token.value}'")
+            bindings.add(token.value)
+            return BindingPatternNode(token.value, token.line, token.column)
+        if token.type == TokenType.DATASLATE:
+            return self._parse_dataslate_pattern(bindings)
+        if token.type == TokenType.SQUAD:
+            return self._parse_squad_pattern(bindings)
+        raise SyntaxError(
+            f"Invalid Order pattern token {token.type.name} "
+            f"at line {token.line}, column {token.column}"
+        )
+
+    def _parse_dataslate_pattern(self, bindings: Set[str]) -> DataslatePatternNode:
+        token = self._expect(TokenType.DATASLATE)
+        self._expect(TokenType.LBRACE, "Expected '{' after Dataslate pattern")
+        fields = []
+        seen = set()
+        if self.current_token and self.current_token.type != TokenType.RBRACE:
+            while True:
+                if self.current_token.type == TokenType.IDENTIFIER:
+                    key = self.current_token.value
+                    self._advance()
+                elif self.current_token.type == TokenType.STRING:
+                    key = self.current_token.value
+                    self._advance()
+                else:
+                    raise SyntaxError(
+                        "Dataslate pattern field must be an identifier or string"
+                    )
+                if key in seen:
+                    raise SyntaxError(f"Duplicate Dataslate pattern field '{key}'")
+                seen.add(key)
+                self._expect(TokenType.COLON, "Expected ':' after pattern field")
+                fields.append((key, self._parse_pattern(bindings)))
+                if not self.current_token or self.current_token.type != TokenType.COMMA:
+                    break
+                self._advance()
+        self._expect(TokenType.RBRACE, "Expected '}' after Dataslate pattern")
+        return DataslatePatternNode(fields, token.line, token.column)
+
+    def _parse_squad_pattern(self, bindings: Set[str]) -> SquadPatternNode:
+        token = self._expect(TokenType.SQUAD)
+        self._expect(TokenType.LBRACKET, "Expected '[' after Squad pattern")
+        members: List[PatternNode] = []
+        if self.current_token and self.current_token.type != TokenType.RBRACKET:
+            members.append(self._parse_pattern(bindings))
+            while self.current_token and self.current_token.type == TokenType.COMMA:
+                self._advance()
+                members.append(self._parse_pattern(bindings))
+        self._expect(TokenType.RBRACKET, "Expected ']' after Squad pattern")
+        return SquadPatternNode(members, token.line, token.column)
 
     def _parse_expression_statement(self) -> ASTNode:
         expr = self._parse_expression()
