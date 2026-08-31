@@ -76,7 +76,6 @@ class Parser:
         token = self.current_token
         if token is None:
             return None
-
         if token.type == TokenType.IF:
             return self._parse_if_statement()
         if token.type == TokenType.WHILE:
@@ -99,7 +98,6 @@ class Parser:
             raise SyntaxError(
                 f"if requires a body at line {token.line}, column {token.column}"
             )
-
         else_branch = None
         if self.current_token and self.current_token.type == TokenType.ELSE:
             self._advance()
@@ -108,7 +106,6 @@ class Parser:
                 raise SyntaxError(
                     f"else requires a body at line {token.line}, column {token.column}"
                 )
-
         return IfStatementNode(
             condition, then_branch, else_branch, token.line, token.column
         )
@@ -129,12 +126,10 @@ class Parser:
         def_token = self.current_token
         assert def_token is not None
         self._advance()
-
         name_token = self._expect(
             TokenType.IDENTIFIER, "Expected function name after 'def'"
         )
         self._expect(TokenType.LPAREN, "Expected '(' after function name")
-
         parameters: List[str] = []
         if self.current_token and self.current_token.type != TokenType.RPAREN:
             while True:
@@ -148,14 +143,12 @@ class Parser:
                 ):
                     break
                 self._advance()
-
         self._expect(TokenType.RPAREN, "Expected ')' after function parameters")
         if not self.current_token or self.current_token.type != TokenType.LBRACE:
             raise SyntaxError(
                 f"Function '{name_token.value}' requires a block body "
                 f"at line {def_token.line}, column {def_token.column}"
             )
-
         body = self._parse_block()
         return FunctionDefinitionNode(
             name_token.value, parameters, body, def_token.line, def_token.column
@@ -299,7 +292,6 @@ class Parser:
         token = self.current_token
         if token is None:
             raise SyntaxError("Unexpected end of input")
-
         if token.type == TokenType.INTEGER:
             self._advance()
             return LiteralNode(int(token.value), token.line, token.column)
@@ -333,7 +325,6 @@ class Parser:
             TokenType.CURSE,
         ):
             return self._parse_warpy_expr()
-
         raise SyntaxError(
             f"Unexpected token: {token.type.name} "
             f"at line {token.line}, column {token.column}"
@@ -342,7 +333,6 @@ class Parser:
     def _parse_identifier_or_call(self) -> ASTNode:
         token = self._expect(TokenType.IDENTIFIER)
         name = token.value
-
         if self.current_token and self.current_token.type == TokenType.LPAREN:
             return self._parse_function_call(name, token.line, token.column)
         if self.current_token and self.current_token.type == TokenType.ASSIGN:
@@ -397,9 +387,7 @@ class Parser:
                 if key in seen:
                     raise SyntaxError(f"Duplicate Dataslate field '{key}'")
                 seen.add(key)
-                self._expect(
-                    TokenType.COLON, "Expected ':' after Dataslate field name"
-                )
+                self._expect(TokenType.COLON, "Expected ':' after Dataslate field name")
                 fields.append((key, self._parse_expression()))
                 if not self.current_token or self.current_token.type != TokenType.COMMA:
                     break
