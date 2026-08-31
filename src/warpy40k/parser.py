@@ -218,6 +218,8 @@ class Parser:
             )
 
         self._expect(TokenType.RBRACE, "Expected '}' after Order clauses")
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
         if not cases and otherwise is None:
             raise SyntaxError("Order requires at least one When or Otherwise clause")
         return OrderStatementNode(target, cases, otherwise, token.line, token.column)
@@ -232,7 +234,11 @@ class Parser:
             if number is None or number.type not in (TokenType.INTEGER, TokenType.FLOAT):
                 raise SyntaxError("Negative pattern requires a numeric literal")
             self._advance()
-            value = -int(number.value) if number.type == TokenType.INTEGER else -float(number.value)
+            value = (
+                -int(number.value)
+                if number.type == TokenType.INTEGER
+                else -float(number.value)
+            )
             return LiteralPatternNode(value, token.line, token.column)
         if token.type == TokenType.INTEGER:
             self._advance()
