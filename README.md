@@ -1,190 +1,142 @@
 # WarPy40K
 
-**Current version: 1.0.1**
+**Current version: 1.1.0**
 
-A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
+A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
 
-## WarPy40K 1.0.1
+## WarPy40K 1.1 — Squads & Dataslates
 
-Version **1.0.1** stabilizes the computational language core introduced in
-1.0.0. It adds explicit numeric/text conversions, corrects whole-file CLI
-execution, strengthens the constructive-machine and showcase tests, and makes
-the documented development checks enforceable in CI.
+Version **1.1.0** is the first release in which WarPy40K owns meaningful structured-data semantics instead of relying only on host-language scalar values.
 
-WarPy40K now supports:
+The release introduces:
 
-- variables and mutable assignment;
+- `Squad[...]`: an ordered mutable WarPy40K collection;
+- `Dataslate{field: value}`: an immutable-by-default structured record;
+- native indexing such as `squad[0]`;
+- native field access such as `marine.health`;
+- chained access such as `party[0].health`;
+- explicit Squad operations: `Deploy`, `Extract`, and `Reassign`;
+- persistent Dataslate transformations: `Inscribe` and `Erase`;
+- structural Dataslate equality and stable language-level representations;
+- `Purge` semantics for native structured values;
+- the v1.1 refactor of *The Vault of Vharax* using Squads and Dataslates.
+
+The design deliberately does **not** expose Python `list` or `dict` as the language's public data model.
+
+## Core language
+
+WarPy40K supports:
+
 - integers, floats, strings, and Booleans;
-- arithmetic and comparisons;
-- Boolean logic;
+- variables and mutable assignment;
+- arithmetic, comparisons, and Boolean logic;
 - `if` / `else`;
 - unrestricted `while`;
 - braces-delimited blocks;
-- user-defined functions;
-- function parameters and arity validation;
+- user-defined functions and parameters;
 - lexical function scopes;
 - `return` with real control-flow unwind;
 - direct recursion;
-- built-in functions;
-- explicit `int`, `float`, and `str` conversions;
+- native `Squad` and `Dataslate` values;
+- built-in functions and explicit `int`, `float`, `str` conversions;
 - WarPy40K-specific expressions;
-- REPL and file execution;
+- REPL and whole-file execution;
 - token and AST inspection.
 
-Under the standard theoretical abstraction in which memory and integer size are treated as unbounded, **WarPy40K 1.0 is Turing complete**.
+## Native data
 
-Unlike the earlier claim based only on the presence of unrestricted loops, v1.0 includes a **constructive demonstration**: [`examples/minsky_universal.wp40k`](examples/minsky_universal.wp40k) implements a universal interpreter for encoded deterministic two-counter Minsky machines entirely in WarPy40K source code.
+### Squad
 
-See [`docs/turing_completeness.md`](docs/turing_completeness.md) for the construction and proof argument.
-
-## Constructive universality demonstration
-
-The v1.0 example defines the fixed function:
+A `Squad` is ordered and mutable:
 
 ```text
-run_minsky(program, program_base, field_base, start_pc, c1, c2, max_steps, trace)
+party = Squad[
+    Dataslate{name: "Acolyte", health: 100},
+    Dataslate{name: "Interrogator", health: 120}
+]
+
+print(party[0].name)
+Deploy(party, Dataslate{name: "Servo Skull", health: 20})
+Reassign(party, 0, Dataslate{name: "Veteran Acolyte", health: 110})
+removed = Extract(party, 1)
 ```
 
-The finite instruction payload is supplied as a natural number. The complete
-machine description used by this implementation is the tuple
-`(program, P, F, start_pc)`; the initial counters are separate runtime inputs.
-WarPy40K decodes instructions from those values and executes the corresponding
-counter-machine transitions. A conventional pairing function could encode the
-finite tuple as one natural number, but this example keeps the components
-explicit and testable.
+`len(squad)` returns the member count.
 
-Instruction set:
+### Dataslate
 
-| Opcode | Meaning |
-|---:|---|
-| `0` | `HALT` |
-| `1` | increment counter 1 and jump |
-| `2` | increment counter 2 and jump |
-| `3` | decrement-or-zero-jump on counter 1 |
-| `4` | decrement-or-zero-jump on counter 2 |
-
-An instruction is encoded with a field base `F`:
+A `Dataslate` is a structured record and is immutable by default:
 
 ```text
-word = opcode + F * A + F^2 * B
+marine = Dataslate{name: "Titus", health: 100}
+wounded = Inscribe(marine, "health", 75)
+
+print(marine.health)   # 100
+print(wounded.health)  # 75
 ```
 
-and the finite instruction payload is encoded with program base `P`:
+`Inscribe` returns a new Dataslate, updating or adding a field. `Erase` returns a new Dataslate without a field:
 
 ```text
-program = sum(word_i * P^i)
+public_record = Erase(
+    Dataslate{name: "Agent", clearance: "Omega"},
+    "clearance"
+)
 ```
 
-The included demonstration machine transfers `C2` into `C1`.
+This persistent-record model is intentionally different from Squad mutation.
 
-Starting from:
+## Official showcase — The Vault of Vharax
+
+The official interactive showcase is a terminal roguelike/RPG written in WarPy40K:
+
+```bash
+warpy40k examples/vault_of_vharax.wp40k
+```
+
+The v1.1 version models its four dungeon sectors as a `Squad` of `Dataslate` records:
 
 ```text
-C1 = 3
-C2 = 4
+sectors = Squad[
+    Dataslate{name: "Ash Gate", enemy: "Scrap Cultist", enemy_health: 44},
+    Dataslate{name: "Reliquary of Static", enemy: "Warp-Touched Skitarii", enemy_health: 58}
+]
+
+sector = sectors[depth - 1]
+print(sector.name)
 ```
 
-it halts with:
+Recovered relics are also stored as structured values and added with `Deploy`.
 
-```text
-C1 = 7
-C2 = 0
-```
+The game demonstrates interactive I/O, state, loops, functions, RNG, combat, native data, and the thematic expressions `Chaos`, `Inquisition`, `Bless`, `Curse`, `Emperor`, `Purge`, and `Exterminatus`.
 
-Run it with:
+## Constructive Turing completeness
+
+Under the standard theoretical abstraction in which memory and integer size are unbounded, WarPy40K is Turing complete.
+
+The repository includes a constructive demonstration:
 
 ```bash
 warpy40k examples/minsky_universal.wp40k
 ```
 
-The automated v1.0.1 tests execute different encoded machines, exercise every
-opcode and both `DECJZ` paths, reject invalid configurations/opcodes, and
-validate a deliberately non-halting program through the optional debugging
-step guard.
+`examples/minsky_universal.wp40k` implements, in WarPy40K itself, an interpreter for deterministic two-counter Minsky machines. The finite instruction payload is encoded as a natural number and decoded/executed by a fixed WarPy40K program.
 
-## Why this is stronger than a hard-coded example
-
-`run_minsky` is fixed while `program` is data.
-
-That means the same WarPy40K source interpreter can execute different finite
-two-counter machines simply by receiving different encoded machine
-descriptions.
-
-Conceptually:
-
-```text
-Turing machine
-      ↓ simulation
-Two-counter Minsky machine
-      ↓ finite tuple with natural-number instruction payload
-WarPy40K run_minsky(program, ...)
-      ↓
-WarPy40K runtime
-```
-
-Because deterministic two-counter Minsky machines are computationally universal, this supplies a constructive route from a universal machine model into WarPy40K.
-
-As with every real implementation of a Turing-complete language, actual execution is still limited by physical memory, time, the host Python runtime, and the operating system.
-
-## Example syntax
-
-### Variables
-
-```text
-x = 42
-y = x + 10
-```
-
-### Conditionals
-
-```text
-if x > 5 {
-    print("greater")
-}
-else {
-    print("smaller or equal")
-}
-```
-
-### While
-
-```text
-counter = 0
-
-while counter < 5 {
-    counter = counter + 1
-}
-```
-
-### Functions and recursion
-
-```text
-def factorial(n) {
-    if n <= 1 {
-        return 1
-    }
-
-    return n * factorial(n - 1)
-}
-
-print(factorial(6))
-```
+See [`docs/turing_completeness.md`](docs/turing_completeness.md) for the formal construction and scope of the claim.
 
 ## WarPy40K expressions
-
-WarPy40K includes language-specific expressions inspired by the Warhammer 40K setting:
 
 | Expression | Current role |
 |---|---|
 | `Inquisition` | truth/judgment |
 | `Emperor` | faith-based transformation |
 | `Chaos` | corruption/randomness |
-| `Purge` | destructive/reset transformation |
+| `Purge` | reset/destructive transformation, including empty native data values |
 | `Exterminatus` | total-annihilation semantic marker |
 | `Bless` | positive transformation |
 | `Curse` | negative transformation |
 
-The post-1.0 roadmap deliberately develops these concepts into deeper semantics instead of merely adding Python features under themed names.
+Future versions deepen these concepts rather than merely renaming Python features.
 
 ## Installation
 
@@ -197,37 +149,33 @@ pip install -e .
 ## Command line
 
 ```bash
-# Run a program
-warpy40k examples/recursion.wp40k
+# Official v1.1 showcase
+warpy40k examples/vault_of_vharax.wp40k
 
-# Run the v1.0 universal-machine demonstration
+# Universal-machine demonstration
 warpy40k examples/minsky_universal.wp40k
 
 # Execute source directly
-warpy40k -c "Bless Emperor 100"
+warpy40k -c "party = Squad[Dataslate{name: \"Acolyte\", health: 100}]; party[0].health"
 
-# Start the REPL
+# REPL
 warpy40k -i
 
-# Inspect tokens
-warpy40k --tokens examples/minsky_universal.wp40k
-
-# Inspect AST
-warpy40k --ast examples/minsky_universal.wp40k
+# Inspect source
+warpy40k --tokens examples/vault_of_vharax.wp40k
+warpy40k --ast examples/vault_of_vharax.wp40k
 ```
 
-## Python API
+## Python host API
 
 ```python
 from warpy40k import evaluate
 
-result = evaluate("2 + 3 * 4")
-print(result)  # 14
+result = evaluate('Dataslate{name: "Titus", health: 100}.health')
+print(result)  # 100
 ```
 
-Python is currently the **implementation host**, not the WarPy40K surface language. WarPy40K source is tokenized, parsed into its own AST, and executed by its own interpreter rather than being passed to Python `eval()` or `exec()`.
-
-Some runtime values and built-ins are still Python-backed. Reducing accidental host-language behavior is an explicit goal of the 1.x roadmap.
+Python is the current **implementation host**, not the WarPy40K surface language. Source is tokenized, parsed into WarPy40K's own AST, and executed by its interpreter; it is not passed to Python `eval()` or `exec()`.
 
 ## Architecture
 
@@ -244,101 +192,74 @@ WarPy40K AST
       ↓
 Tree-walking interpreter
       ↓
-Lexical runtime environments
+WarPy40K runtime values / lexical environments
       ↓
-Result / effects
+Results and effects
 ```
 
 ## Version milestones
 
-### v0.8
-
-- basic lexer/parser/interpreter pipeline;
-- variables and expressions;
-- conditional execution;
-- internal but inaccessible loop infrastructure;
-- not yet defensibly Turing complete as a surface language.
-
 ### v0.9
 
-- unrestricted `while` exposed in the surface language;
-- user-defined functions;
-- parameters and lexical call scopes;
-- real `return` unwind;
-- recursion;
-- computational core becomes Turing complete under the usual theoretical model.
+Unrestricted loops, user-defined functions, lexical call scopes, `return`, and recursion completed the general-purpose computational core.
 
 ### v1.0
 
-- universal two-counter Minsky-machine interpreter written in WarPy40K;
-- machine programs encoded as natural-number data;
-- constructive Turing-completeness documentation;
-- automated v1.0 machine-interpreter tests;
-- package metadata promoted to `1.0.0`.
+Added the constructive two-counter Minsky-machine universality demonstration and *The Vault of Vharax* terminal showcase.
 
-### v1.0.1 — Current
+### v1.0.1
 
-- explicit `int`, `float`, and `str` conversion built-ins;
-- file execution parses and runs each source exactly once;
-- corrected runnable examples and command-line documentation;
-- broader Minsky-machine and terminal-showcase regression coverage;
-- enforced formatting, linting, typing, and coverage checks;
-- synchronized package metadata and changelog;
-- language roadmap shifts from “mini-Python functionality” toward explicitly WarPy40K semantics.
+Stabilized CLI execution, conversions, examples, CI, typing, linting, coverage, and the precision of the universality documentation.
+
+### v1.1 — Current
+
+Added WarPy40K-owned structured data with mutable `Squad`, persistent `Dataslate`, native access syntax, explicit data operations, regression tests, and a structured-data refactor of the official showcase.
 
 ## Identity-focused roadmap
 
-The full roadmap is maintained in [`docs/roadmap.md`](docs/roadmap.md).
-
-Planned milestones:
+See [`docs/roadmap.md`](docs/roadmap.md).
 
 | Version | Direction |
 |---|---|
-| **1.1** | **Squads & Dataslates** — WarPy40K-owned collection and structured-data types |
-| **1.2** | **Orders** — pattern-oriented command dispatch |
+| **1.2** | **Orders** — pattern-oriented command dispatch over values and native data |
 | **1.3** | **Warp effect model** — explicit, seedable, replayable nondeterminism |
 | **1.4** | **Inquisition contracts** — assertions, preconditions, and postconditions |
 | **1.5** | **Codex modules** — native module/export/import semantics |
-| **1.6** | **Sanctioned effects** — explicit capabilities for I/O and external effects |
-| **1.7** | **Crusades** — structured iteration over WarPy40K iterables |
-| **1.8** | **Machine-Spirit introspection** — stable AST/runtime tracing and scope inspection |
-| **1.9** | **Forge bytecode** — small documented bytecode plus VM |
-| **2.0** | **Independent runtime** — language semantics increasingly independent of accidental Python behavior |
-| **2.1–2.6** | **Forge Era (exploratory)** — foundations for data-oriented, real-time, simulation, and eventual 3D work |
-
-The guiding rule is simple:
+| **1.6** | **Sanctioned effects** — capability boundaries for external effects |
+| **1.7** | **Crusades** — structured iteration over Squads and other iterables |
+| **1.8** | **Machine-Spirit introspection** — stable AST/runtime tracing |
+| **1.9** | **Forge bytecode** — documented bytecode plus VM |
+| **2.0** | **Independent runtime** — increasingly implementation-independent semantics |
+| **2.1–2.6** | **Forge Era (exploratory)** — vectors, buffers, native interface, real-time execution, concurrency, and eventual 3D simulation |
 
 > New features should have WarPy40K semantics, not merely Python semantics with Warhammer terminology.
-
-## Documentation
-
-- [`docs/language_reference.md`](docs/language_reference.md) — v1.0.1 language reference
-- [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality proof
-- [`docs/roadmap.md`](docs/roadmap.md) — post-1.0 language roadmap
-- [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
-- [`docs/api_reference.md`](docs/api_reference.md) — Python-host API
-- [`CHANGELOG.md`](CHANGELOG.md) — versioned release notes
 
 ## Development
 
 ```bash
 pip install -r requirements-dev.txt
 pytest
-pytest --cov=src/warpy40k
-```
-
-Formatting and type checks:
-
-```bash
+pytest --cov=warpy40k
 black src/ tests/
 isort src/ tests/
-mypy src/warpy40k
 flake8 src/ tests/
+mypy src/warpy40k
 ```
+
+GitHub Actions enforces formatting, import order, linting, typing, test coverage, and the supported Python test matrix.
+
+## Documentation
+
+- [`docs/language_reference.md`](docs/language_reference.md) — language syntax and semantics
+- [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality demonstration
+- [`docs/roadmap.md`](docs/roadmap.md) — identity-focused release plan
+- [`docs/showcase_v10.md`](docs/showcase_v10.md) — original showcase design notes
+- [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
+- [`CHANGELOG.md`](CHANGELOG.md) — release notes
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 ## Acknowledgments
 
