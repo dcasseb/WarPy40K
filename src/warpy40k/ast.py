@@ -22,6 +22,7 @@ class NodeType(Enum):
     WHILE_LOOP = auto()
     BLOCK = auto()
     RETURN_STATEMENT = auto()
+    ORDER_STATEMENT = auto()
     SQUAD_LITERAL = auto()
     DATASLATE_LITERAL = auto()
     INDEX_ACCESS = auto()
@@ -160,6 +161,63 @@ class BlockNode(ASTNode):
 @dataclass
 class ReturnStatementNode(ASTNode):
     value: Optional[ASTNode] = None
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class PatternNode(ASTNode):
+    """Base class for Order patterns."""
+
+
+@dataclass
+class LiteralPatternNode(PatternNode):
+    value: Union[int, float, str, bool]
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class BindingPatternNode(PatternNode):
+    name: str
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class WildcardPatternNode(PatternNode):
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class DataslatePatternNode(PatternNode):
+    fields: List[Tuple[str, PatternNode]] = field(default_factory=list)
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class SquadPatternNode(PatternNode):
+    members: List[PatternNode] = field(default_factory=list)
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class OrderCaseNode(ASTNode):
+    pattern: PatternNode
+    body: ASTNode
+    guard: Optional[ASTNode] = None
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class OrderStatementNode(ASTNode):
+    target: ASTNode
+    cases: List[OrderCaseNode] = field(default_factory=list)
+    otherwise: Optional[ASTNode] = None
     line: int = 1
     column: int = 1
 
