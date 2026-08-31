@@ -201,7 +201,9 @@ class Parser:
                 body = self._parse_statement()
                 if body is None:
                     raise SyntaxError("When requires a body")
-                cases.append(OrderCaseNode(pattern, body, guard, when.line, when.column))
+                cases.append(
+                    OrderCaseNode(pattern, body, guard, when.line, when.column)
+                )
                 continue
             if self.current_token.type == TokenType.OTHERWISE:
                 if saw_otherwise:
@@ -231,7 +233,10 @@ class Parser:
         if token.type == TokenType.MINUS:
             self._advance()
             number = self.current_token
-            if number is None or number.type not in (TokenType.INTEGER, TokenType.FLOAT):
+            if number is None or number.type not in (
+                TokenType.INTEGER,
+                TokenType.FLOAT,
+            ):
                 raise SyntaxError("Negative pattern requires a numeric literal")
             self._advance()
             value = (
