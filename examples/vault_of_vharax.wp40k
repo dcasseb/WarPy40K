@@ -1,10 +1,9 @@
-# WarPy40K 1.0 official showcase
+# WarPy40K 1.1 official showcase
 # The Vault of Vharax
 #
 # A small terminal roguelike/RPG written entirely in WarPy40K.
-# It intentionally uses only language features available in v1.0:
-# functions, lexical scopes, while, if/else, mutable state, strings,
-# input/output, arithmetic, Boolean logic and WarPy40K expressions.
+# v1.1 uses native Squad and Dataslate values to model the vault sectors
+# and the player's recovered relics, while preserving the v1.0 gameplay.
 
 
 def warp_roll() {
@@ -12,63 +11,31 @@ def warp_roll() {
 }
 
 
+def sector_manifest() {
+    return Squad[
+        Dataslate{name: "Ash Gate", enemy: "Scrap Cultist", enemy_health: 44},
+        Dataslate{name: "Reliquary of Static", enemy: "Warp-Touched Skitarii", enemy_health: 58},
+        Dataslate{name: "Choir of Rust", enemy: "Possessed Sentinel", enemy_health: 72},
+        Dataslate{name: "Throne of the Heretek", enemy: "Arch-Heretek Vharax", enemy_health: 96}
+    ];
+}
+
+
 def sector_name(depth) {
-    if depth == 1 {
-        return "Ash Gate";
-    }
-    else {
-        if depth == 2 {
-            return "Reliquary of Static";
-        }
-        else {
-            if depth == 3 {
-                return "Choir of Rust";
-            }
-            else {
-                return "Throne of the Heretek";
-            }
-        }
-    }
+    sectors = sector_manifest();
+    return sectors[depth - 1].name;
 }
 
 
 def enemy_name(depth) {
-    if depth == 1 {
-        return "Scrap Cultist";
-    }
-    else {
-        if depth == 2 {
-            return "Warp-Touched Skitarii";
-        }
-        else {
-            if depth == 3 {
-                return "Possessed Sentinel";
-            }
-            else {
-                return "Arch-Heretek Vharax";
-            }
-        }
-    }
+    sectors = sector_manifest();
+    return sectors[depth - 1].enemy;
 }
 
 
 def enemy_health(depth) {
-    if depth == 1 {
-        return 44;
-    }
-    else {
-        if depth == 2 {
-            return 58;
-        }
-        else {
-            if depth == 3 {
-                return 72;
-            }
-            else {
-                return 96;
-            }
-        }
-    }
+    sectors = sector_manifest();
+    return sectors[depth - 1].enemy_health;
 }
 
 
@@ -92,14 +59,14 @@ def enemy_damage(depth, corruption) {
 
 def show_status(health, faith, corruption, medicae, relics) {
     print("Health:", health, " Faith:", faith, " Corruption:", corruption);
-    print("Medicae:", medicae, " Relics:", relics);
+    print("Medicae:", medicae, " Relics:", len(relics));
 }
 
 
 def opening() {
     print("============================================================");
     print("WARPY40K: THE VAULT OF VHARAX");
-    print("Official WarPy40K 1.0 terminal showcase");
+    print("Official WarPy40K 1.1 terminal showcase");
     print("============================================================");
     print("You are an Inquisitorial acolyte beneath a dead forge-city.");
     print("Four sealed sectors stand between you and Arch-Heretek Vharax.");
@@ -110,11 +77,12 @@ def opening() {
 
 
 def launch_inquisitor() {
+    sectors = sector_manifest();
+    relics = Squad[];
     health = 100;
     faith = 60;
     corruption = 5;
     medicae = 2;
-    relics = 0;
     depth = 1;
     alive = True;
     victory = False;
@@ -123,9 +91,11 @@ def launch_inquisitor() {
     opening();
 
     while alive AND NOT victory AND NOT escaped {
+        sector = sectors[depth - 1];
+
         print("");
         print("------------------------------------------------------------");
-        print("Sector", depth, ":", sector_name(depth));
+        print("Sector", depth, ":", sector.name);
         show_status(health, faith, corruption, medicae, relics);
         print("------------------------------------------------------------");
         print("1 - Advance under arms");
@@ -148,7 +118,12 @@ def launch_inquisitor() {
                 }
                 else {
                     if search_roll < 72 {
-                        relics = relics + 1;
+                        relic = Dataslate{
+                            name: "Sanctified Fragment",
+                            sector: sector.name,
+                            value: 100
+                        };
+                        Deploy(relics, relic);
                         faith = min(100, Bless faith);
                         print("A sanctified relic answers your touch.");
                     }
@@ -202,8 +177,8 @@ def launch_inquisitor() {
                 }
             }
 
-            enemy = enemy_name(depth);
-            enemy_hp = enemy_health(depth);
+            enemy = sector.enemy;
+            enemy_hp = sector.enemy_health;
 
             print("");
             print("CONTACT:", enemy);
@@ -294,7 +269,12 @@ def launch_inquisitor() {
                 if enemy_hp <= 0 {
                     print("");
                     print(enemy, "has been purged.");
-                    relics = relics + 1;
+                    trophy = Dataslate{
+                        name: enemy,
+                        sector: sector.name,
+                        value: 100 + depth * 25
+                    };
+                    Deploy(relics, trophy);
                     health = min(100, health + 20);
                     faith = min(100, faith + 5);
 
@@ -318,19 +298,21 @@ def launch_inquisitor() {
         final_protocol = Exterminatus;
         print("Vault sanction:", final_protocol);
         print("Remaining corruption after Purge:", corruption);
-        score = relics * 100 + faith + health;
+        score = len(relics) * 100 + faith + health;
+        print("Relic manifest:", relics);
         print("Final score:", score);
     }
     else {
         if escaped {
             print("WITHDRAWAL: You seal the vault behind you.");
             print("Vharax survives. The Inquisition will remember.");
-            score = relics * 50 + health + faith - corruption;
+            score = len(relics) * 50 + health + faith - corruption;
+            print("Recovered manifest:", relics);
             print("Extraction score:", score);
         }
         else {
             print("DEFEAT: Your duty ends beneath the forge-city.");
-            print("Relics recovered before death:", relics);
+            print("Relics recovered before death:", len(relics));
         }
     }
 
