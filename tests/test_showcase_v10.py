@@ -1,10 +1,10 @@
-"""Regression tests for the WarPy40K v1.0 official showcase."""
+"""Regression tests for the WarPy40K official terminal showcase."""
 
 import random
 from pathlib import Path
 
 from warpy40k.ast import Program
-from warpy40k.interpreter import Interpreter
+from warpy40k.interpreter import DataslateValue, Interpreter, SquadValue
 from warpy40k.lexer import Lexer
 from warpy40k.parser import Parser
 
@@ -28,6 +28,18 @@ def test_showcase_is_valid_warpy40k_source():
     assert len(ast.statements) >= 10
 
 
+def test_showcase_uses_native_v11_sector_manifest():
+    interpreter = Interpreter()
+    execute(interpreter, DEFINITIONS_ONLY)
+
+    manifest = execute(interpreter, "sector_manifest()")
+    assert isinstance(manifest, SquadValue)
+    assert len(manifest) == 4
+    assert all(isinstance(sector, DataslateValue) for sector in manifest.members)
+    assert execute(interpreter, "sector_manifest()[0].name") == "Ash Gate"
+    assert execute(interpreter, "sector_manifest()[3].enemy_health") == 96
+
+
 def test_showcase_helper_rules_execute_in_warpy40k():
     interpreter = Interpreter()
     execute(interpreter, DEFINITIONS_ONLY)
@@ -40,9 +52,6 @@ def test_showcase_helper_rules_execute_in_warpy40k():
 
 
 def test_complete_showcase_withdrawal_session(monkeypatch, capsys):
-    # A deterministic full-program smoke test. The player withdraws at the
-    # first strategic choice, which exercises startup, function definitions,
-    # the main game loop, input, branching, status output, and termination.
     monkeypatch.setattr("builtins.input", lambda prompt="": "4")
     random.seed(1)
 
@@ -51,8 +60,10 @@ def test_complete_showcase_withdrawal_session(monkeypatch, capsys):
 
     output = capsys.readouterr().out
     assert "WARPY40K: THE VAULT OF VHARAX" in output
+    assert "Official WarPy40K 1.1 terminal showcase" in output
     assert "Sector 1 : Ash Gate" in output
     assert "WITHDRAWAL: You seal the vault behind you." in output
+    assert "Recovered manifest: Squad[]" in output
     assert "Extraction score:" in output
 
 
@@ -71,6 +82,7 @@ def test_complete_showcase_victory_session(monkeypatch, capsys):
     assert "Sector 4 : Throne of the Heretek" in output
     assert "VICTORY: VHARAX HAS BEEN JUDGED." in output
     assert "Vault sanction: EXTERMINATUS" in output
+    assert "Relic manifest: Squad[" in output
     assert "Final score:" in output
 
 
