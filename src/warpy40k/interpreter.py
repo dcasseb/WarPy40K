@@ -82,7 +82,11 @@ class DataslateValue:
         if not any(field_name == key for field_name, _ in self.fields):
             raise KeyError(f"Dataslate has no field '{key}'")
         return DataslateValue(
-            tuple((field_name, value) for field_name, value in self.fields if field_name != key)
+            tuple(
+                (field_name, value)
+                for field_name, value in self.fields
+                if field_name != key
+            )
         )
 
     def __repr__(self) -> str:
@@ -151,6 +155,7 @@ class Interpreter:
 
     def _builtin_exit(self, code: int = 0) -> None:
         import sys
+
         sys.exit(code)
 
     def _builtin_random(self) -> float:
@@ -253,7 +258,9 @@ class Interpreter:
         if isinstance(node, SquadLiteralNode):
             return SquadValue([self.execute(member) for member in node.members])
         if isinstance(node, DataslateLiteralNode):
-            return DataslateValue(tuple((name, self.execute(value)) for name, value in node.fields))
+            return DataslateValue(
+                tuple((name, self.execute(value)) for name, value in node.fields)
+            )
         if isinstance(node, IndexAccessNode):
             return self._execute_index_access(node)
         if isinstance(node, FieldAccessNode):
@@ -284,39 +291,60 @@ class Interpreter:
         left = self.execute(node.left)
         right = self.execute(node.right)
         operator = node.operator
-        if operator == "+": return left + right
-        if operator == "-": return left - right
-        if operator == "*": return left * right
+        if operator == "+":
+            return left + right
+        if operator == "-":
+            return left - right
+        if operator == "*":
+            return left * right
         if operator == "/":
-            if right == 0: raise ZeroDivisionError("Division by zero")
+            if right == 0:
+                raise ZeroDivisionError("Division by zero")
             return left / right
-        if operator == "^": return left**right
-        if operator == "==": return left == right
-        if operator == "!=": return left != right
-        if operator == ">": return left > right
-        if operator == "<": return left < right
-        if operator == ">=": return left >= right
-        if operator == "<=": return left <= right
-        if operator in ("AND", "&&"): return left and right
-        if operator in ("OR", "||"): return left or right
+        if operator == "^":
+            return left**right
+        if operator == "==":
+            return left == right
+        if operator == "!=":
+            return left != right
+        if operator == ">":
+            return left > right
+        if operator == "<":
+            return left < right
+        if operator == ">=":
+            return left >= right
+        if operator == "<=":
+            return left <= right
+        if operator in ("AND", "&&"):
+            return left and right
+        if operator in ("OR", "||"):
+            return left or right
         raise RuntimeError(f"Unknown operator: {operator}")
 
     def _execute_unary_op(self, node: UnaryOpNode) -> Any:
         operand = self.execute(node.operand)
-        if node.operator == "-": return -operand
-        if node.operator in ("NOT", "!"): return not operand
+        if node.operator == "-":
+            return -operand
+        if node.operator in ("NOT", "!"):
+            return not operand
         raise RuntimeError(f"Unknown unary operator: {node.operator}")
 
     def _execute_variable_declaration(self, node: VariableDeclarationNode) -> Any:
-        return self._define(node.name, self.execute(node.value) if node.value is not None else None)
+        return self._define(
+            node.name, self.execute(node.value) if node.value is not None else None
+        )
 
     def _execute_variable_assignment(self, node: VariableAssignmentNode) -> Any:
         return self._define(node.name, self.execute(node.value))
 
-    def _execute_function_definition(self, node: FunctionDefinitionNode) -> UserFunction:
+    def _execute_function_definition(
+        self, node: FunctionDefinitionNode
+    ) -> UserFunction:
         if not isinstance(node.body, BlockNode):
             raise RuntimeError("Function body must be a block")
-        function = UserFunction(node.name, list(node.parameters), node.body, tuple(self._scopes))
+        function = UserFunction(
+            node.name, list(node.parameters), node.body, tuple(self._scopes)
+        )
         self._define(node.name, function)
         return function
 
@@ -371,7 +399,9 @@ class Interpreter:
     def _execute_return_statement(self, node: ReturnStatementNode) -> Any:
         if self._function_depth == 0:
             raise RuntimeError("'return' can only be used inside a function")
-        raise _ReturnSignal(self.execute(node.value) if node.value is not None else None)
+        raise _ReturnSignal(
+            self.execute(node.value) if node.value is not None else None
+        )
 
     def _execute_index_access(self, node: IndexAccessNode) -> Any:
         target = self.execute(node.target)
@@ -399,7 +429,11 @@ class Interpreter:
         faith_factor = self._lookup("FAITH") / 100.0
         if node.target is not None:
             target_value = self.execute(node.target)
-            return target_value * faith_factor if isinstance(target_value, (int, float)) else target_value
+            return (
+                target_value * faith_factor
+                if isinstance(target_value, (int, float))
+                else target_value
+            )
         return 1000
 
     def _execute_chaos_expr(self, node: ChaosExprNode) -> Any:
@@ -407,16 +441,23 @@ class Interpreter:
         if node.target is not None:
             target_value = self.execute(node.target)
             if isinstance(target_value, (int, float)):
-                return target_value + random.uniform(-corruption, corruption) * target_value
+                return (
+                    target_value
+                    + random.uniform(-corruption, corruption) * target_value
+                )
             return target_value
         return random.random() * 100
 
     def _execute_purge_expr(self, node: PurgeExprNode) -> Any:
         target_value = self.execute(node.target)
-        if isinstance(target_value, (int, float)): return 0
-        if isinstance(target_value, str): return ""
-        if isinstance(target_value, SquadValue): return SquadValue([])
-        if isinstance(target_value, DataslateValue): return DataslateValue(tuple())
+        if isinstance(target_value, (int, float)):
+            return 0
+        if isinstance(target_value, str):
+            return ""
+        if isinstance(target_value, SquadValue):
+            return SquadValue([])
+        if isinstance(target_value, DataslateValue):
+            return DataslateValue(tuple())
         return None
 
     def _execute_exterminatus_expr(self, node: ExterminatusExprNode) -> Any:
@@ -427,12 +468,16 @@ class Interpreter:
 
     def _execute_bless_expr(self, node: BlessExprNode) -> Any:
         target_value = self.execute(node.target)
-        if isinstance(target_value, (int, float)): return target_value + target_value / 10
-        if isinstance(target_value, str): return f"Blessed {target_value}"
+        if isinstance(target_value, (int, float)):
+            return target_value + target_value / 10
+        if isinstance(target_value, str):
+            return f"Blessed {target_value}"
         return target_value
 
     def _execute_curse_expr(self, node: CurseExprNode) -> Any:
         target_value = self.execute(node.target)
-        if isinstance(target_value, (int, float)): return target_value * 0.9
-        if isinstance(target_value, str): return f"Cursed {target_value}"
+        if isinstance(target_value, (int, float)):
+            return target_value * 0.9
+        if isinstance(target_value, str):
+            return f"Cursed {target_value}"
         return target_value
