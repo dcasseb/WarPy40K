@@ -1,25 +1,12 @@
-# WarPy40K Language Reference — v1.0.1
+# WarPy40K Language Reference — v1.1.0
 
-This document describes the stable language core available in WarPy40K 1.0.
+This document describes the stable language core available in WarPy40K 1.1.
 
 ## Lexical basics
 
-### Comments
+Single-line comments start with `#`. Identifiers may contain letters, digits, and underscores, may not begin with a digit, and are case-sensitive.
 
-Single-line comments start with `#`:
-
-```text
-# This is a comment
-x = 42
-```
-
-### Identifiers
-
-Identifiers may contain letters, digits, and underscores, but may not begin with a digit. Names are case-sensitive.
-
-### Literals
-
-Currently supported literals:
+Scalar literals:
 
 ```text
 42
@@ -29,61 +16,42 @@ True
 False
 ```
 
-Strings use double quotes. Scientific-notation numeric literals and single-quoted strings are not part of the v1.0 grammar.
+Strings use double quotes. Scientific-notation numeric literals and single-quoted strings are not currently part of the grammar.
 
 ## Variables and assignment
-
-Variables are created or updated through assignment:
 
 ```text
 x = 42
 y = x + 10
 ```
 
-At top level, assignments are stored in the global interpreter environment. Inside a user-defined function, assignments are local to that invocation.
+Top-level assignments live in the global environment. Function parameters and assignments live in a fresh local scope for each invocation.
 
 ## Operators
 
-### Arithmetic
+Arithmetic:
 
-| Operator | Meaning |
-|---|---|
-| `+` | addition |
-| `-` | subtraction |
-| `*` | multiplication |
-| `/` | division |
-| `^` | exponentiation |
+```text
++  -  *  /  ^
+```
 
-### Comparison
+Comparison:
 
 ```text
 ==  !=  >  <  >=  <=
 ```
 
-### Boolean logic
+Boolean logic:
 
 ```text
-AND
-OR
-NOT
+AND  OR  NOT
 ```
 
 Parentheses may be used for grouping.
 
-## Blocks
+## Blocks and control flow
 
-Blocks are delimited by braces:
-
-```text
-{
-    x = 1
-    y = 2
-}
-```
-
-Whitespace and indentation improve readability but do not define block structure.
-
-## Conditional execution
+Blocks use braces:
 
 ```text
 if condition {
@@ -94,235 +62,210 @@ else {
 }
 ```
 
-Example:
-
-```text
-x = 10
-
-if x > 5 {
-    print("greater")
-}
-else {
-    print("smaller or equal")
-}
-```
-
-`else` is optional.
-
-## While loops
-
-`while` is fully supported in v1.0 and has no artificial iteration limit:
+`while` is unrestricted:
 
 ```text
 counter = 0
-
 while counter < 5 {
-    print(counter)
     counter = counter + 1
 }
 ```
 
-A program may therefore intentionally or accidentally fail to terminate.
+Whitespace and indentation improve readability but do not define block structure.
 
-## User-defined functions
-
-Functions use `def`, a parameter list, and a block body:
-
-```text
-def add(a, b) {
-    return a + b
-}
-
-result = add(20, 22)
-```
-
-Function arity is checked at runtime.
-
-### Function scope
-
-Each function call receives a fresh local scope for parameters and assignments.
-Braced blocks do not create additional scopes in v1.0.1:
-
-```text
-x = 100
-
-def identity(x) {
-    return x
-}
-
-identity(42)
-x
-```
-
-The final value of `x` is still `100`.
-
-Function names remain visible through their lexical environment, enabling recursion.
-
-### Recursion
+## Functions, scope, and recursion
 
 ```text
 def factorial(n) {
     if n <= 1 {
         return 1
     }
-
     return n * factorial(n - 1)
 }
-
-factorial(6)
 ```
 
-This evaluates to `720`.
+Function arity is checked at runtime. Each invocation receives fresh parameter/local state while retaining lexical visibility of enclosing definitions. Braced blocks do not create additional scopes in v1.1.
 
-## Return
+`return` exits the nearest user-defined function immediately, including from nested blocks or loops. `return` outside a function is a runtime error.
 
-`return` exits the nearest user-defined function immediately:
+## Native structured data
+
+### Squad
+
+`Squad` is an ordered mutable WarPy40K collection.
+
+Literal syntax:
 
 ```text
-def find(limit) {
-    x = 0
+numbers = Squad[10, 20, 30]
+party = Squad[
+    Dataslate{name: "Acolyte", health: 100},
+    Dataslate{name: "Interrogator", health: 120}
+]
+```
 
-    while True {
-        if x >= limit {
-            return x
-        }
-        x = x + 1
-    }
+Access is zero-based:
+
+```text
+numbers[1]          # 20
+party[0].health     # 100
+```
+
+Supported operations:
+
+| Operation | Semantics |
+|---|---|
+| `len(squad)` | number of members |
+| `Deploy(squad, value)` | append a member in place and return the Squad |
+| `Extract(squad)` | remove and return the final member |
+| `Extract(squad, index)` | remove and return a member by index |
+| `Reassign(squad, index, value)` | replace a member in place and return the Squad |
+| `Purge squad` | return a new empty Squad |
+
+Squad indexing requires an integer. Mutation is intentionally explicit.
+
+### Dataslate
+
+`Dataslate` is an immutable-by-default structured record.
+
+```text
+marine = Dataslate{
+    name: "Titus",
+    health: 100,
+    rank: "Captain"
 }
 ```
 
-A `return` reached inside nested `if` statements, blocks, or loops unwinds the function call. Using `return` outside a user-defined function is a runtime error.
+Fields can be accessed with `.`:
+
+```text
+marine.name
+marine.health
+```
+
+Field names in a literal may be identifiers or strings. Duplicate fields are rejected by the parser.
+
+Dataslate updates are persistent:
+
+```text
+wounded = Inscribe(marine, "health", 75)
+
+print(marine.health)   # 100
+print(wounded.health)  # 75
+```
+
+Supported operations:
+
+| Operation | Semantics |
+|---|---|
+| `len(dataslate)` | number of fields |
+| `Inscribe(dataslate, key, value)` | return a new record with key added/updated |
+| `Erase(dataslate, key)` | return a new record without key |
+| `Purge dataslate` | return a new empty Dataslate |
+| `==` / `!=` | structural equality |
+
+Access to a missing field is a runtime error. `Inscribe` and `Erase` never mutate the original Dataslate.
+
+### Chained access
+
+Postfix access composes:
+
+```text
+party = Squad[
+    Dataslate{name: "Acolyte", stats: Dataslate{health: 88}}
+]
+
+party[0].stats.health
+```
+
+This is parsed into explicit WarPy40K index/field AST nodes rather than delegated to Python attribute access.
 
 ## Built-in functions
-
-WarPy40K 1.0.1 exposes the following built-ins:
 
 | Function | Description |
 |---|---|
 | `print(...)` | print values |
-| `input(prompt)` | read user input |
-| `int(x)` | convert a number, Boolean, or decimal string to an integer |
-| `float(x)` | convert a number, Boolean, or decimal string to a float |
+| `input(prompt)` | read a string from standard input |
+| `int(x)` | convert a number, Boolean, or decimal string to integer |
+| `float(x)` | convert a number, Boolean, or decimal string to float |
 | `str(x)` | convert a runtime value to text |
 | `random()` | random float in `[0, 1)` |
 | `abs(x)` | absolute value |
-| `min(...)` | minimum |
-| `max(...)` | maximum |
+| `min(...)` / `max(...)` | extrema |
 | `pow(x, y)` | exponentiation |
-| `len(x)` | length of a supported host-backed value |
-| `range(...)` | create a host-backed range |
+| `len(x)` | length for supported values, including Squad/Dataslate |
+| `range(...)` | host-backed range value |
+| `Deploy(...)` | Squad append |
+| `Extract(...)` | Squad removal |
+| `Reassign(...)` | Squad indexed replacement |
+| `Inscribe(...)` | persistent Dataslate update/add |
+| `Erase(...)` | persistent Dataslate field removal |
 | `exit(code)` | terminate execution |
 
-Some built-ins still expose Python-hosted runtime values. Reducing this host-language leakage is part of the post-1.0 roadmap.
-
-`input` always returns a string. Use `int(...)` or `float(...)` before numeric
-arithmetic; multiplying input by `1` does not perform numeric conversion.
+Some built-ins remain Python-hosted. Reducing host-language leakage remains a roadmap goal.
 
 ## Built-in constants
-
-```text
-FAITH
-CORRUPTION
-POPULATION
-True
-False
-```
-
-Default values are currently:
 
 ```text
 FAITH = 100
 CORRUPTION = 0
 POPULATION = 1000000
+True
+False
 ```
 
 ## WarPy40K expressions
 
-### `Inquisition`
+| Expression | Current semantics |
+|---|---|
+| `Inquisition target` | evaluate target truthiness; without target => `True` |
+| `Emperor target` | apply the current faith factor to numeric targets |
+| `Chaos target` | apply corruption/randomness to a target; without target => random value |
+| `Purge target` | reset according to runtime type, including empty Squad/Dataslate |
+| `Exterminatus target` | evaluate optional target and represent total annihilation |
+| `Bless target` | positive transformation; numeric values increase by 10% |
+| `Curse target` | negative transformation; numeric values decrease by 10% |
 
-Evaluates the truthiness of a target. Without a target, it evaluates to `True`.
-
-```text
-Inquisition 42
-```
-
-### `Emperor`
-
-Applies the current faith factor to a numeric target. Without a target, it returns the language's current high-value Emperor marker.
-
-```text
-Emperor 100
-```
-
-### `Chaos`
-
-Applies corruption/randomness to a target or produces a random value when used without a target.
-
-```text
-Chaos 100
-```
-
-### `Purge`
-
-Reduces a target according to its runtime type, such as numeric zero or an empty string.
-
-```text
-Purge 42
-```
-
-### `Exterminatus`
-
-Evaluates an optional target for side effects and represents total annihilation.
-
-```text
-Exterminatus 42
-```
-
-### `Bless`
-
-Increases numeric targets by 10% and applies a positive transformation to supported values.
-
-```text
-Bless 100
-```
-
-### `Curse`
-
-Decreases numeric targets by 10% and applies a negative transformation to supported values.
-
-```text
-Curse 100
-```
-
-The deeper semantics of these language-specific concepts will evolve during the 1.x series. See [roadmap.md](roadmap.md).
+The thematic semantics will deepen during the 1.x line. See [roadmap.md](roadmap.md).
 
 ## Turing completeness
 
-WarPy40K 1.0 includes a constructive Turing-completeness demonstration in [`examples/minsky_universal.wp40k`](../examples/minsky_universal.wp40k).
+WarPy40K includes a constructive demonstration in [`examples/minsky_universal.wp40k`](../examples/minsky_universal.wp40k), which implements an interpreter for deterministic two-counter Minsky machines in WarPy40K itself.
 
-That source file implements a universal interpreter for encoded deterministic two-counter Minsky machines using WarPy40K itself.
+See [turing_completeness.md](turing_completeness.md) for the construction and scope of the claim.
 
-See [turing_completeness.md](turing_completeness.md) for the construction and proof argument.
+## Grammar sketch
 
-## Current grammar sketch
-
-The following is descriptive rather than a formal parser specification:
+This is descriptive rather than a formal specification:
 
 ```text
-program        := statement*
-statement      := if_stmt
-                | while_stmt
-                | function_def
-                | return_stmt
-                | block
-                | expression
+program          := statement*
+statement        := if_stmt
+                  | while_stmt
+                  | function_def
+                  | return_stmt
+                  | block
+                  | expression
 
-if_stmt        := "if" expression statement ("else" statement)?
-while_stmt     := "while" expression statement
-function_def   := "def" IDENTIFIER "(" parameters? ")" block
-parameters     := IDENTIFIER ("," IDENTIFIER)*
-return_stmt    := "return" expression?
-block          := "{" statement* "}"
+if_stmt          := "if" expression statement ("else" statement)?
+while_stmt       := "while" expression statement
+function_def     := "def" IDENTIFIER "(" parameters? ")" block
+parameters       := IDENTIFIER ("," IDENTIFIER)*
+return_stmt      := "return" expression?
+block            := "{" statement* "}"
+
+primary          := scalar_literal
+                  | IDENTIFIER
+                  | function_call
+                  | squad_literal
+                  | dataslate_literal
+                  | "(" expression ")"
+                  | warpy_expression
+
+squad_literal    := "Squad" "[" (expression ("," expression)*)? "]"
+dataslate_literal:= "Dataslate" "{" (field ("," field)*)? "}"
+field            := (IDENTIFIER | STRING) ":" expression
+postfix_access   := primary ("[" expression "]" | "." IDENTIFIER)*
 ```
 
-A formal versioned grammar is planned for a later 1.x release.
+A formal versioned grammar remains planned for a later 1.x release.
