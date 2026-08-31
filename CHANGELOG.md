@@ -2,6 +2,40 @@
 
 All notable changes to WarPy40K are recorded here.
 
+## 1.2.0 — 2026-08-31
+
+### Added
+
+- `Order target { ... }` pattern-oriented dispatch.
+- `When pattern { ... }` clauses with first-match-wins semantics and no fall-through.
+- Optional `Otherwise` fallback clauses.
+- Optional Boolean guards using `When pattern if condition { ... }`.
+- Literal patterns for numbers, strings, and Booleans, including negative numeric literals.
+- `_` wildcard patterns.
+- Local binding patterns such as `When value { ... }`.
+- Partial structural `Dataslate{field: pattern}` matching with nested bindings.
+- Exact-shape `Squad[pattern, ...]` matching.
+- Dedicated Order-pattern AST nodes and regression coverage.
+
+### Semantics
+
+- Pattern identifiers bind matched values; they are not variable lookups.
+- Pattern bindings are visible to the clause guard and body, then restored/removed after the clause.
+- Ordinary assignments performed by a matched clause retain normal surrounding-scope behavior.
+- Duplicate bindings in one pattern are rejected.
+- `Otherwise` may appear at most once and must follow all `When` clauses.
+- An unmatched `Order` without `Otherwise` performs no action and returns `None` at runtime.
+
+### Showcase
+
+- Refactored *The Vault of Vharax* exploration and combat command dispatch to use `Order` instead of nested action-selection `if` trees.
+- Added showcase regression checks requiring native Order nodes to remain present.
+
+### Quality
+
+- Full tests pass on Python 3.8, 3.10, and 3.12.
+- Black, isort, flake8, mypy, and the coverage gate pass for the v1.2 implementation.
+
 ## 1.1.0 — 2026-08-31
 
 ### Added
@@ -20,7 +54,7 @@ All notable changes to WarPy40K are recorded here.
 ### Changed
 
 - Refactored *The Vault of Vharax* into the official v1.1 showcase. Vault
-  sectors are now represented as a `Squad` of `Dataslate` records and recovered
+  sectors are represented as a `Squad` of `Dataslate` records and recovered
   relics are stored as structured values.
 - Extended lexer punctuation with `[`, `]`, and `.` for native data syntax.
 - Extended the AST and parser with explicit structured-data nodes rather than
