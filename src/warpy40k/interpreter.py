@@ -436,7 +436,7 @@ class Interpreter:
         if isinstance(pattern, WildcardPatternNode):
             return True
         if isinstance(pattern, LiteralPatternNode):
-            return value == pattern.value
+            return bool(value == pattern.value)
         if isinstance(pattern, BindingPatternNode):
             bindings[pattern.name] = value
             return True
