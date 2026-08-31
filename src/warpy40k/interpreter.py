@@ -406,13 +406,18 @@ class Interpreter:
             bindings = self._match_pattern(case.pattern, target)
             if bindings is None:
                 continue
-            self._scopes.append(bindings)
+            scope = self._scopes[-1]
+            previous = {name: scope[name] for name in bindings if name in scope}
+            absent = [name for name in bindings if name not in scope]
+            scope.update(bindings)
             try:
                 if case.guard is not None and not self.execute(case.guard):
                     continue
                 return self.execute(case.body)
             finally:
-                self._scopes.pop()
+                for name in absent:
+                    scope.pop(name, None)
+                scope.update(previous)
         if node.otherwise is not None:
             return self.execute(node.otherwise)
         return None
