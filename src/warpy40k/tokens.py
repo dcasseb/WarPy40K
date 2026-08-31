@@ -23,6 +23,10 @@ class TokenType(Enum):
     DEF = auto()  # 'def'
     RETURN = auto()  # 'return'
 
+    # Native WarPy40K data constructors
+    SQUAD = auto()  # 'Squad'
+    DATASLATE = auto()  # 'Dataslate'
+
     # Warhammer 40K specific keywords
     INQUISITION = auto()  # 'Inquisition'
     EMPEROR = auto()  # 'Emperor'
@@ -61,9 +65,12 @@ class TokenType(Enum):
     RPAREN = auto()
     LBRACE = auto()
     RBRACE = auto()
+    LBRACKET = auto()
+    RBRACKET = auto()
     COMMA = auto()
     SEMICOLON = auto()
     COLON = auto()
+    DOT = auto()
 
     # Assignment
     ASSIGN = auto()
