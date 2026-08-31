@@ -96,16 +96,22 @@ class Parser:
         condition = self._parse_expression()
         then_branch = self._parse_statement()
         if then_branch is None:
-            raise SyntaxError(f"if requires a body at line {token.line}, column {token.column}")
+            raise SyntaxError(
+                f"if requires a body at line {token.line}, column {token.column}"
+            )
 
         else_branch = None
         if self.current_token and self.current_token.type == TokenType.ELSE:
             self._advance()
             else_branch = self._parse_statement()
             if else_branch is None:
-                raise SyntaxError(f"else requires a body at line {token.line}, column {token.column}")
+                raise SyntaxError(
+                    f"else requires a body at line {token.line}, column {token.column}"
+                )
 
-        return IfStatementNode(condition, then_branch, else_branch, token.line, token.column)
+        return IfStatementNode(
+            condition, then_branch, else_branch, token.line, token.column
+        )
 
     def _parse_while_statement(self) -> WhileLoopNode:
         token = self.current_token
@@ -114,7 +120,9 @@ class Parser:
         condition = self._parse_expression()
         body = self._parse_statement()
         if body is None:
-            raise SyntaxError(f"while requires a body at line {token.line}, column {token.column}")
+            raise SyntaxError(
+                f"while requires a body at line {token.line}, column {token.column}"
+            )
         return WhileLoopNode(condition, body, token.line, token.column)
 
     def _parse_function_definition(self) -> FunctionDefinitionNode:
@@ -122,15 +130,22 @@ class Parser:
         assert def_token is not None
         self._advance()
 
-        name_token = self._expect(TokenType.IDENTIFIER, "Expected function name after 'def'")
+        name_token = self._expect(
+            TokenType.IDENTIFIER, "Expected function name after 'def'"
+        )
         self._expect(TokenType.LPAREN, "Expected '(' after function name")
 
         parameters: List[str] = []
         if self.current_token and self.current_token.type != TokenType.RPAREN:
             while True:
-                parameter = self._expect(TokenType.IDENTIFIER, "Expected parameter name")
+                parameter = self._expect(
+                    TokenType.IDENTIFIER, "Expected parameter name"
+                )
                 parameters.append(parameter.value)
-                if self.current_token is None or self.current_token.type != TokenType.COMMA:
+                if (
+                    self.current_token is None
+                    or self.current_token.type != TokenType.COMMA
+                ):
                     break
                 self._advance()
 
@@ -175,7 +190,9 @@ class Parser:
         while self.current_token and self.current_token.type == TokenType.OR:
             token = self.current_token
             self._advance()
-            left = BinaryOpNode(left, token.value, self._parse_logical_and(), token.line, token.column)
+            left = BinaryOpNode(
+                left, token.value, self._parse_logical_and(), token.line, token.column
+            )
         return left
 
     def _parse_logical_and(self) -> ASTNode:
@@ -183,34 +200,56 @@ class Parser:
         while self.current_token and self.current_token.type == TokenType.AND:
             token = self.current_token
             self._advance()
-            left = BinaryOpNode(left, token.value, self._parse_comparison(), token.line, token.column)
+            left = BinaryOpNode(
+                left, token.value, self._parse_comparison(), token.line, token.column
+            )
         return left
 
     def _parse_comparison(self) -> ASTNode:
         left = self._parse_addition()
         while self.current_token and self.current_token.type in (
-            TokenType.EQ, TokenType.NEQ, TokenType.GT, TokenType.LT,
-            TokenType.GTE, TokenType.LTE,
+            TokenType.EQ,
+            TokenType.NEQ,
+            TokenType.GT,
+            TokenType.LT,
+            TokenType.GTE,
+            TokenType.LTE,
         ):
             token = self.current_token
             self._advance()
-            left = BinaryOpNode(left, token.value, self._parse_addition(), token.line, token.column)
+            left = BinaryOpNode(
+                left, token.value, self._parse_addition(), token.line, token.column
+            )
         return left
 
     def _parse_addition(self) -> ASTNode:
         left = self._parse_multiplication()
-        while self.current_token and self.current_token.type in (TokenType.PLUS, TokenType.MINUS):
+        while self.current_token and self.current_token.type in (
+            TokenType.PLUS,
+            TokenType.MINUS,
+        ):
             token = self.current_token
             self._advance()
-            left = BinaryOpNode(left, token.value, self._parse_multiplication(), token.line, token.column)
+            left = BinaryOpNode(
+                left,
+                token.value,
+                self._parse_multiplication(),
+                token.line,
+                token.column,
+            )
         return left
 
     def _parse_multiplication(self) -> ASTNode:
         left = self._parse_power()
-        while self.current_token and self.current_token.type in (TokenType.MULTIPLY, TokenType.DIVIDE):
+        while self.current_token and self.current_token.type in (
+            TokenType.MULTIPLY,
+            TokenType.DIVIDE,
+        ):
             token = self.current_token
             self._advance()
-            left = BinaryOpNode(left, token.value, self._parse_power(), token.line, token.column)
+            left = BinaryOpNode(
+                left, token.value, self._parse_power(), token.line, token.column
+            )
         return left
 
     def _parse_power(self) -> ASTNode:
@@ -218,14 +257,21 @@ class Parser:
         if self.current_token and self.current_token.type == TokenType.POWER:
             token = self.current_token
             self._advance()
-            return BinaryOpNode(left, token.value, self._parse_power(), token.line, token.column)
+            return BinaryOpNode(
+                left, token.value, self._parse_power(), token.line, token.column
+            )
         return left
 
     def _parse_unary(self) -> ASTNode:
-        if self.current_token and self.current_token.type in (TokenType.MINUS, TokenType.NOT):
+        if self.current_token and self.current_token.type in (
+            TokenType.MINUS,
+            TokenType.NOT,
+        ):
             token = self.current_token
             self._advance()
-            return UnaryOpNode(token.value, self._parse_unary(), token.line, token.column)
+            return UnaryOpNode(
+                token.value, self._parse_unary(), token.line, token.column
+            )
         return self._parse_postfix()
 
     def _parse_postfix(self) -> ASTNode:
@@ -241,7 +287,9 @@ class Parser:
             if self.current_token.type == TokenType.DOT:
                 token = self.current_token
                 self._advance()
-                field = self._expect(TokenType.IDENTIFIER, "Expected field name after '.'")
+                field = self._expect(
+                    TokenType.IDENTIFIER, "Expected field name after '.'"
+                )
                 expr = FieldAccessNode(expr, field.value, token.line, token.column)
                 continue
             break
@@ -276,13 +324,19 @@ class Parser:
             self._expect(TokenType.RPAREN, "Expected closing parenthesis")
             return expr
         if token.type in (
-            TokenType.INQUISITION, TokenType.EMPEROR, TokenType.CHAOS,
-            TokenType.PURGE, TokenType.EXTERMINATUS, TokenType.BLESS, TokenType.CURSE,
+            TokenType.INQUISITION,
+            TokenType.EMPEROR,
+            TokenType.CHAOS,
+            TokenType.PURGE,
+            TokenType.EXTERMINATUS,
+            TokenType.BLESS,
+            TokenType.CURSE,
         ):
             return self._parse_warpy_expr()
 
         raise SyntaxError(
-            f"Unexpected token: {token.type.name} at line {token.line}, column {token.column}"
+            f"Unexpected token: {token.type.name} "
+            f"at line {token.line}, column {token.column}"
         )
 
     def _parse_identifier_or_call(self) -> ASTNode:
@@ -293,10 +347,14 @@ class Parser:
             return self._parse_function_call(name, token.line, token.column)
         if self.current_token and self.current_token.type == TokenType.ASSIGN:
             self._advance()
-            return VariableAssignmentNode(name, self._parse_expression(), token.line, token.column)
+            return VariableAssignmentNode(
+                name, self._parse_expression(), token.line, token.column
+            )
         return IdentifierNode(name, token.line, token.column)
 
-    def _parse_function_call(self, name: str, line: int, column: int) -> FunctionCallNode:
+    def _parse_function_call(
+        self, name: str, line: int, column: int
+    ) -> FunctionCallNode:
         self._expect(TokenType.LPAREN, "Expected '(' after function name")
         arguments: List[ASTNode] = []
         if self.current_token and self.current_token.type != TokenType.RPAREN:
@@ -333,11 +391,15 @@ class Parser:
                     key = self.current_token.value
                     self._advance()
                 else:
-                    raise SyntaxError("Dataslate field name must be an identifier or string")
+                    raise SyntaxError(
+                        "Dataslate field name must be an identifier or string"
+                    )
                 if key in seen:
                     raise SyntaxError(f"Duplicate Dataslate field '{key}'")
                 seen.add(key)
-                self._expect(TokenType.COLON, "Expected ':' after Dataslate field name")
+                self._expect(
+                    TokenType.COLON, "Expected ':' after Dataslate field name"
+                )
                 fields.append((key, self._parse_expression()))
                 if not self.current_token or self.current_token.type != TokenType.COMMA:
                     break
@@ -348,7 +410,10 @@ class Parser:
     def _parse_block(self) -> BlockNode:
         token = self._expect(TokenType.LBRACE, "Expected '{'")
         statements: List[ASTNode] = []
-        while self.current_token and self.current_token.type not in (TokenType.RBRACE, TokenType.EOF):
+        while self.current_token and self.current_token.type not in (
+            TokenType.RBRACE,
+            TokenType.EOF,
+        ):
             statement = self._parse_statement()
             if statement is not None:
                 statements.append(statement)
@@ -372,45 +437,94 @@ class Parser:
     def _has_optional_target(self) -> bool:
         return bool(
             self.current_token
-            and self.current_token.type in (
-                TokenType.INTEGER, TokenType.FLOAT, TokenType.STRING, TokenType.BOOLEAN,
-                TokenType.IDENTIFIER, TokenType.SQUAD, TokenType.DATASLATE,
-                TokenType.LPAREN, TokenType.MINUS, TokenType.NOT,
-                TokenType.INQUISITION, TokenType.EMPEROR, TokenType.CHAOS,
-                TokenType.PURGE, TokenType.EXTERMINATUS, TokenType.BLESS, TokenType.CURSE,
+            and self.current_token.type
+            in (
+                TokenType.INTEGER,
+                TokenType.FLOAT,
+                TokenType.STRING,
+                TokenType.BOOLEAN,
+                TokenType.IDENTIFIER,
+                TokenType.SQUAD,
+                TokenType.DATASLATE,
+                TokenType.LPAREN,
+                TokenType.MINUS,
+                TokenType.NOT,
+                TokenType.INQUISITION,
+                TokenType.EMPEROR,
+                TokenType.CHAOS,
+                TokenType.PURGE,
+                TokenType.EXTERMINATUS,
+                TokenType.BLESS,
+                TokenType.CURSE,
             )
         )
 
     def _parse_inquisition_expr(self) -> InquisitionExprNode:
-        token = self.current_token; assert token is not None; self._advance()
-        return InquisitionExprNode(self._parse_unary() if self._has_optional_target() else None, token.line, token.column)
+        token = self.current_token
+        assert token is not None
+        self._advance()
+        return InquisitionExprNode(
+            self._parse_unary() if self._has_optional_target() else None,
+            token.line,
+            token.column,
+        )
 
     def _parse_emperor_expr(self) -> EmperorExprNode:
-        token = self.current_token; assert token is not None; self._advance()
-        return EmperorExprNode(self._parse_unary() if self._has_optional_target() else None, token.line, token.column)
+        token = self.current_token
+        assert token is not None
+        self._advance()
+        return EmperorExprNode(
+            self._parse_unary() if self._has_optional_target() else None,
+            token.line,
+            token.column,
+        )
 
     def _parse_chaos_expr(self) -> ChaosExprNode:
-        token = self.current_token; assert token is not None; self._advance()
-        return ChaosExprNode(self._parse_unary() if self._has_optional_target() else None, token.line, token.column)
+        token = self.current_token
+        assert token is not None
+        self._advance()
+        return ChaosExprNode(
+            self._parse_unary() if self._has_optional_target() else None,
+            token.line,
+            token.column,
+        )
 
     def _parse_purge_expr(self) -> PurgeExprNode:
-        token = self.current_token; assert token is not None; self._advance()
+        token = self.current_token
+        assert token is not None
+        self._advance()
         if not self._has_optional_target():
-            raise SyntaxError(f"Purge expression requires a target at line {token.line}")
+            raise SyntaxError(
+                f"Purge expression requires a target at line {token.line}"
+            )
         return PurgeExprNode(self._parse_unary(), token.line, token.column)
 
     def _parse_exterminatus_expr(self) -> ExterminatusExprNode:
-        token = self.current_token; assert token is not None; self._advance()
-        return ExterminatusExprNode(self._parse_unary() if self._has_optional_target() else None, token.line, token.column)
+        token = self.current_token
+        assert token is not None
+        self._advance()
+        return ExterminatusExprNode(
+            self._parse_unary() if self._has_optional_target() else None,
+            token.line,
+            token.column,
+        )
 
     def _parse_bless_expr(self) -> BlessExprNode:
-        token = self.current_token; assert token is not None; self._advance()
+        token = self.current_token
+        assert token is not None
+        self._advance()
         if not self._has_optional_target():
-            raise SyntaxError(f"Bless expression requires a target at line {token.line}")
+            raise SyntaxError(
+                f"Bless expression requires a target at line {token.line}"
+            )
         return BlessExprNode(self._parse_unary(), token.line, token.column)
 
     def _parse_curse_expr(self) -> CurseExprNode:
-        token = self.current_token; assert token is not None; self._advance()
+        token = self.current_token
+        assert token is not None
+        self._advance()
         if not self._has_optional_target():
-            raise SyntaxError(f"Curse expression requires a target at line {token.line}")
+            raise SyntaxError(
+                f"Curse expression requires a target at line {token.line}"
+            )
         return CurseExprNode(self._parse_unary(), token.line, token.column)
