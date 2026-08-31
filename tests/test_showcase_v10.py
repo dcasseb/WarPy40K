@@ -3,7 +3,7 @@
 import random
 from pathlib import Path
 
-from warpy40k.ast import Program
+from warpy40k.ast import OrderStatementNode, Program
 from warpy40k.interpreter import DataslateValue, Interpreter, SquadValue
 from warpy40k.lexer import Lexer
 from warpy40k.parser import Parser
@@ -22,10 +22,29 @@ def execute(interpreter: Interpreter, source: str):
     return interpreter.execute(parse(source))
 
 
+def _count_orders(node) -> int:
+    count = 1 if isinstance(node, OrderStatementNode) else 0
+    for value in vars(node).values():
+        if hasattr(value, "__dict__"):
+            count += _count_orders(value)
+        elif isinstance(value, list):
+            for item in value:
+                if hasattr(item, "__dict__"):
+                    count += _count_orders(item)
+    return count
+
+
 def test_showcase_is_valid_warpy40k_source():
     ast = parse(SOURCE)
     assert isinstance(ast, Program)
     assert len(ast.statements) >= 10
+
+
+def test_showcase_uses_v12_order_dispatch():
+    ast = parse(SOURCE)
+    assert _count_orders(ast) >= 2
+    assert "Order exploration" in SOURCE
+    assert "Order action" in SOURCE
 
 
 def test_showcase_uses_native_v11_sector_manifest():
@@ -60,7 +79,7 @@ def test_complete_showcase_withdrawal_session(monkeypatch, capsys):
 
     output = capsys.readouterr().out
     assert "WARPY40K: THE VAULT OF VHARAX" in output
-    assert "Official WarPy40K 1.1 terminal showcase" in output
+    assert "Official WarPy40K 1.2 terminal showcase" in output
     assert "Sector 1 : Ash Gate" in output
     assert "WITHDRAWAL: You seal the vault behind you." in output
     assert "Recovered manifest: Squad[]" in output
