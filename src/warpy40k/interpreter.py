@@ -449,9 +449,7 @@ class Interpreter:
                     bindings.clear()
                     bindings.update(snapshot)
                     return False
-                if not self._match_into(
-                    field_pattern, value.get(field_name), bindings
-                ):
+                if not self._match_into(field_pattern, value.get(field_name), bindings):
                     bindings.clear()
                     bindings.update(snapshot)
                     return False
