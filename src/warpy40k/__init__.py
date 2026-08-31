@@ -12,7 +12,7 @@ from .lexer import Lexer
 from .parser import Parser
 from .tokens import TokenType
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __all__ = [
     "Lexer",
     "Parser",
