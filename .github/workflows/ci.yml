@@ -38,6 +38,9 @@ jobs:
       - name: Run tests
         run: python -m pytest -q
 
+      - name: Smoke benchmark suite
+        run: python benchmarks/run_benchmarks.py --samples 1
+
   quality:
     runs-on: ubuntu-latest
 
@@ -58,13 +61,13 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Check formatting
-        run: python -m black --check --diff src tests
+        run: python -m black --check --diff src tests benchmarks
 
       - name: Check import order
-        run: python -m isort --check-only src tests
+        run: python -m isort --check-only src tests benchmarks
 
       - name: Lint
-        run: python -m flake8 src tests
+        run: python -m flake8 src tests benchmarks
 
       - name: Type-check
         run: python -m mypy src/warpy40k
