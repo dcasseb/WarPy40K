@@ -500,7 +500,8 @@ def run_case(case: BenchmarkCase, samples_override: Optional[int]) -> BenchmarkR
     end_result, end_timing = measure(end_to_end, case.warmups, samples)
     if end_result != case.expected:
         raise RuntimeError(
-            f"{case.name}: end-to-end returned {end_result!r}, expected {case.expected!r}"
+            f"{case.name}: end-to-end returned {end_result!r}, "
+            f"expected {case.expected!r}"
         )
 
     python_timing = None
@@ -592,7 +593,10 @@ def main() -> int:
         selected = [case for case in CASES if case.name in requested]
         missing = requested - {case.name for case in selected}
         if missing:
-            print(f"Unknown benchmark(s): {', '.join(sorted(missing))}", file=sys.stderr)
+            print(
+                f"Unknown benchmark(s): {', '.join(sorted(missing))}",
+                file=sys.stderr,
+            )
             return 2
 
     if args.samples is not None and args.samples < 1:
