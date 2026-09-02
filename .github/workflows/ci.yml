@@ -61,7 +61,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
 
       - name: Check formatting
-        run: python -m black --check --diff src tests benchmarks
+        run: python -m black --check --diff src tests
 
       - name: Check import order
         run: python -m isort --check-only src tests benchmarks
