@@ -97,7 +97,9 @@ def execute_warpy(source: str) -> Any:
     return Interpreter().execute(parse_warpy(source))
 
 
-def measure(callable_: Callable[[], Any], warmups: int, samples: int) -> Tuple[Any, TimingSummary]:
+def measure(
+    callable_: Callable[[], Any], warmups: int, samples: int
+) -> Tuple[Any, TimingSummary]:
     result = None
     for _ in range(warmups):
         result = callable_()
@@ -149,9 +151,9 @@ def python_recursion() -> int:
 
 def python_order_dispatch() -> int:
     i = 0
+    choice = 0
     score = 0
     while i < 12000:
-        choice = i % 4
         if choice == 0:
             score += 1
         elif choice == 1:
@@ -160,6 +162,9 @@ def python_order_dispatch() -> int:
             score += 3
         else:
             score += 4
+        choice += 1
+        if choice == 4:
+            choice = 0
         i += 1
     return score
 
@@ -187,12 +192,74 @@ def python_dataslate_workload() -> int:
     return record["health"]
 
 
-def python_minsky_transfer() -> int:
+def python_minsky_interpreter() -> int:
+    field_base = 5
+    program_base = 15
+    program = 1560
+
+    def nat_pow(base: int, exponent: int) -> int:
+        result = 1
+        i = 0
+        while i < exponent:
+            result *= base
+            i += 1
+        return result
+
+    def nat_div(numerator: int, denominator: int) -> int:
+        quotient = 0
+        remainder = numerator
+        while remainder >= denominator:
+            remainder -= denominator
+            quotient += 1
+        return quotient
+
+    def nat_mod(value: int, modulus: int) -> int:
+        remainder = value
+        while remainder >= modulus:
+            remainder -= modulus
+        return remainder
+
+    def instruction_at(pc: int) -> int:
+        scale = nat_pow(program_base, pc)
+        shifted = nat_div(program, scale)
+        return nat_mod(shifted, program_base)
+
+    def field_at(word: int, index: int) -> int:
+        scale = nat_pow(field_base, index)
+        shifted = nat_div(word, scale)
+        return nat_mod(shifted, field_base)
+
+    pc = 1
     c1 = 3
-    c2 = 4000
-    while c2 != 0:
-        c2 -= 1
-        c1 += 1
+    c2 = 25
+    running = True
+    while running:
+        word = instruction_at(pc)
+        opcode = field_at(word, 0)
+        target_a = field_at(word, 1)
+        target_b = field_at(word, 2)
+        if opcode == 0:
+            running = False
+        elif opcode == 1:
+            c1 += 1
+            pc = target_a
+        elif opcode == 2:
+            c2 += 1
+            pc = target_a
+        elif opcode == 3:
+            if c1 == 0:
+                pc = target_b
+            else:
+                c1 -= 1
+                pc = target_a
+        elif opcode == 4:
+            if c2 == 0:
+                pc = target_b
+            else:
+                c2 -= 1
+                pc = target_a
+        else:
+            raise RuntimeError("invalid opcode")
     return c1
 
 
@@ -252,15 +319,19 @@ fib(18);
         description="12,000 Order dispatches over four literal branches",
         warpy_source="""
 i = 0;
+choice = 0;
 score = 0;
 while i < 12000 {
-    choice = i - (i / 4) * 4;
     Order choice {
         When 0 { score = score + 1; }
         When 1 { score = score + 2; }
         When 2 { score = score + 3; }
         Otherwise { score = score + 4; }
     };
+    choice = choice + 1;
+    if choice == 4 {
+        choice = 0;
+    }
     i = i + 1;
 }
 score;
@@ -305,19 +376,107 @@ record.health;
         expected=4100,
     ),
     BenchmarkCase(
-        name="minsky_transfer",
-        description="two-counter transfer loop moving 4,000 units from C2 to C1",
+        name="minsky_interpreter",
+        description="official encoded two-counter interpreter transferring C2=25",
         warpy_source="""
-c1 = 3;
-c2 = 4000;
-while c2 != 0 {
-    c2 = c2 - 1;
-    c1 = c1 + 1;
+def nat_pow(base, exponent) {
+    result = 1;
+    i = 0;
+    while i < exponent {
+        result = result * base;
+        i = i + 1;
+    }
+    return result;
 }
-c1;
+
+def nat_div(numerator, denominator) {
+    quotient = 0;
+    remainder = numerator;
+    while remainder >= denominator {
+        remainder = remainder - denominator;
+        quotient = quotient + 1;
+    }
+    return quotient;
+}
+
+def nat_mod(value, modulus) {
+    remainder = value;
+    while remainder >= modulus {
+        remainder = remainder - modulus;
+    }
+    return remainder;
+}
+
+def instruction_at(program, pc, program_base) {
+    scale = nat_pow(program_base, pc);
+    shifted = nat_div(program, scale);
+    return nat_mod(shifted, program_base);
+}
+
+def field_at(word, index, field_base) {
+    scale = nat_pow(field_base, index);
+    shifted = nat_div(word, scale);
+    return nat_mod(shifted, field_base);
+}
+
+def run_minsky(program, program_base, field_base, start_pc, c1, c2) {
+    pc = start_pc;
+    running = True;
+    while running {
+        word = instruction_at(program, pc, program_base);
+        opcode = field_at(word, 0, field_base);
+        target_a = field_at(word, 1, field_base);
+        target_b = field_at(word, 2, field_base);
+        if opcode == 0 {
+            running = False;
+        }
+        else {
+            if opcode == 1 {
+                c1 = c1 + 1;
+                pc = target_a;
+            }
+            else {
+                if opcode == 2 {
+                    c2 = c2 + 1;
+                    pc = target_a;
+                }
+                else {
+                    if opcode == 3 {
+                        if c1 == 0 {
+                            pc = target_b;
+                        }
+                        else {
+                            c1 = c1 - 1;
+                            pc = target_a;
+                        }
+                    }
+                    else {
+                        if opcode == 4 {
+                            if c2 == 0 {
+                                pc = target_b;
+                            }
+                            else {
+                                c2 = c2 - 1;
+                                pc = target_a;
+                            }
+                        }
+                        else {
+                            return -2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return c1;
+}
+
+run_minsky(1560, 15, 5, 1, 3, 25);
 """,
-        python_callable=python_minsky_transfer,
-        expected=4003,
+        python_callable=python_minsky_interpreter,
+        expected=28,
+        samples=7,
+        warmups=1,
     ),
 ]
 
