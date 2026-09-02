@@ -2,7 +2,7 @@
 
 All notable changes to WarPy40K are recorded here.
 
-## 1.2.0 — 2026-08-31
+## 1.2.0 — 2026-09-02
 
 ### Added
 
@@ -16,6 +16,15 @@ All notable changes to WarPy40K are recorded here.
 - Partial structural `Dataslate{field: pattern}` matching with nested bindings.
 - Exact-shape `Squad[pattern, ...]` matching.
 - Dedicated Order-pattern AST nodes and regression coverage.
+- Official performance benchmark suite covering arithmetic, function calls,
+  recursion, `Order`, `Squad`, `Dataslate`, and the encoded Minsky interpreter.
+- Execution-only and end-to-end benchmark modes with median, p95, min, and max
+  timing plus equivalent Python baselines where practical.
+- Machine-readable benchmark output for preserving reproducible historical
+  performance baselines.
+- Forge Runtime architecture documentation describing the path from the Python
+  reference interpreter to Forge bytecode, a native VM, native value storage,
+  multicore scheduling, native kernels, and optional JIT/AOT compilation.
 
 ### Semantics
 
@@ -31,10 +40,28 @@ All notable changes to WarPy40K are recorded here.
 - Refactored *The Vault of Vharax* exploration and combat command dispatch to use `Order` instead of nested action-selection `if` trees.
 - Added showcase regression checks requiring native Order nodes to remain present.
 
+### Performance and roadmap
+
+- Established v1.2 as the historical tree-walker performance baseline.
+- Made performance a first-class roadmap objective with measurable targets for
+  Forge VM speedup, CPython-relative performance, structured data, multicore
+  scaling, native numeric kernels, and real-time simulation.
+- Defined the v1.9 Forge VM target as at least a 10x geometric-mean
+  execution-only speedup over the v1.2 tree walker on canonical CPU-bound
+  benchmarks.
+- Defined long-term multicore targets of at least 3x throughput with four
+  workers and at least 5x with eight workers where hardware and workload permit.
+- Defined a long-term simulation target of 1,000 WarPy40K-controlled entities
+  at 60 Hz within a 16.67 ms update budget on documented reference hardware.
+- Documented Python as the long-term semantic/reference implementation rather
+  than the intended permanent production-runtime dependency.
+
 ### Quality
 
-- Full tests pass on Python 3.8, 3.10, and 3.12.
-- Black, isort, flake8, mypy, and the coverage gate pass for the v1.2 implementation.
+- Full tests and benchmark smoke checks run on Python 3.8, 3.10, and 3.12.
+- Black, isort, flake8, mypy, and the coverage gate remain release quality gates.
+- Benchmark timings remain informational rather than hard CI thresholds because
+  shared CI hardware is noisy.
 
 ## 1.1.0 — 2026-08-31
 
