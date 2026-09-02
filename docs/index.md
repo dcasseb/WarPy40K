@@ -9,11 +9,13 @@ Welcome to the documentation for **WarPy40K 1.2**, a small Warhammer 40K-inspire
 - **[Orders and Pattern Dispatch](orders.md)** — `Order`, `When`, `Otherwise`, bindings, guards, Squad patterns, and Dataslate patterns
 - **[Official Showcase](showcase_v10.md)** — design notes for *The Vault of Vharax*; the executable example evolves with each release
 - **[Turing Completeness](turing_completeness.md)** — constructive two-counter Minsky-machine demonstration
-- **[Language Roadmap](roadmap.md)** — identity-focused roadmap through the exploratory Forge Era
+- **[Language Roadmap](roadmap.md)** — identity and performance roadmap through the exploratory Forge Era
+- **[Forge Runtime Architecture](forge_runtime.md)** — planned transition from the Python-hosted tree walker to an independent native runtime, bytecode VM, native value model, multicore scheduler, and optional JIT/AOT paths
 - **[WarPy40K Expressions](warpy_expressions.md)** — themed expressions and their current behavior
 - **[Tutorials](tutorials.md)** — guided examples
 - **[Examples](examples.md)** — program examples
 - **[API Reference](api_reference.md)** — using WarPy40K from Python
+- **[Performance Benchmarks](../benchmarks/README.md)** — benchmark methodology and interpretation
 
 ## Quick start
 
@@ -74,6 +76,26 @@ WarPy40K 1.2 supports:
 - whole-file CLI execution, REPL, token inspection, and AST inspection.
 
 Under the usual theoretical unbounded-memory abstraction, WarPy40K is Turing complete and includes an explicit constructive universal-machine artifact.
+
+## Runtime direction
+
+WarPy40K is currently implemented in Python, but Python is not intended to define the permanent production-runtime boundary. The planned Forge transition keeps the Python tree walker as a small semantic reference while moving normal high-performance execution toward:
+
+```text
+Python reference interpreter
+        ↓
+Forge bytecode
+        ↓
+Native Forge VM
+        ↓
+Native value model
+        ↓
+Multicore scheduler + native kernels
+        ↓
+Optional JIT/AOT
+```
+
+See [Forge Runtime Architecture](forge_runtime.md) for the complete design rationale and [Language Roadmap](roadmap.md) for release targets and performance acceptance criteria.
 
 ## Next milestone
 
