@@ -170,6 +170,31 @@ The current version demonstrates:
 
 The showcase is also a regression benchmark: CI verifies its structured-data model, presence of native `Order` AST nodes, withdrawal, victory, defeat, corruption, invalid commands, and medicae behavior.
 
+## Performance benchmarks
+
+WarPy40K includes an official benchmark suite under [`benchmarks/`](benchmarks/). It is intended to establish a reproducible performance baseline for the current tree-walking interpreter and to make future runtime changes measurable, especially the planned Forge bytecode VM.
+
+Run the default suite:
+
+```bash
+python benchmarks/run_benchmarks.py
+```
+
+Save machine-readable results:
+
+```bash
+python benchmarks/run_benchmarks.py --json benchmarks/results/v1.2-local.json
+```
+
+The suite reports median and p95 latency for two modes:
+
+- **execution-only** — parse once, then execute the same AST with a fresh interpreter per sample;
+- **end-to-end** — tokenize, parse, and execute from source for every sample.
+
+Canonical workloads cover arithmetic loops, user-function calls, recursion, `Order`, `Squad`, `Dataslate`, and a small two-counter Minsky-machine program. Equivalent Python baselines are reported where practical, along with the WarPy/Python slowdown ratio. Timing results are intentionally **not** used as a CI pass/fail threshold because shared CI hardware is noisy.
+
+See [`benchmarks/README.md`](benchmarks/README.md) for methodology and interpretation.
+
 ## Constructive Turing completeness
 
 Under the standard theoretical abstraction in which memory and integer size are unbounded, WarPy40K is Turing complete.
@@ -218,76 +243,7 @@ warpy40k -c "Order 2 { When 1 { print(\"one\") } When 2 { print(\"two\") } }"
 
 # REPL
 warpy40k -i
-
-# Inspect source
-warpy40k --tokens examples/vault_of_vharax.wp40k
-warpy40k --ast examples/vault_of_vharax.wp40k
 ```
-
-## Python host API
-
-```python
-from warpy40k import evaluate
-
-result = evaluate('Dataslate{name: "Titus", health: 100}.health')
-print(result)  # 100
-```
-
-Python is the current **implementation host**, not the WarPy40K surface language. Source is tokenized, parsed into WarPy40K's own AST, and executed by its interpreter; it is not passed to Python `eval()` or `exec()`.
-
-## Architecture
-
-```text
-WarPy40K source
-      ↓
-Lexer
-      ↓
-Tokens
-      ↓
-Recursive-descent parser
-      ↓
-WarPy40K AST
-      ↓
-Tree-walking interpreter
-      ↓
-WarPy40K runtime values / lexical environments
-      ↓
-Results and effects
-```
-
-## Version milestones
-
-### v1.0
-
-Universal computational core, constructive two-counter Minsky-machine demonstration, and the first *Vault of Vharax* showcase.
-
-### v1.1
-
-WarPy40K-owned structured data with mutable `Squad`, persistent `Dataslate`, native access syntax, and explicit data operations.
-
-### v1.2 — Current
-
-Pattern-oriented command dispatch with `Order`, `When`, `Otherwise`, guards, bindings, Squad patterns, Dataslate patterns, and showcase integration.
-
-## Identity-focused roadmap
-
-See [`docs/roadmap.md`](docs/roadmap.md).
-
-| Version | Direction |
-|---|---|
-| **1.3** | **Warp effect model** — explicit, seedable, replayable nondeterminism |
-| **1.4** | **Inquisition contracts** — assertions, preconditions, and postconditions |
-| **1.5** | **Codex modules** — native module/export/import semantics |
-| **1.6** | **Sanctioned effects** — capability boundaries for external effects |
-| **1.7** | **Crusades** — structured iteration over Squads and other iterables |
-| **1.8** | **Machine-Spirit introspection** — stable AST/runtime tracing |
-| **1.9** | **Forge bytecode** — documented bytecode plus VM |
-| **2.0** | **Independent runtime** — increasingly implementation-independent semantics |
-| **2.1–2.6** | **Forge Era (exploratory)** — vectors, buffers, native interface, real-time execution, concurrency, and eventual 3D simulation |
-
-The next milestone, **v1.3**, will make the Warp a real execution boundary: seeded Chaos streams, deterministic replay, and reproducible game/simulation traces.
-
-> New features should have WarPy40K semantics, not merely Python semantics with Warhammer terminology.
 
 ## Development
 
@@ -295,22 +251,23 @@ The next milestone, **v1.3**, will make the Warp a real execution boundary: seed
 pip install -r requirements-dev.txt
 pytest
 pytest --cov=warpy40k
-black src/ tests/
-isort src/ tests/
-flake8 src/ tests/
+black src/ tests/ benchmarks/
+isort src/ tests/ benchmarks/
+flake8 src/ tests/ benchmarks/
 mypy src/warpy40k
+python benchmarks/run_benchmarks.py
 ```
 
-GitHub Actions enforces formatting, import order, linting, typing, test coverage, and the supported Python test matrix.
+GitHub Actions enforces formatting, import order, linting, typing, test coverage, and the supported Python test matrix. Performance measurements are informational rather than gating.
 
 ## Documentation
 
 - [`docs/language_reference.md`](docs/language_reference.md) — language syntax and semantics
-- [`docs/orders.md`](docs/orders.md) — v1.2 pattern dispatch guide
 - [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality demonstration
 - [`docs/roadmap.md`](docs/roadmap.md) — identity-focused release plan
-- [`docs/showcase_v10.md`](docs/showcase_v10.md) — original showcase design notes
+- [`docs/showcase_v10.md`](docs/showcase_v10.md) — showcase design notes
 - [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
+- [`benchmarks/README.md`](benchmarks/README.md) — performance benchmark methodology
 - [`CHANGELOG.md`](CHANGELOG.md) — release notes
 
 ## License
