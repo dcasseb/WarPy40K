@@ -1,139 +1,31 @@
-name: Bootstrap WarPy40K v1.3 Warp implementation
+name: Bootstrap WarPy40K v1.3
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   implement:
-    if: github.event.head_commit.message == 'chore: bootstrap v1.3 Warp implementation'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Apply v1.3 implementation
-        run: |
-          python - <<'PY'
-          from pathlib import Path
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-          def replace(path, old, new):
-              p = Path(path)
-              text = p.read_text(encoding="utf-8")
-              if old not in text:
-                  raise SystemExit(f"pattern not found in {path}: {old[:80]!r}")
-              p.write_text(text.replace(old, new, 1), encoding="utf-8")
+      - name: Apply v1.3 migration
+        run: python tools/apply_v13.py
 
-          # AST
-          replace(
-              "src/warpy40k/ast.py",
-              "    ORDER_STATEMENT = auto()\n    SQUAD_LITERAL = auto()",
-              "    ORDER_STATEMENT = auto()\n    WARP_STATEMENT = auto()\n    SQUAD_LITERAL = auto()",
-          )
-          replace(
-              "src/warpy40k/ast.py",
-              "@dataclass\nclass SquadLiteralNode(ASTNode):",
-              "@dataclass\nclass WarpStatementNode(ASTNode):\n    seed: ASTNode\n    body: ASTNode\n    line: int = 1\n    column: int = 1\n\n\n@dataclass\nclass SquadLiteralNode(ASTNode):",
-          )
-
-          # Parser
-          replace(
-              "src/warpy40k/parser.py",
-              "    VariableAssignmentNode,\n    WhileLoopNode,",
-              "    VariableAssignmentNode,\n    WarpStatementNode,\n    WhileLoopNode,",
-          )
-          replace(
-              "src/warpy40k/parser.py",
-              "        if token.type == TokenType.ORDER:\n            return self._parse_order_statement()\n        if token.type == TokenType.LBRACE:",
-              "        if token.type == TokenType.ORDER:\n            return self._parse_order_statement()\n        if token.type == TokenType.WARP:\n            return self._parse_warp_statement()\n        if token.type == TokenType.LBRACE:",
-          )
-          replace(
-              "src/warpy40k/parser.py",
-              "    def _parse_function_definition(self) -> FunctionDefinitionNode:\n",
-              "    def _parse_warp_statement(self) -> WarpStatementNode:\n        token = self._expect(TokenType.WARP)\n        seed_keyword = self._expect(\n            TokenType.IDENTIFIER, \"Expected 'seed' after Warp\"\n        )\n        if seed_keyword.value != \"seed\":\n            raise SyntaxError(\n                f\"Expected 'seed' after Warp at line {seed_keyword.line}, \"\n                f\"column {seed_keyword.column}\"\n            )\n        seed = self._parse_expression()\n        if not self.current_token or self.current_token.type != TokenType.LBRACE:\n            raise SyntaxError(\n                f\"Warp requires a block body at line {token.line}, \"\n                f\"column {token.column}\"\n            )\n        body = self._parse_block()\n        if self.current_token and self.current_token.type == TokenType.SEMICOLON:\n            self._advance()\n        return WarpStatementNode(seed, body, token.line, token.column)\n\n    def _parse_function_definition(self) -> FunctionDefinitionNode:\n",
-          )
-
-          # Interpreter imports and state
-          replace(
-              "src/warpy40k/interpreter.py",
-              "    VariableDeclarationNode,\n    WhileLoopNode,",
-              "    VariableDeclarationNode,\n    WarpStatementNode,\n    WhileLoopNode,",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "    def __init__(self) -> None:\n        self.environment: Dict[str, Any] = {}\n        self._scopes: List[Dict[str, Any]] = [self.environment]\n        self._function_depth = 0\n        self._init_builtins()",
-              "    def __init__(self, warp_replay: Optional[List[float]] = None) -> None:\n        self.environment: Dict[str, Any] = {}\n        self._scopes: List[Dict[str, Any]] = [self.environment]\n        self._function_depth = 0\n        self._warp_random_stack: List[random.Random] = []\n        self._warp_trace: List[float] = []\n        self._warp_replay = list(warp_replay) if warp_replay is not None else None\n        self._warp_replay_index = 0\n        self._init_builtins()\n\n    @property\n    def warp_trace(self) -> List[float]:\n        \"\"\"Return a copy of normalized random draws made inside Warp regions.\"\"\"\n        return list(self._warp_trace)\n\n    @property\n    def warp_replay_complete(self) -> bool:\n        \"\"\"Whether every supplied replay draw has been consumed.\"\"\"\n        return (\n            self._warp_replay is not None\n            and self._warp_replay_index == len(self._warp_replay)\n        )",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "    def _builtin_random(self) -> float:\n        return random.random()",
-              "    def _draw_random(self) -> float:\n        if not self._warp_random_stack:\n            return random.random()\n        if self._warp_replay is not None:\n            if self._warp_replay_index >= len(self._warp_replay):\n                raise RuntimeError(\"Warp replay exhausted before execution completed\")\n            value = self._warp_replay[self._warp_replay_index]\n            self._warp_replay_index += 1\n            if not isinstance(value, (int, float)) or isinstance(value, bool):\n                raise TypeError(\"Warp replay values must be numeric\")\n            value = float(value)\n            if not 0.0 <= value < 1.0:\n                raise ValueError(\"Warp replay values must be in [0.0, 1.0)\")\n        else:\n            value = self._warp_random_stack[-1].random()\n        self._warp_trace.append(value)\n        return value\n\n    def _draw_uniform(self, low: float, high: float) -> float:\n        return low + (high - low) * self._draw_random()\n\n    def _builtin_random(self) -> float:\n        return self._draw_random()",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "        if isinstance(node, OrderStatementNode):\n            return self._execute_order_statement(node)\n        if isinstance(node, BlockNode):",
-              "        if isinstance(node, OrderStatementNode):\n            return self._execute_order_statement(node)\n        if isinstance(node, WarpStatementNode):\n            return self._execute_warp_statement(node)\n        if isinstance(node, BlockNode):",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "    def _execute_order_statement(self, node: OrderStatementNode) -> Any:\n",
-              "    def _execute_warp_statement(self, node: WarpStatementNode) -> Any:\n        seed = self.execute(node.seed)\n        if not isinstance(seed, int) or isinstance(seed, bool):\n            raise TypeError(\"Warp seed must be an integer\")\n        self._warp_random_stack.append(random.Random(seed))\n        try:\n            return self.execute(node.body)\n        finally:\n            self._warp_random_stack.pop()\n\n    def _execute_order_statement(self, node: OrderStatementNode) -> Any:\n",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "                    target_value\n                    + random.uniform(-corruption, corruption) * target_value\n                )",
-              "                    target_value\n                    + self._draw_uniform(-corruption, corruption) * target_value\n                )",
-          )
-          replace(
-              "src/warpy40k/interpreter.py",
-              "        return random.random() * 100",
-              "        return self._draw_random() * 100",
-          )
-
-          # Version metadata
-          replace("src/warpy40k/__init__.py", '__version__ = "1.2.0"', '__version__ = "1.3.0"')
-          replace("pyproject.toml", 'version = "1.2.0"', 'version = "1.3.0"')
-
-          # Changelog
-          p = Path("CHANGELOG.md")
-          text = p.read_text(encoding="utf-8")
-          heading = "# Changelog\n\nAll notable changes to WarPy40K are recorded here.\n\n"
-          entry = """## 1.3.0 — 2026-09-03\n\n### Added\n\n- Explicit `Warp seed <integer> { ... }` nondeterministic regions.\n- Region-local deterministic random streams shared by `Chaos` and `random()`.\n- Nested Warp regions with independent streams and correct parent restoration.\n- Runtime Warp trace recording through `Interpreter.warp_trace`.\n- Deterministic replay through `Interpreter(warp_replay=...)`.\n\n### Semantics\n\n- A Warp seed expression is evaluated exactly once on region entry.\n- Seeds must be integers; Booleans, floats, and strings are rejected.\n- Functions called from inside a Warp region consume the active region stream.\n- Nested Warp draws do not perturb the parent region stream.\n- Runtime errors and returns restore the previous Warp stream through structured cleanup.\n- `Chaos` and `random()` outside Warp preserve the legacy process-global randomness behavior.\n- `seed` remains an ordinary identifier outside the contextual `Warp seed` syntax.\n\n### Replay\n\n- Warp traces store normalized random draws in execution order.\n- Replaying a trace reproduces the same random decisions independently of the new region seed.\n- Replay exhaustion and invalid replay values fail explicitly instead of silently falling back to new randomness.\n\n"""
-          if entry not in text:
-              if heading not in text:
-                  raise SystemExit("CHANGELOG heading not found")
-              p.write_text(text.replace(heading, heading + entry, 1), encoding="utf-8")
-
-          # Dedicated docs
-          Path("docs/warp_effect_model.md").write_text("""# Warp Effect Model\n\nWarPy40K v1.3 makes nondeterminism explicit and replayable.\n\n## Syntax\n\n```text\nWarp seed 42 {\n    roll = Chaos\n    sample = random()\n}\n```\n\n`seed` is contextual syntax after `Warp`; it remains a normal identifier elsewhere. The seed expression is evaluated exactly once and must produce an integer (Booleans are rejected).\n\n## Deterministic region-local streams\n\nEntering a Warp region creates a fresh deterministic random stream. Every `Chaos` draw and call to the built-in `random()` inside that dynamic region consumes the same stream. Functions called from the region therefore participate in the same deterministic sequence.\n\nThe same program, inputs, and Warp seed produce the same sequence of random decisions. Code outside Warp retains the legacy process-global randomness behavior for 1.x compatibility.\n\n## Nesting\n\nNested Warp regions own independent streams:\n\n```text\nWarp seed 10 {\n    first = random()\n    Warp seed 99 {\n        nested = Chaos\n    }\n    second = random()\n}\n```\n\nThe nested region does not advance or replace the parent stream. When it exits, even through a runtime error or function return, the previous stream is restored.\n\n## Record and replay\n\nThe reference interpreter records normalized random draws made inside Warp regions:\n\n```python\ninterpreter = Interpreter()\ninterpreter.execute(ast)\ntrace = interpreter.warp_trace\n```\n\nA later interpreter can replay those decisions:\n\n```python\nreplay = Interpreter(warp_replay=trace)\nreplay.execute(ast)\nassert replay.warp_replay_complete\n```\n\nReplay consumes recorded normalized draws instead of generating new ones. The seed is still evaluated and validated, but the supplied trace controls the random outcomes. Exhausted, nonnumeric, or out-of-range traces fail explicitly.\n\nThis representation intentionally records decisions rather than Python `random.Random` internal state. It gives future runtimes, including Forge, a portable semantic contract that does not require reproducing CPython's RNG implementation.\n\n## Performance rule\n\nWarp bookkeeping is deliberately constant-time per draw: one active-stack lookup and, when recording/replaying, one append or indexed read. Replay never reparses source or rebuilds the AST per random decision.\n\n## Compatibility\n\nWarPy40K 1.3 does not make all randomness globally deterministic. Existing `Chaos` and `random()` code outside a Warp region continues to behave as it did in earlier 1.x versions. New programs that require reproducibility should place nondeterministic behavior inside explicit Warp regions.\n""", encoding="utf-8")
-
-          # Link docs and mark roadmap milestone implemented.
-          p = Path("docs/index.md")
-          text = p.read_text(encoding="utf-8")
-          if "[Warp Effect Model](warp_effect_model.md)" not in text:
-              marker = "## Language\n"
-              if marker in text:
-                  text = text.replace(marker, marker + "\n- [Warp Effect Model](warp_effect_model.md) — deterministic nondeterminism, trace recording, and replay.\n", 1)
-              else:
-                  text += "\n- [Warp Effect Model](warp_effect_model.md)\n"
-          text = text.replace("The next planned release is **v1.3 — The Warp Effect Model**.", "**v1.3 — The Warp Effect Model is implemented.**")
-          p.write_text(text, encoding="utf-8")
-
-          p = Path("docs/roadmap.md")
-          text = p.read_text(encoding="utf-8")
-          text = text.replace("## v1.3 — The Warp Effect Model", "## v1.3 — The Warp Effect Model ✅")
-          p.write_text(text, encoding="utf-8")
-
-          # Remove one-shot release/bootstrap workflows once their purpose is complete.
-          Path(".github/workflows/release-v1.2.0.yml").unlink(missing_ok=True)
-          Path(".github/workflows/bootstrap-v1.3.yml").unlink(missing_ok=True)
-          PY
-
-      - name: Validate implementation before commit
+      - name: Validate implementation
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
@@ -144,7 +36,7 @@ jobs:
           python -m mypy src
           python -m pytest -q
 
-      - name: Commit v1.3 implementation
+      - name: Commit implementation
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
