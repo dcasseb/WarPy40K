@@ -39,6 +39,7 @@ from .ast import (
     UnaryOpNode,
     VariableAssignmentNode,
     VariableDeclarationNode,
+    WarpStatementNode,
     WhileLoopNode,
     WildcardPatternNode,
 )
@@ -121,11 +122,27 @@ class _ReturnSignal(Exception):
 class Interpreter:
     """Tree-walking interpreter for WarPy40K."""
 
-    def __init__(self) -> None:
+    def __init__(self, warp_replay: Optional[List[float]] = None) -> None:
         self.environment: Dict[str, Any] = {}
         self._scopes: List[Dict[str, Any]] = [self.environment]
         self._function_depth = 0
+        self._warp_random_stack: List[random.Random] = []
+        self._warp_trace: List[float] = []
+        self._warp_replay = list(warp_replay) if warp_replay is not None else None
+        self._warp_replay_index = 0
         self._init_builtins()
+
+    @property
+    def warp_trace(self) -> List[float]:
+        """Return normalized random draws made inside Warp regions."""
+        return list(self._warp_trace)
+
+    @property
+    def warp_replay_complete(self) -> bool:
+        """Whether every supplied replay draw has been consumed."""
+        return self._warp_replay is not None and self._warp_replay_index == len(
+            self._warp_replay
+        )
 
     def _init_builtins(self) -> None:
         self.environment["FAITH"] = 100
@@ -166,8 +183,29 @@ class Interpreter:
 
         sys.exit(code)
 
+    def _draw_random(self) -> float:
+        if not self._warp_random_stack:
+            return random.random()
+        if self._warp_replay is not None:
+            if self._warp_replay_index >= len(self._warp_replay):
+                raise RuntimeError("Warp replay exhausted before execution completed")
+            value = self._warp_replay[self._warp_replay_index]
+            self._warp_replay_index += 1
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise TypeError("Warp replay values must be numeric")
+            value = float(value)
+            if not 0.0 <= value < 1.0:
+                raise ValueError("Warp replay values must be in [0.0, 1.0)")
+        else:
+            value = self._warp_random_stack[-1].random()
+        self._warp_trace.append(value)
+        return value
+
+    def _draw_uniform(self, low: float, high: float) -> float:
+        return low + (high - low) * self._draw_random()
+
     def _builtin_random(self) -> float:
-        return random.random()
+        return self._draw_random()
 
     def _builtin_int(self, value: Any) -> int:
         if isinstance(value, (bool, int, float, str)):
@@ -261,6 +299,8 @@ class Interpreter:
             return self._execute_while_loop(node)
         if isinstance(node, OrderStatementNode):
             return self._execute_order_statement(node)
+        if isinstance(node, WarpStatementNode):
+            return self._execute_warp_statement(node)
         if isinstance(node, BlockNode):
             return self._execute_block(node)
         if isinstance(node, ReturnStatementNode):
@@ -400,6 +440,16 @@ class Interpreter:
             result = self.execute(node.body)
         return result
 
+    def _execute_warp_statement(self, node: WarpStatementNode) -> Any:
+        seed = self.execute(node.seed)
+        if not isinstance(seed, int) or isinstance(seed, bool):
+            raise TypeError("Warp seed must be an integer")
+        self._warp_random_stack.append(random.Random(seed))
+        try:
+            return self.execute(node.body)
+        finally:
+            self._warp_random_stack.pop()
+
     def _execute_order_statement(self, node: OrderStatementNode) -> Any:
         target = self.execute(node.target)
         for case in node.cases:
@@ -521,10 +571,10 @@ class Interpreter:
             if isinstance(target_value, (int, float)):
                 return (
                     target_value
-                    + random.uniform(-corruption, corruption) * target_value
+                    + self._draw_uniform(-corruption, corruption) * target_value
                 )
             return target_value
-        return random.random() * 100
+        return self._draw_random() * 100
 
     def _execute_purge_expr(self, node: PurgeExprNode) -> Any:
         target_value = self.execute(node.target)

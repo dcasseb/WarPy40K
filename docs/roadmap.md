@@ -184,7 +184,7 @@ See [orders.md](orders.md) for the full v1.2 semantics.
 
 ---
 
-## v1.3 — The Warp Effect Model
+## v1.3 — The Warp Effect Model ✅
 
 **Theme:** Nondeterminism becomes explicit in source code.  
 **Status:** next milestone.

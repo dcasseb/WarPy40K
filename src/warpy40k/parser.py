@@ -35,6 +35,7 @@ from .ast import (
     SquadPatternNode,
     UnaryOpNode,
     VariableAssignmentNode,
+    WarpStatementNode,
     WhileLoopNode,
     WildcardPatternNode,
 )
@@ -93,6 +94,8 @@ class Parser:
             return self._parse_return_statement()
         if token.type == TokenType.ORDER:
             return self._parse_order_statement()
+        if token.type == TokenType.WARP:
+            return self._parse_warp_statement()
         if token.type == TokenType.LBRACE:
             return self._parse_block()
         return self._parse_expression_statement()
@@ -130,6 +133,25 @@ class Parser:
                 f"while requires a body at line {token.line}, column {token.column}"
             )
         return WhileLoopNode(condition, body, token.line, token.column)
+
+    def _parse_warp_statement(self) -> WarpStatementNode:
+        token = self._expect(TokenType.WARP)
+        seed_keyword = self._expect(TokenType.IDENTIFIER, "Expected 'seed' after Warp")
+        if seed_keyword.value != "seed":
+            raise SyntaxError(
+                f"Expected 'seed' after Warp at line {seed_keyword.line}, "
+                f"column {seed_keyword.column}"
+            )
+        seed = self._parse_expression()
+        if not self.current_token or self.current_token.type != TokenType.LBRACE:
+            raise SyntaxError(
+                f"Warp requires a block body at line {token.line}, "
+                f"column {token.column}"
+            )
+        body = self._parse_block()
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
+        return WarpStatementNode(seed, body, token.line, token.column)
 
     def _parse_function_definition(self) -> FunctionDefinitionNode:
         def_token = self.current_token

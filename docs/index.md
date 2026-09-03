@@ -99,6 +99,8 @@ See [Forge Runtime Architecture](forge_runtime.md) for the complete design ratio
 
 ## Next milestone
 
-The next planned release is **v1.3 — The Warp Effect Model**. It will turn `Chaos` randomness into an explicit, seedable and replayable language effect so complete game/simulation traces can be reproduced deterministically.
+**v1.3 — The Warp Effect Model is implemented.** It will turn `Chaos` randomness into an explicit, seedable and replayable language effect so complete game/simulation traces can be reproduced deterministically.
 
 See the [Language Roadmap](roadmap.md) for the acceptance criteria and full release plan.
+
+- [Warp Effect Model](warp_effect_model.md) — deterministic nondeterminism, trace recording, and replay.

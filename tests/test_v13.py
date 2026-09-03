@@ -24,11 +24,7 @@ def test_warp_parses_as_explicit_statement_node():
 
 
 def test_same_seed_replays_identical_chaos_sequence():
-    source = (
-        "Warp seed 42 { "
-        "result = Squad[Chaos, random(), Chaos]; "
-        "}; result"
-    )
+    source = "Warp seed 42 { " "result = Squad[Chaos, random(), Chaos]; " "}; result"
     first = execute(source)
     second = execute(source)
     assert isinstance(first, SquadValue)

@@ -2,6 +2,32 @@
 
 All notable changes to WarPy40K are recorded here.
 
+## 1.3.0 — 2026-09-03
+
+### Added
+
+- Explicit `Warp seed <integer> { ... }` nondeterministic regions.
+- Region-local deterministic random streams shared by `Chaos` and `random()`.
+- Nested Warp regions with independent streams and correct parent restoration.
+- Runtime Warp trace recording through `Interpreter.warp_trace`.
+- Deterministic replay through `Interpreter(warp_replay=...)`.
+
+### Semantics
+
+- A Warp seed expression is evaluated exactly once on region entry.
+- Seeds must be integers; Booleans, floats, and strings are rejected.
+- Functions called from inside a Warp region consume the active region stream.
+- Nested Warp draws do not perturb the parent region stream.
+- Runtime errors and returns restore the previous Warp stream through cleanup.
+- `Chaos` and `random()` outside Warp preserve legacy global randomness.
+- `seed` remains an ordinary identifier outside contextual `Warp seed` syntax.
+
+### Replay
+
+- Warp traces store normalized random draws in execution order.
+- Replaying a trace reproduces decisions independently of the new region seed.
+- Replay exhaustion and invalid values fail instead of generating fresh entropy.
+
 ## 1.2.0 — 2026-09-02
 
 ### Added

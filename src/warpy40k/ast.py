@@ -23,6 +23,7 @@ class NodeType(Enum):
     BLOCK = auto()
     RETURN_STATEMENT = auto()
     ORDER_STATEMENT = auto()
+    WARP_STATEMENT = auto()
     SQUAD_LITERAL = auto()
     DATASLATE_LITERAL = auto()
     INDEX_ACCESS = auto()
@@ -218,6 +219,14 @@ class OrderStatementNode(ASTNode):
     target: ASTNode
     cases: List[OrderCaseNode] = field(default_factory=list)
     otherwise: Optional[ASTNode] = None
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class WarpStatementNode(ASTNode):
+    seed: ASTNode
+    body: ASTNode
     line: int = 1
     column: int = 1
 
