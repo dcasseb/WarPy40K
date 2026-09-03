@@ -1,14 +1,60 @@
 # WarPy40K
 
-**Current version: 1.2.0**
+**Current version: 1.3.0**
 
-A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
+A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, explicit replayable nondeterminism, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
+
+## WarPy40K 1.3 — The Warp Effect Model
+
+Version **1.3.0** turns nondeterminism into an explicit language/runtime effect while preserving the legacy behavior of `Chaos` and `random()` outside Warp regions.
+
+The release introduces:
+
+- `Warp seed <integer> { ... }` regions;
+- deterministic region-local random streams;
+- shared deterministic draws for `Chaos` and the built-in `random()`;
+- nested Warp regions with independent streams;
+- correct parent-stream restoration after nested execution, errors, and returns;
+- seed expressions evaluated exactly once;
+- normalized Warp trace recording through `Interpreter.warp_trace`;
+- deterministic replay through `Interpreter(warp_replay=...)`;
+- explicit failures for exhausted or invalid replay traces.
+
+Example:
+
+```text
+Warp seed 42 {
+    first = Chaos
+    second = random()
+    print(first, second)
+}
+```
+
+Running the same program with the same inputs and seed reproduces the same random decisions inside the Warp region.
+
+Nested regions do not perturb their parent stream:
+
+```text
+Warp seed 10 {
+    first = random()
+
+    Warp seed 99 {
+        nested = Chaos
+    }
+
+    second = random()
+}
+```
+
+The contextual word `seed` is not globally reserved; it remains a normal identifier outside `Warp seed` syntax.
+
+See [`docs/warp_effect_model.md`](docs/warp_effect_model.md) for the complete v1.3 semantics.
 
 ## WarPy40K 1.2 — Orders & Pattern Dispatch
 
-Version **1.2.0** adds a WarPy40K-native decision model that composes directly with the structured data introduced in v1.1.
+Version **1.2.0** added a WarPy40K-native decision model that composes directly with the structured data introduced in v1.1.
 
-The release introduces:
+It introduced:
 
 - `Order target { ... }` dispatch;
 - ordered `When pattern { ... }` clauses with first-match-wins semantics;
@@ -66,10 +112,52 @@ WarPy40K supports:
 - direct recursion;
 - native `Squad` and `Dataslate` values;
 - native `Order` pattern dispatch;
+- explicit `Warp` nondeterministic regions;
+- trace recording and deterministic replay of Warp decisions;
 - built-in functions and explicit `int`, `float`, `str` conversions;
 - WarPy40K-specific expressions;
 - REPL and whole-file execution;
 - token and AST inspection.
+
+## Warp effect model
+
+A Warp region owns a deterministic random stream:
+
+```text
+Warp seed 1337 {
+    roll = Chaos
+    sample = random()
+}
+```
+
+`Chaos` and `random()` consume the same active stream. A function called from inside the region also consumes that stream:
+
+```text
+def draw() {
+    return random()
+}
+
+Warp seed 1337 {
+    a = random()
+    b = draw()
+}
+```
+
+At the Python API level, the reference interpreter can capture and replay normalized decisions:
+
+```python
+interpreter = Interpreter()
+interpreter.execute(ast)
+trace = interpreter.warp_trace
+
+replay = Interpreter(warp_replay=trace)
+replay.execute(ast)
+assert replay.warp_replay_complete
+```
+
+The trace represents random decisions rather than Python RNG internal state, giving the future Forge runtime a portable replay contract.
+
+Outside a Warp region, `Chaos` and `random()` retain their legacy process-global randomness behavior for 1.x compatibility.
 
 ## Native data
 
@@ -159,7 +247,7 @@ The official interactive showcase is a terminal roguelike/RPG written in WarPy40
 warpy40k examples/vault_of_vharax.wp40k
 ```
 
-The current version demonstrates:
+The current showcase demonstrates:
 
 - `Squad` and `Dataslate` world/inventory data;
 - interactive I/O and mutable game state;
@@ -168,11 +256,11 @@ The current version demonstrates:
 - RNG-driven events and combat;
 - `Chaos`, `Inquisition`, `Bless`, `Curse`, `Emperor`, `Purge`, and `Exterminatus`.
 
-The showcase is also a regression benchmark: CI verifies its structured-data model, presence of native `Order` AST nodes, withdrawal, victory, defeat, corruption, invalid commands, and medicae behavior.
+The showcase remains a regression workload while the v1.3 Warp model establishes a deterministic foundation for future reproducible simulations and headless tests.
 
 ## Performance benchmarks
 
-WarPy40K includes an official benchmark suite under [`benchmarks/`](benchmarks/). It is intended to establish a reproducible performance baseline for the current tree-walking interpreter and to make future runtime changes measurable, especially the planned Forge bytecode VM.
+WarPy40K includes an official benchmark suite under [`benchmarks/`](benchmarks/). It establishes a reproducible performance baseline for the tree-walking interpreter and makes future runtime changes measurable, especially the planned Forge bytecode VM.
 
 Run the default suite:
 
@@ -185,6 +273,8 @@ Save machine-readable results:
 ```bash
 python benchmarks/run_benchmarks.py --json benchmarks/results/v1.2-local.json
 ```
+
+The v1.2 tree walker remains the historical performance baseline even as language semantics continue evolving.
 
 The suite reports median and p95 latency for two modes:
 
@@ -213,7 +303,7 @@ warpy40k examples/minsky_universal.wp40k
 |---|---|
 | `Inquisition` | truth/judgment |
 | `Emperor` | faith-based transformation |
-| `Chaos` | corruption/randomness |
+| `Chaos` | corruption/randomness; deterministic inside Warp |
 | `Purge` | reset/destructive transformation |
 | `Exterminatus` | total-annihilation semantic marker |
 | `Bless` | positive transformation |
@@ -232,14 +322,14 @@ pip install -e .
 ## Command line
 
 ```bash
-# Official v1.2 showcase
+# Official showcase
 warpy40k examples/vault_of_vharax.wp40k
 
 # Universal-machine demonstration
 warpy40k examples/minsky_universal.wp40k
 
 # Execute source directly
-warpy40k -c "Order 2 { When 1 { print(\"one\") } When 2 { print(\"two\") } }"
+warpy40k -c "Warp seed 42 { print(Chaos) }"
 
 # REPL
 warpy40k -i
@@ -263,8 +353,11 @@ GitHub Actions enforces formatting, import order, linting, typing, test coverage
 ## Documentation
 
 - [`docs/language_reference.md`](docs/language_reference.md) — language syntax and semantics
+- [`docs/warp_effect_model.md`](docs/warp_effect_model.md) — deterministic nondeterminism, traces, and replay
+- [`docs/orders.md`](docs/orders.md) — v1.2 Order pattern semantics
 - [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality demonstration
-- [`docs/roadmap.md`](docs/roadmap.md) — identity-focused release plan
+- [`docs/forge_runtime.md`](docs/forge_runtime.md) — path toward an independent native runtime
+- [`docs/roadmap.md`](docs/roadmap.md) — identity-focused release plan and performance targets
 - [`docs/showcase_v10.md`](docs/showcase_v10.md) — showcase design notes
 - [`docs/warpy_expressions.md`](docs/warpy_expressions.md) — themed expressions
 - [`benchmarks/README.md`](benchmarks/README.md) — performance benchmark methodology
