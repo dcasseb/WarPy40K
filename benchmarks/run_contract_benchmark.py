@@ -45,7 +45,9 @@ result;
 EXPECTED = 780
 
 
-def measure(callable_: Callable[[], int], warmups: int, samples: int) -> Tuple[int, float]:
+def measure(
+    callable_: Callable[[], int], warmups: int, samples: int
+) -> Tuple[int, float]:
     result = 0
     for _ in range(warmups):
         result = callable_()
