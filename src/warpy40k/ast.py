@@ -24,6 +24,7 @@ class NodeType(Enum):
     RETURN_STATEMENT = auto()
     ORDER_STATEMENT = auto()
     WARP_STATEMENT = auto()
+    CONTRACT_ASSERTION = auto()
     SQUAD_LITERAL = auto()
     DATASLATE_LITERAL = auto()
     INDEX_ACCESS = auto()
@@ -113,12 +114,29 @@ class VariableAssignmentNode(ASTNode):
 
 
 @dataclass
+class ContractClauseNode(ASTNode):
+    condition: ASTNode
+    kind: str
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class ContractAssertionNode(ASTNode):
+    condition: ASTNode
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
 class FunctionDefinitionNode(ASTNode):
     name: str
     parameters: List[str]
     body: ASTNode
     line: int = 1
     column: int = 1
+    requires: List[ContractClauseNode] = field(default_factory=list)
+    ensures: List[ContractClauseNode] = field(default_factory=list)
 
     def __repr__(self) -> str:
         return f"FunctionDef({self.name}, params={len(self.parameters)})"
