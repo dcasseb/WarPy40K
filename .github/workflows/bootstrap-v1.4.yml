@@ -2,16 +2,15 @@ name: Bootstrap WarPy40K v1.4 Contracts
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   implement:
-    if: github.event.head_commit.message == 'chore: bootstrap v1.4 contracts'
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Apply v1.4 implementation
         run: |
@@ -35,27 +34,10 @@ jobs:
                   raise SystemExit(f"pattern not found in {path}: {old[:100]!r}")
               p.write_text(text.replace(old, new, 1), encoding="utf-8")
 
-          # Parser imports.
-          replace(
-              "src/warpy40k/parser.py",
-              "    ChaosExprNode,\n    CurseExprNode,",
-              "    ChaosExprNode,\n    ContractAssertionNode,\n    ContractClauseNode,\n    CurseExprNode,",
-          )
+          replace("src/warpy40k/parser.py", "    ChaosExprNode,\n    CurseExprNode,", "    ChaosExprNode,\n    ContractAssertionNode,\n    ContractClauseNode,\n    CurseExprNode,")
+          replace("src/warpy40k/parser.py", "        if token.type == TokenType.WARP:\n            return self._parse_warp_statement()\n        if token.type == TokenType.LBRACE:", "        if token.type == TokenType.WARP:\n            return self._parse_warp_statement()\n        if token.type == TokenType.INQUISITION and self._next_identifier_is(\"Assert\"):\n            return self._parse_contract_assertion()\n        if token.type == TokenType.LBRACE:")
+          replace("src/warpy40k/parser.py", "    def _parse_if_statement(self) -> IfStatementNode:\n", "    def _next_identifier_is(self, value: str) -> bool:\n        if self.position >= len(self.tokens):\n            return False\n        token = self.tokens[self.position]\n        return token.type == TokenType.IDENTIFIER and token.value == value\n\n    def _parse_contract_assertion(self) -> ContractAssertionNode:\n        token = self._expect(TokenType.INQUISITION)\n        marker = self._expect(TokenType.IDENTIFIER, \"Expected 'Assert' after Inquisition\")\n        if marker.value != \"Assert\":\n            raise SyntaxError(\n                f\"Expected 'Assert' after Inquisition at line {marker.line}, \"\n                f\"column {marker.column}\"\n            )\n        condition = self._parse_expression()\n        if self.current_token and self.current_token.type == TokenType.SEMICOLON:\n            self._advance()\n        return ContractAssertionNode(condition, token.line, token.column)\n\n    def _parse_if_statement(self) -> IfStatementNode:\n")
 
-          # Statement-level Inquisition Assert.
-          replace(
-              "src/warpy40k/parser.py",
-              "        if token.type == TokenType.WARP:\n            return self._parse_warp_statement()\n        if token.type == TokenType.LBRACE:",
-              "        if token.type == TokenType.WARP:\n            return self._parse_warp_statement()\n        if token.type == TokenType.INQUISITION and self._next_identifier_is(\"Assert\"):\n            return self._parse_contract_assertion()\n        if token.type == TokenType.LBRACE:",
-          )
-
-          replace(
-              "src/warpy40k/parser.py",
-              "    def _parse_if_statement(self) -> IfStatementNode:\n",
-              "    def _next_identifier_is(self, value: str) -> bool:\n        if self.position >= len(self.tokens):\n            return False\n        token = self.tokens[self.position]\n        return token.type == TokenType.IDENTIFIER and token.value == value\n\n    def _parse_contract_assertion(self) -> ContractAssertionNode:\n        token = self._expect(TokenType.INQUISITION)\n        marker = self._expect(TokenType.IDENTIFIER, \"Expected 'Assert' after Inquisition\")\n        if marker.value != \"Assert\":\n            raise SyntaxError(\n                f\"Expected 'Assert' after Inquisition at line {marker.line}, \"\n                f\"column {marker.column}\"\n            )\n        condition = self._parse_expression()\n        if self.current_token and self.current_token.type == TokenType.SEMICOLON:\n            self._advance()\n        return ContractAssertionNode(condition, token.line, token.column)\n\n    def _parse_if_statement(self) -> IfStatementNode:\n",
-          )
-
-          # Function contracts between signature and body.
           old_function_tail = '''        self._expect(TokenType.RPAREN, "Expected ')' after function parameters")
         if not self.current_token or self.current_token.type != TokenType.LBRACE:
             raise SyntaxError(
@@ -109,49 +91,14 @@ jobs:
         )'''
           replace("src/warpy40k/parser.py", old_function_tail, new_function_tail)
 
-          # Interpreter imports.
-          replace(
-              "src/warpy40k/interpreter.py",
-              "    ChaosExprNode,\n    CurseExprNode,",
-              "    ChaosExprNode,\n    ContractAssertionNode,\n    ContractClauseNode,\n    CurseExprNode,",
-          )
+          replace("src/warpy40k/interpreter.py", "    ChaosExprNode,\n    CurseExprNode,", "    ChaosExprNode,\n    ContractAssertionNode,\n    ContractClauseNode,\n    CurseExprNode,")
+          replace("src/warpy40k/interpreter.py", "class UserFunction:\n    name: str\n    parameters: List[str]\n    body: BlockNode\n    closure: Tuple[Dict[str, Any], ...]", "class UserFunction:\n    name: str\n    parameters: List[str]\n    body: BlockNode\n    closure: Tuple[Dict[str, Any], ...]\n    requires: Tuple[ContractClauseNode, ...] = tuple()\n    ensures: Tuple[ContractClauseNode, ...] = tuple()")
+          replace("src/warpy40k/interpreter.py", "class _ReturnSignal(Exception):\n", "class ContractViolation(RuntimeError):\n    \"\"\"Raised when an enabled Inquisition contract evaluates false.\"\"\"\n\n\nclass _ReturnSignal(Exception):\n")
+          replace("src/warpy40k/interpreter.py", "    def __init__(self, warp_replay: Optional[List[float]] = None) -> None:\n", "    def __init__(\n        self,\n        warp_replay: Optional[List[float]] = None,\n        contracts_enabled: bool = True,\n    ) -> None:\n")
+          replace("src/warpy40k/interpreter.py", "        self._warp_replay_index = 0\n        self._init_builtins()", "        self._warp_replay_index = 0\n        self.contracts_enabled = contracts_enabled\n        self._init_builtins()")
+          replace("src/warpy40k/interpreter.py", "        if isinstance(node, WarpStatementNode):\n            return self._execute_warp_statement(node)\n        if isinstance(node, BlockNode):", "        if isinstance(node, WarpStatementNode):\n            return self._execute_warp_statement(node)\n        if isinstance(node, ContractAssertionNode):\n            return self._execute_contract_assertion(node)\n        if isinstance(node, BlockNode):")
+          replace("src/warpy40k/interpreter.py", "        function = UserFunction(\n            node.name, list(node.parameters), node.body, tuple(self._scopes)\n        )", "        function = UserFunction(\n            node.name,\n            list(node.parameters),\n            node.body,\n            tuple(self._scopes),\n            tuple(node.requires),\n            tuple(node.ensures),\n        )")
 
-          # UserFunction carries contracts.
-          replace(
-              "src/warpy40k/interpreter.py",
-              "class UserFunction:\n    name: str\n    parameters: List[str]\n    body: BlockNode\n    closure: Tuple[Dict[str, Any], ...]",
-              "class UserFunction:\n    name: str\n    parameters: List[str]\n    body: BlockNode\n    closure: Tuple[Dict[str, Any], ...]\n    requires: Tuple[ContractClauseNode, ...] = tuple()\n    ensures: Tuple[ContractClauseNode, ...] = tuple()",
-          )
-
-          # Contract error type.
-          replace(
-              "class _ReturnSignal(Exception):\n",
-              "class ContractViolation(RuntimeError):\n    \"\"\"Raised when an enabled Inquisition contract evaluates false.\"\"\"\n\n\nclass _ReturnSignal(Exception):\n",
-          )
-
-          # Interpreter flag.
-          replace(
-              "    def __init__(self, warp_replay: Optional[List[float]] = None) -> None:\n",
-              "    def __init__(\n        self,\n        warp_replay: Optional[List[float]] = None,\n        contracts_enabled: bool = True,\n    ) -> None:\n",
-          )
-          replace(
-              "        self._warp_replay_index = 0\n        self._init_builtins()",
-              "        self._warp_replay_index = 0\n        self.contracts_enabled = contracts_enabled\n        self._init_builtins()",
-          )
-
-          # Execute assertion node.
-          replace(
-              "        if isinstance(node, WarpStatementNode):\n            return self._execute_warp_statement(node)\n        if isinstance(node, BlockNode):",
-              "        if isinstance(node, WarpStatementNode):\n            return self._execute_warp_statement(node)\n        if isinstance(node, ContractAssertionNode):\n            return self._execute_contract_assertion(node)\n        if isinstance(node, BlockNode):",
-          )
-
-          # Function definition carries contracts.
-          replace(
-              "        function = UserFunction(\n            node.name, list(node.parameters), node.body, tuple(self._scopes)\n        )",
-              "        function = UserFunction(\n            node.name,\n            list(node.parameters),\n            node.body,\n            tuple(self._scopes),\n            tuple(node.requires),\n            tuple(node.ensures),\n        )",
-          )
-
-          # Replace user function call runtime with contract checks.
           old_call = '''        local_scope: Dict[str, Any] = dict(zip(function.parameters, args))
         previous_scopes = self._scopes
         self._scopes = list(function.closure) + [local_scope]
@@ -196,10 +143,7 @@ jobs:
             self._scopes = previous_scopes'''
           replace("src/warpy40k/interpreter.py", old_call, new_call)
 
-          # Contract helpers before if execution.
-          replace(
-              "    def _execute_if_statement(self, node: IfStatementNode) -> Any:\n",
-              '''    def _contract_values(self, condition: ASTNode) -> str:
+          replace("src/warpy40k/interpreter.py", "    def _execute_if_statement(self, node: IfStatementNode) -> Any:\n", '''    def _contract_values(self, condition: ASTNode) -> str:
         names: List[str] = []
 
         def visit(value: Any) -> None:
@@ -227,8 +171,7 @@ jobs:
     def _check_contract(
         self, clause: ContractClauseNode, kind: str, function_name: str
     ) -> None:
-        passed = bool(self.execute(clause.condition))
-        if passed:
+        if bool(self.execute(clause.condition)):
             return
         values = self._contract_values(clause.condition)
         detail = f"; values: {values}" if values else ""
@@ -251,76 +194,90 @@ jobs:
         )
 
     def _execute_if_statement(self, node: IfStatementNode) -> Any:
-''',
-          )
+''')
 
-          # Version metadata.
           replace("src/warpy40k/__init__.py", '__version__ = "1.3.0"', '__version__ = "1.4.0"')
           replace("pyproject.toml", 'version = "1.3.0"', 'version = "1.4.0"')
+          replace("src/warpy40k/__init__.py", "from .interpreter import Interpreter", "from .interpreter import ContractViolation, Interpreter")
+          replace("src/warpy40k/__init__.py", '    "Interpreter",\n', '    "Interpreter",\n    "ContractViolation",\n')
 
-          # Export ContractViolation at package level.
-          replace(
-              "from .interpreter import Interpreter",
-              "from .interpreter import ContractViolation, Interpreter",
-          )
-          replace(
-              '    "Interpreter",\n',
-              '    "Interpreter",\n    "ContractViolation",\n',
-          )
+          Path("docs/inquisition_contracts.md").write_text("""# Inquisition Contracts
 
-          # Documentation.
-          Path("docs/inquisition_contracts.md").write_text(
-              '''# Inquisition Contracts\n\nWarPy40K v1.4 turns judgment into executable specification.\n\n## Assertions\n\n```text\nInquisition Assert health > 0\n```\n\nAn enabled assertion evaluates its condition exactly once. A false result raises `ContractViolation` with source location, the failed AST condition, and values for identifiers referenced by the condition.\n\n## Preconditions and postconditions\n\nContracts attach to functions between the parameter list and body:\n\n```text\ndef heal(health, amount)\nInquisition Requires health > 0\nInquisition Requires amount > 0\nInquisition Ensures result >= health\n{\n    return health + amount\n}\n```\n\n`Requires` clauses execute after arguments are bound but before the function body. `Ensures` clauses execute after the function result is known. Postconditions can refer to parameters and to the temporary pseudo-value `result`. The `result` binding never leaks after the call. Multiple clauses execute in source order and stop on the first violation.\n\n## Optional checking\n\nThe Python API can disable contract checking:\n\n```python\nInterpreter(contracts_enabled=False)\n```\n\nWhen disabled, assertion, precondition, and postcondition expressions are not evaluated at all. This is important both for predictable semantics and for measuring validation overhead separately from normal execution.\n\n## Compatibility\n\nExisting expression semantics remain intact:\n\n```text\njudgment = Inquisition health\n```\n\n`Assert`, `Requires`, and `Ensures` are contextual identifiers used only after `Inquisition` in contract positions; they are not new global reserved words.\n\n## Performance\n\nContract-disabled execution keeps only the structural function metadata and a Boolean branch at function-call/assertion boundaries. Contract-enabled benchmarks should be reported separately so the cost of executable specification is explicit rather than hidden.\n''',
-              encoding="utf-8",
-          )
+WarPy40K v1.4 turns judgment into executable specification.
 
-          # Changelog.
+## Assertions
+
+```text
+Inquisition Assert health > 0
+```
+
+False enabled assertions raise `ContractViolation` with source location, condition, and relevant identifier values.
+
+## Preconditions and postconditions
+
+```text
+def heal(health, amount)
+Inquisition Requires health > 0
+Inquisition Requires amount > 0
+Inquisition Ensures result >= health
+{
+    return health + amount
+}
+```
+
+`Requires` runs after argument binding and before the body. `Ensures` runs after the return value is known and may reference parameters plus temporary `result`.
+
+## Optional checking
+
+`Interpreter(contracts_enabled=False)` disables condition evaluation entirely.
+
+## Compatibility
+
+Existing `Inquisition value` Boolean judgment remains intact. `Assert`, `Requires`, and `Ensures` are contextual identifiers, not global reserved words.
+
+## Performance
+
+Contract-enabled and contract-disabled execution should be benchmarked separately so validation overhead remains explicit.
+""", encoding="utf-8")
+
           p = Path("CHANGELOG.md")
           text = p.read_text(encoding="utf-8")
           marker = "# Changelog\n\nAll notable changes to WarPy40K are recorded here.\n\n"
-          entry = '''## 1.4.0 — 2026-09-04\n\n### Added\n\n- `Inquisition Assert <condition>` executable assertions with source locations.\n- Function `Inquisition Requires <condition>` preconditions.\n- Function `Inquisition Ensures <condition>` postconditions with temporary `result` binding.\n- `ContractViolation` diagnostics containing contract kind, function/location, condition, and relevant identifier values.\n- `Interpreter(contracts_enabled=False)` for explicitly disabling runtime contract evaluation.\n\n### Semantics\n\n- Preconditions run after parameter binding and before function-body execution.\n- Postconditions run after explicit or implicit function return values are determined.\n- Disabled contracts do not evaluate their condition expressions.\n- Multiple Requires/Ensures clauses execute in source order and fail fast.\n- Existing `Inquisition value` Boolean judgment remains compatible.\n- `Assert`, `Requires`, and `Ensures` remain contextual identifiers rather than globally reserved words.\n\n'''
-          if entry not in text:
-              if marker not in text:
-                  raise SystemExit("CHANGELOG marker not found")
+          entry = """## 1.4.0 — 2026-09-04
+
+### Added
+
+- `Inquisition Assert <condition>` executable assertions.
+- Function `Inquisition Requires <condition>` preconditions.
+- Function `Inquisition Ensures <condition>` postconditions with temporary `result`.
+- `ContractViolation` diagnostics with relevant values.
+- Optional checking through `Interpreter(contracts_enabled=False)`.
+
+"""
+          if marker in text and entry not in text:
               p.write_text(text.replace(marker, marker + entry, 1), encoding="utf-8")
 
-          # Roadmap status and docs index.
           p = Path("docs/roadmap.md")
-          text = p.read_text(encoding="utf-8")
-          text = text.replace(
-              "## v1.4 — Inquisition Contracts\n",
-              "## v1.4 — Inquisition Contracts ✅\n",
-              1,
-          )
+          p.write_text(p.read_text(encoding="utf-8").replace("## v1.4 — Inquisition Contracts\n", "## v1.4 — Inquisition Contracts ✅\n", 1), encoding="utf-8")
+
+          p = Path("README.md")
+          text = p.read_text(encoding="utf-8").replace("**Current version: 1.3.0**", "**Current version: 1.4.0**", 1)
+          heading = "## Core language\n"
+          section = """## WarPy40K 1.4 — Inquisition Contracts
+
+Version **1.4.0** adds executable assertions plus function preconditions and postconditions. Contract checking can be disabled through `Interpreter(contracts_enabled=False)`. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).
+
+"""
+          if section not in text and heading in text:
+              text = text.replace(heading, section + heading, 1)
           p.write_text(text, encoding="utf-8")
 
           p = Path("docs/index.md")
           text = p.read_text(encoding="utf-8")
           if "inquisition_contracts.md" not in text:
-              anchor = "- [Warp Effect Model](warp_effect_model.md) — deterministic nondeterminism, trace recording, and replay.\n"
-              addition = anchor + "- [Inquisition Contracts](inquisition_contracts.md) — assertions, preconditions, postconditions, and optional runtime checking.\n"
-              if anchor in text:
-                  text = text.replace(anchor, addition, 1)
-              else:
-                  text += "\n- [Inquisition Contracts](inquisition_contracts.md)\n"
+              text += "\n- [Inquisition Contracts](inquisition_contracts.md) — assertions, preconditions, postconditions, and optional runtime checking.\n"
           p.write_text(text, encoding="utf-8")
 
-          # README version and feature summary.
-          p = Path("README.md")
-          text = p.read_text(encoding="utf-8")
-          text = text.replace("**Current version: 1.3.0**", "**Current version: 1.4.0**", 1)
-          heading = "## Core language\n"
-          section = '''## WarPy40K 1.4 — Inquisition Contracts\n\nVersion **1.4.0** turns judgment into executable specification with assertions, function preconditions, and postconditions:\n\n```text\ndef heal(health, amount)\nInquisition Requires health > 0\nInquisition Requires amount > 0\nInquisition Ensures result >= health\n{\n    return health + amount\n}\n\nInquisition Assert heal(10, 5) == 15\n```\n\nContract checking can be disabled through `Interpreter(contracts_enabled=False)`; disabled conditions are not evaluated. Existing `Inquisition value` expression semantics remain unchanged. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).\n\n'''
-          if section not in text and heading in text:
-              text = text.replace(heading, section + heading, 1)
-          if "[`docs/inquisition_contracts.md`](docs/inquisition_contracts.md)" not in text:
-              text = text.replace(
-                  "- [`docs/warp_effect_model.md`](docs/warp_effect_model.md) — deterministic Warp regions, recording, and replay\n",
-                  "- [`docs/warp_effect_model.md`](docs/warp_effect_model.md) — deterministic Warp regions, recording, and replay\n- [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md) — assertions and function contracts\n",
-              )
-          p.write_text(text, encoding="utf-8")
-
-          # Remove one-shot bootstrap workflow from resulting commit.
           Path(".github/workflows/bootstrap-v1.4.yml").unlink(missing_ok=True)
           PY
 
