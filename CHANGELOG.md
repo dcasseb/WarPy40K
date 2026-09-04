@@ -2,6 +2,16 @@
 
 All notable changes to WarPy40K are recorded here.
 
+## 1.4.0 — 2026-09-04
+
+### Added
+
+- `Inquisition Assert <condition>` executable assertions.
+- Function `Inquisition Requires <condition>` preconditions.
+- Function `Inquisition Ensures <condition>` postconditions with temporary `result`.
+- `ContractViolation` diagnostics with relevant values.
+- Optional checking through `Interpreter(contracts_enabled=False)`.
+
 ## 1.3.0 — 2026-09-03
 
 ### Added

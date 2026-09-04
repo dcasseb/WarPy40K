@@ -11,6 +11,8 @@ from .ast import (
     BlessExprNode,
     BlockNode,
     ChaosExprNode,
+    ContractAssertionNode,
+    ContractClauseNode,
     CurseExprNode,
     DataslateLiteralNode,
     DataslatePatternNode,
@@ -96,9 +98,32 @@ class Parser:
             return self._parse_order_statement()
         if token.type == TokenType.WARP:
             return self._parse_warp_statement()
+        if token.type == TokenType.INQUISITION and self._next_identifier_is("Assert"):
+            return self._parse_contract_assertion()
         if token.type == TokenType.LBRACE:
             return self._parse_block()
         return self._parse_expression_statement()
+
+    def _next_identifier_is(self, value: str) -> bool:
+        if self.position >= len(self.tokens):
+            return False
+        token = self.tokens[self.position]
+        return token.type == TokenType.IDENTIFIER and token.value == value
+
+    def _parse_contract_assertion(self) -> ContractAssertionNode:
+        token = self._expect(TokenType.INQUISITION)
+        marker = self._expect(
+            TokenType.IDENTIFIER, "Expected 'Assert' after Inquisition"
+        )
+        if marker.value != "Assert":
+            raise SyntaxError(
+                f"Expected 'Assert' after Inquisition at line {marker.line}, "
+                f"column {marker.column}"
+            )
+        condition = self._parse_expression()
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
+        return ContractAssertionNode(condition, token.line, token.column)
 
     def _parse_if_statement(self) -> IfStatementNode:
         token = self.current_token
@@ -175,6 +200,31 @@ class Parser:
                     break
                 self._advance()
         self._expect(TokenType.RPAREN, "Expected ')' after function parameters")
+        requires: List[ContractClauseNode] = []
+        ensures: List[ContractClauseNode] = []
+        while self.current_token and self.current_token.type == TokenType.INQUISITION:
+            clause_token = self.current_token
+            if self.position >= len(self.tokens):
+                break
+            marker = self.tokens[self.position]
+            if marker.type != TokenType.IDENTIFIER or marker.value not in (
+                "Requires",
+                "Ensures",
+            ):
+                break
+            self._advance()
+            self._advance()
+            condition = self._parse_expression()
+            clause = ContractClauseNode(
+                condition,
+                marker.value.lower(),
+                clause_token.line,
+                clause_token.column,
+            )
+            if marker.value == "Requires":
+                requires.append(clause)
+            else:
+                ensures.append(clause)
         if not self.current_token or self.current_token.type != TokenType.LBRACE:
             raise SyntaxError(
                 f"Function '{name_token.value}' requires a block body "
@@ -182,7 +232,13 @@ class Parser:
             )
         body = self._parse_block()
         return FunctionDefinitionNode(
-            name_token.value, parameters, body, def_token.line, def_token.column
+            name_token.value,
+            parameters,
+            body,
+            def_token.line,
+            def_token.column,
+            requires,
+            ensures,
         )
 
     def _parse_return_statement(self) -> ReturnStatementNode:

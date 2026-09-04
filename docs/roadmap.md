@@ -239,7 +239,7 @@ This will make the Warp a real execution concept rather than only a thematic spe
 
 ---
 
-## v1.4 — Inquisition Contracts
+## v1.4 — Inquisition Contracts ✅
 
 **Theme:** Judgment becomes executable specification.
 

@@ -1,6 +1,6 @@
 # WarPy40K
 
-**Current version: 1.3.0**
+**Current version: 1.4.0**
 
 A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, explicit replayable nondeterminism, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
 
@@ -95,6 +95,10 @@ Order target {
 A plain identifier inside a pattern is a temporary binding. Dataslate patterns are partial, so extra target fields are allowed. Squad patterns currently require an exact member count.
 
 See [`docs/orders.md`](docs/orders.md) for the complete v1.2 semantics.
+
+## WarPy40K 1.4 — Inquisition Contracts
+
+Version **1.4.0** adds executable assertions plus function preconditions and postconditions. Contract checking can be disabled through `Interpreter(contracts_enabled=False)`. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).
 
 ## Core language
 

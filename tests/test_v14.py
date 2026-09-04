@@ -119,10 +119,7 @@ def test_disabled_assertion_does_not_evaluate_condition():
 
 def test_postcondition_runs_for_implicit_none_result():
     source = (
-        "def noop() "
-        "Inquisition Ensures result == result "
-        "{ value = 1; } "
-        "noop()"
+        "def noop() " "Inquisition Ensures result == result " "{ value = 1; } " "noop()"
     )
     assert execute(source) is None
 

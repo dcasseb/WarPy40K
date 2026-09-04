@@ -15,6 +15,8 @@ from .ast import (
     BlessExprNode,
     BlockNode,
     ChaosExprNode,
+    ContractAssertionNode,
+    ContractClauseNode,
     CurseExprNode,
     DataslateLiteralNode,
     DataslatePatternNode,
@@ -111,6 +113,12 @@ class UserFunction:
     parameters: List[str]
     body: BlockNode
     closure: Tuple[Dict[str, Any], ...]
+    requires: Tuple[ContractClauseNode, ...] = tuple()
+    ensures: Tuple[ContractClauseNode, ...] = tuple()
+
+
+class ContractViolation(RuntimeError):
+    """Raised when an enabled Inquisition contract evaluates false."""
 
 
 class _ReturnSignal(Exception):
@@ -122,7 +130,11 @@ class _ReturnSignal(Exception):
 class Interpreter:
     """Tree-walking interpreter for WarPy40K."""
 
-    def __init__(self, warp_replay: Optional[List[float]] = None) -> None:
+    def __init__(
+        self,
+        warp_replay: Optional[List[float]] = None,
+        contracts_enabled: bool = True,
+    ) -> None:
         self.environment: Dict[str, Any] = {}
         self._scopes: List[Dict[str, Any]] = [self.environment]
         self._function_depth = 0
@@ -130,6 +142,7 @@ class Interpreter:
         self._warp_trace: List[float] = []
         self._warp_replay = list(warp_replay) if warp_replay is not None else None
         self._warp_replay_index = 0
+        self.contracts_enabled = contracts_enabled
         self._init_builtins()
 
     @property
@@ -301,6 +314,8 @@ class Interpreter:
             return self._execute_order_statement(node)
         if isinstance(node, WarpStatementNode):
             return self._execute_warp_statement(node)
+        if isinstance(node, ContractAssertionNode):
+            return self._execute_contract_assertion(node)
         if isinstance(node, BlockNode):
             return self._execute_block(node)
         if isinstance(node, ReturnStatementNode):
@@ -393,7 +408,12 @@ class Interpreter:
         if not isinstance(node.body, BlockNode):
             raise RuntimeError("Function body must be a block")
         function = UserFunction(
-            node.name, list(node.parameters), node.body, tuple(self._scopes)
+            node.name,
+            list(node.parameters),
+            node.body,
+            tuple(self._scopes),
+            tuple(node.requires),
+            tuple(node.ensures),
         )
         self._define(node.name, function)
         return function
@@ -418,14 +438,80 @@ class Interpreter:
         self._scopes = list(function.closure) + [local_scope]
         self._function_depth += 1
         try:
+            if self.contracts_enabled:
+                for clause in function.requires:
+                    self._check_contract(clause, "precondition", function.name)
             try:
                 self.execute(function.body)
+                result = None
             except _ReturnSignal as signal:
-                return signal.value
-            return None
+                result = signal.value
+            if self.contracts_enabled:
+                had_result = "result" in local_scope
+                previous_result = local_scope.get("result")
+                local_scope["result"] = result
+                try:
+                    for clause in function.ensures:
+                        self._check_contract(clause, "postcondition", function.name)
+                finally:
+                    if had_result:
+                        local_scope["result"] = previous_result
+                    else:
+                        local_scope.pop("result", None)
+            return result
         finally:
             self._function_depth -= 1
             self._scopes = previous_scopes
+
+    def _contract_values(self, condition: ASTNode) -> str:
+        names: List[str] = []
+
+        def visit(value: Any) -> None:
+            if isinstance(value, IdentifierNode):
+                if value.name not in names:
+                    names.append(value.name)
+                return
+            if isinstance(value, ASTNode):
+                for field_value in vars(value).values():
+                    visit(field_value)
+                return
+            if isinstance(value, (list, tuple)):
+                for item in value:
+                    visit(item)
+
+        visit(condition)
+        rendered = []
+        for name in names:
+            try:
+                rendered.append(f"{name}={self._lookup(name)!r}")
+            except NameError:
+                pass
+        return ", ".join(rendered)
+
+    def _check_contract(
+        self, clause: ContractClauseNode, kind: str, function_name: str
+    ) -> None:
+        if bool(self.execute(clause.condition)):
+            return
+        values = self._contract_values(clause.condition)
+        detail = f"; values: {values}" if values else ""
+        raise ContractViolation(
+            f"Inquisition {kind} failed in function '{function_name}' "
+            f"at line {clause.line}, column {clause.column}: "
+            f"{clause.condition!r}{detail}"
+        )
+
+    def _execute_contract_assertion(self, node: ContractAssertionNode) -> bool:
+        if not self.contracts_enabled:
+            return True
+        if bool(self.execute(node.condition)):
+            return True
+        values = self._contract_values(node.condition)
+        detail = f"; values: {values}" if values else ""
+        raise ContractViolation(
+            f"Inquisition assertion failed at line {node.line}, "
+            f"column {node.column}: {node.condition!r}{detail}"
+        )
 
     def _execute_if_statement(self, node: IfStatementNode) -> Any:
         if self.execute(node.condition):
