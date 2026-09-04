@@ -36,9 +36,30 @@ python benchmarks/run_benchmarks.py \
   --json benchmarks/results/v1.2-local.json
 ```
 
+### v1.4 contract overhead
+
+Inquisition Contracts have a dedicated paired benchmark so validation overhead
+is explicit instead of being mixed into the historical v1.2 baseline:
+
+```bash
+python benchmarks/run_contract_benchmark.py
+```
+
+The same parsed AST is executed with `contracts_enabled=True` and
+`contracts_enabled=False`. The script reports both median execution times and
+the enabled/disabled ratio. Conditions are intentionally nontrivial enough to
+exercise function preconditions and postconditions repeatedly, while both modes
+must return the same program result.
+
+For a CI smoke check:
+
+```bash
+python benchmarks/run_contract_benchmark.py --samples 1 --warmups 0
+```
+
 ## Metrics
 
-Each workload reports:
+Each canonical workload reports:
 
 - `exec med`: median execution-only latency;
 - `exec p95`: 95th-percentile execution-only latency;
@@ -52,6 +73,9 @@ program state without charging lexer/parser cost to the runtime measurement.
 
 End-to-end mode constructs a fresh lexer, parser, AST, and interpreter for
 every sample.
+
+The v1.4 contract benchmark separately reports contract-enabled and
+contract-disabled execution medians plus their ratio.
 
 ## Canonical workloads
 
@@ -68,6 +92,10 @@ every sample.
 The Minsky workload executes the same encoded transfer-machine design as the
 official constructive example, with a smaller input chosen so that repeated
 benchmark samples remain practical.
+
+The contract benchmark is intentionally kept as a paired auxiliary benchmark
+rather than folded into the v1.2 canonical corpus. This preserves the historical
+baseline while still making v1.4 validation overhead reproducible.
 
 ## Python comparisons
 
@@ -102,9 +130,10 @@ Do not compare GitHub-hosted-runner timings directly with local-machine timings.
 ## CI policy
 
 CI performs a one-sample smoke run to ensure every canonical workload remains
-valid and returns the expected result. CI does **not** enforce latency or
-slowdown thresholds because shared runners are too noisy for trustworthy
-microbenchmark regression gates.
+valid and returns the expected result. It also performs a one-sample smoke of
+the v1.4 paired contract benchmark in both enabled and disabled modes. CI does
+**not** enforce latency or slowdown thresholds because shared runners are too
+noisy for trustworthy microbenchmark regression gates.
 
 ## Future baseline use
 
