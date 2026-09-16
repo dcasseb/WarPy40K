@@ -44,6 +44,9 @@ jobs:
       - name: Smoke Inquisition contract benchmark
         run: python benchmarks/run_contract_benchmark.py --samples 1 --warmups 0
 
+      - name: Smoke Codex module benchmark
+        run: python benchmarks/run_module_benchmark.py --samples 1 --warmups 0
+
   quality:
     runs-on: ubuntu-latest
 
