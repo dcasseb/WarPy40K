@@ -1,8 +1,42 @@
 # WarPy40K
 
-**Current version: 1.4.0**
+**Current version: 1.5.0**
 
-A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, explicit replayable nondeterminism, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
+A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, explicit replayable nondeterminism, executable contracts, explicit Codex modules, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
+
+## WarPy40K 1.5 — Codex Modules
+
+Version **1.5.0** turns WarPy40K programs into explicit multi-file projects with isolated module scopes, deliberate exports, deterministic resolution, and cached loading.
+
+Import a public symbol with:
+
+```text
+Invoke clamp from Codex Core
+value = clamp(15, 0, 10)
+```
+
+A Codex exposes names explicitly:
+
+```text
+def add(a, b) {
+    return a + b
+}
+
+private_value = 99
+Codex Export add
+```
+
+Only exported names cross the module boundary. Exported functions retain their module lexical environment, so private helpers continue to work without leaking into the importing scope.
+
+Codex resolution is deterministic: the current module directory is searched first, then configured `module_paths`, then the bundled standard-library directory. Absolute paths, parent traversal, arbitrary file extensions, and Python imports are rejected. Resolved modules are evaluated once per interpreter and reused from the module cache.
+
+The bundled `Core` Codex currently provides `identity` and `clamp` through the same parser/runtime mechanism used by user modules.
+
+See [`docs/codex_modules.md`](docs/codex_modules.md) for the complete v1.5 semantics.
+
+## WarPy40K 1.4 — Inquisition Contracts
+
+Version **1.4.0** adds executable assertions plus function preconditions and postconditions. Contract checking can be disabled through `Interpreter(contracts_enabled=False)`. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).
 
 ## WarPy40K 1.3 — The Warp Effect Model
 
@@ -96,10 +130,6 @@ A plain identifier inside a pattern is a temporary binding. Dataslate patterns a
 
 See [`docs/orders.md`](docs/orders.md) for the complete v1.2 semantics.
 
-## WarPy40K 1.4 — Inquisition Contracts
-
-Version **1.4.0** adds executable assertions plus function preconditions and postconditions. Contract checking can be disabled through `Interpreter(contracts_enabled=False)`. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).
-
 ## Core language
 
 WarPy40K supports:
@@ -118,6 +148,8 @@ WarPy40K supports:
 - native `Order` pattern dispatch;
 - explicit `Warp` nondeterministic regions;
 - trace recording and deterministic replay of Warp decisions;
+- executable Inquisition assertions/preconditions/postconditions;
+- explicit `Codex` module imports and exports;
 - built-in functions and explicit `int`, `float`, `str` conversions;
 - WarPy40K-specific expressions;
 - REPL and whole-file execution;
@@ -272,7 +304,16 @@ Run the default suite:
 python benchmarks/run_benchmarks.py
 ```
 
-Save machine-readable results:
+Additional feature-specific benchmarks:
+
+```bash
+python benchmarks/run_contract_benchmark.py
+python benchmarks/run_module_benchmark.py
+```
+
+The module benchmark reports cold Codex loading separately from repeated imports served by the per-interpreter cache.
+
+Save machine-readable baseline results from the canonical suite:
 
 ```bash
 python benchmarks/run_benchmarks.py --json benchmarks/results/v1.2-local.json
@@ -305,7 +346,7 @@ warpy40k examples/minsky_universal.wp40k
 
 | Expression | Current role |
 |---|---|
-| `Inquisition` | truth/judgment |
+| `Inquisition` | truth/judgment and executable contracts |
 | `Emperor` | faith-based transformation |
 | `Chaos` | corruption/randomness; deterministic inside Warp |
 | `Purge` | reset/destructive transformation |
@@ -350,13 +391,17 @@ isort src/ tests/ benchmarks/
 flake8 src/ tests/ benchmarks/
 mypy src/warpy40k
 python benchmarks/run_benchmarks.py
+python benchmarks/run_contract_benchmark.py
+python benchmarks/run_module_benchmark.py
 ```
 
-GitHub Actions enforces formatting, import order, linting, typing, test coverage, and the supported Python test matrix. Performance measurements are informational rather than gating.
+GitHub Actions enforces formatting, import order, linting, typing, test coverage, the supported Python test matrix, and smoke runs for the canonical, contract, and Codex module benchmarks. Performance measurements are informational rather than gating.
 
 ## Documentation
 
 - [`docs/language_reference.md`](docs/language_reference.md) — language syntax and semantics
+- [`docs/codex_modules.md`](docs/codex_modules.md) — v1.5 module scopes, exports, resolution, and cache
+- [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md) — v1.4 executable contracts
 - [`docs/warp_effect_model.md`](docs/warp_effect_model.md) — deterministic nondeterminism, traces, and replay
 - [`docs/orders.md`](docs/orders.md) — v1.2 Order pattern semantics
 - [`docs/turing_completeness.md`](docs/turing_completeness.md) — constructive universality demonstration
