@@ -1,0 +1,17 @@
+def identity(value) {
+    return value;
+}
+
+
+def clamp(value, low, high) {
+    if value < low {
+        return low;
+    }
+    if value > high {
+        return high;
+    }
+    return value;
+}
+
+Codex Export identity;
+Codex Export clamp;
