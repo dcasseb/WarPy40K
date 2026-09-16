@@ -2,6 +2,18 @@
 
 All notable changes to WarPy40K are recorded here.
 
+## 1.5.0 — 2026-09-16
+
+### Added
+
+- `Invoke name from Codex Module` explicit imports.
+- `Codex Export name` explicit module exports.
+- module-local execution scopes and lexical closure preservation for exported functions.
+- deterministic relative/search-path/stdlib resolution for `.wp40k` Codices.
+- per-interpreter module cache and circular-import diagnostics.
+- bundled `Core` standard-library Codex using the same module abstraction.
+- safe rejection of absolute paths, parent traversal, arbitrary extensions, and Python imports.
+
 ## 1.4.0 — 2026-09-04
 
 ### Added

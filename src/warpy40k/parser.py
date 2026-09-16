@@ -17,12 +17,14 @@ from .ast import (
     DataslateLiteralNode,
     DataslatePatternNode,
     EmperorExprNode,
+    ExportNode,
     ExterminatusExprNode,
     FieldAccessNode,
     FunctionCallNode,
     FunctionDefinitionNode,
     IdentifierNode,
     IfStatementNode,
+    ImportNode,
     IndexAccessNode,
     InquisitionExprNode,
     LiteralNode,
@@ -100,6 +102,10 @@ class Parser:
             return self._parse_warp_statement()
         if token.type == TokenType.INQUISITION and self._next_identifier_is("Assert"):
             return self._parse_contract_assertion()
+        if self._looks_like_import_statement():
+            return self._parse_import_statement()
+        if self._looks_like_export_statement():
+            return self._parse_export_statement()
         if token.type == TokenType.LBRACE:
             return self._parse_block()
         return self._parse_expression_statement()
@@ -109,6 +115,81 @@ class Parser:
             return False
         token = self.tokens[self.position]
         return token.type == TokenType.IDENTIFIER and token.value == value
+
+    def _looks_like_import_statement(self) -> bool:
+        token = self.current_token
+        if (
+            token is None
+            or token.type != TokenType.IDENTIFIER
+            or token.value != "Invoke"
+        ):
+            return False
+        if self.position + 2 >= len(self.tokens):
+            return False
+        name = self.tokens[self.position]
+        from_token = self.tokens[self.position + 1]
+        codex = self.tokens[self.position + 2]
+        return (
+            name.type == TokenType.IDENTIFIER
+            and from_token.type == TokenType.IDENTIFIER
+            and from_token.value == "from"
+            and codex.type == TokenType.IDENTIFIER
+            and codex.value == "Codex"
+        )
+
+    def _looks_like_export_statement(self) -> bool:
+        token = self.current_token
+        if (
+            token is None
+            or token.type != TokenType.IDENTIFIER
+            or token.value != "Codex"
+        ):
+            return False
+        if self.position >= len(self.tokens):
+            return False
+        marker = self.tokens[self.position]
+        return marker.type == TokenType.IDENTIFIER and marker.value == "Export"
+
+    def _parse_import_statement(self) -> ImportNode:
+        token = self._expect(TokenType.IDENTIFIER)
+        name = self._expect(TokenType.IDENTIFIER, "Expected imported name after Invoke")
+        from_token = self._expect(
+            TokenType.IDENTIFIER, "Expected 'from' after import name"
+        )
+        if from_token.value != "from":
+            raise SyntaxError(
+                f"Expected 'from' after imported name at line {from_token.line}, "
+                f"column {from_token.column}"
+            )
+        codex = self._expect(TokenType.IDENTIFIER, "Expected 'Codex' after from")
+        if codex.value != "Codex":
+            raise SyntaxError(
+                f"Expected 'Codex' after from at line {codex.line}, "
+                f"column {codex.column}"
+            )
+        module = self.current_token
+        if module is None or module.type not in (
+            TokenType.IDENTIFIER,
+            TokenType.STRING,
+        ):
+            raise SyntaxError("Expected Codex module name")
+        self._advance()
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
+        return ImportNode(name.value, module.value, token.line, token.column)
+
+    def _parse_export_statement(self) -> ExportNode:
+        token = self._expect(TokenType.IDENTIFIER)
+        marker = self._expect(TokenType.IDENTIFIER, "Expected 'Export' after Codex")
+        if marker.value != "Export":
+            raise SyntaxError(
+                f"Expected 'Export' after Codex at line {marker.line}, "
+                f"column {marker.column}"
+            )
+        name = self._expect(TokenType.IDENTIFIER, "Expected name after Codex Export")
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
+        return ExportNode(name.value, token.line, token.column)
 
     def _parse_contract_assertion(self) -> ContractAssertionNode:
         token = self._expect(TokenType.INQUISITION)

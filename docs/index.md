@@ -106,3 +106,5 @@ See the [Language Roadmap](roadmap.md) for the acceptance criteria and full rele
 - [Warp Effect Model](warp_effect_model.md) — deterministic nondeterminism, trace recording, and replay.
 
 - [Inquisition Contracts](inquisition_contracts.md) — assertions, preconditions, postconditions, and optional runtime checking.
+
+- [Codex Modules](codex_modules.md) — explicit modules, exports, deterministic resolution, and caching.

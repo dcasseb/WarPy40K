@@ -6,7 +6,8 @@ Executes the Abstract Syntax Tree (AST) and produces results.
 
 import random
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from .ast import (
     ASTNode,
@@ -21,12 +22,14 @@ from .ast import (
     DataslateLiteralNode,
     DataslatePatternNode,
     EmperorExprNode,
+    ExportNode,
     ExterminatusExprNode,
     FieldAccessNode,
     FunctionCallNode,
     FunctionDefinitionNode,
     IdentifierNode,
     IfStatementNode,
+    ImportNode,
     IndexAccessNode,
     InquisitionExprNode,
     LiteralNode,
@@ -115,10 +118,21 @@ class UserFunction:
     closure: Tuple[Dict[str, Any], ...]
     requires: Tuple[ContractClauseNode, ...] = tuple()
     ensures: Tuple[ContractClauseNode, ...] = tuple()
+    module_origin: Optional[Path] = None
 
 
 class ContractViolation(RuntimeError):
     """Raised when an enabled Inquisition contract evaluates false."""
+
+
+class ModuleLoadError(RuntimeError):
+    """Raised when a Codex cannot be resolved or exported safely."""
+
+
+@dataclass
+class ModuleRecord:
+    path: Path
+    exports: Dict[str, Any]
 
 
 class _ReturnSignal(Exception):
@@ -134,6 +148,7 @@ class Interpreter:
         self,
         warp_replay: Optional[List[float]] = None,
         contracts_enabled: bool = True,
+        module_paths: Optional[List[Path]] = None,
     ) -> None:
         self.environment: Dict[str, Any] = {}
         self._scopes: List[Dict[str, Any]] = [self.environment]
@@ -143,7 +158,16 @@ class Interpreter:
         self._warp_replay = list(warp_replay) if warp_replay is not None else None
         self._warp_replay_index = 0
         self.contracts_enabled = contracts_enabled
+        self.module_paths = [Path(path).resolve() for path in (module_paths or [])]
+        self._module_cache: Dict[Path, ModuleRecord] = {}
+        self._module_loading: Set[Path] = set()
+        self._module_origin_stack: List[Path] = []
+        self._declared_exports: List[str] = []
         self._init_builtins()
+
+    @property
+    def module_cache_size(self) -> int:
+        return len(self._module_cache)
 
     @property
     def warp_trace(self) -> List[float]:
@@ -316,6 +340,10 @@ class Interpreter:
             return self._execute_warp_statement(node)
         if isinstance(node, ContractAssertionNode):
             return self._execute_contract_assertion(node)
+        if isinstance(node, ImportNode):
+            return self._execute_import(node)
+        if isinstance(node, ExportNode):
+            return self._execute_export(node)
         if isinstance(node, BlockNode):
             return self._execute_block(node)
         if isinstance(node, ReturnStatementNode):
@@ -414,6 +442,7 @@ class Interpreter:
             tuple(self._scopes),
             tuple(node.requires),
             tuple(node.ensures),
+            self._module_origin_stack[-1] if self._module_origin_stack else None,
         )
         self._define(node.name, function)
         return function
@@ -437,6 +466,8 @@ class Interpreter:
         previous_scopes = self._scopes
         self._scopes = list(function.closure) + [local_scope]
         self._function_depth += 1
+        if function.module_origin is not None:
+            self._module_origin_stack.append(function.module_origin)
         try:
             if self.contracts_enabled:
                 for clause in function.requires:
@@ -460,8 +491,97 @@ class Interpreter:
                         local_scope.pop("result", None)
             return result
         finally:
+            if function.module_origin is not None:
+                self._module_origin_stack.pop()
             self._function_depth -= 1
             self._scopes = previous_scopes
+
+    def _validate_module_spec(self, module: str) -> Path:
+        spec = Path(module)
+        if spec.is_absolute() or ".." in spec.parts:
+            raise ModuleLoadError(f"unsafe Codex module path: {module!r}")
+        if spec.suffix and spec.suffix != ".wp40k":
+            raise ModuleLoadError("Codex modules must use the .wp40k extension")
+        return spec if spec.suffix else spec.with_suffix(".wp40k")
+
+    def _resolve_module(self, module: str) -> Path:
+        spec = self._validate_module_spec(module)
+        roots: List[Path] = []
+        if self._module_origin_stack:
+            roots.append(self._module_origin_stack[-1])
+        roots.extend(self.module_paths)
+        roots.append(Path(__file__).resolve().parent / "stdlib")
+        seen: Set[Path] = set()
+        for root in roots:
+            root = root.resolve()
+            if root in seen:
+                continue
+            seen.add(root)
+            candidate = (root / spec).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError:
+                continue
+            if candidate.is_file():
+                return candidate
+        raise ModuleLoadError(f"Codex '{module}' was not found")
+
+    def _load_module(self, module: str) -> ModuleRecord:
+        path = self._resolve_module(module)
+        if path in self._module_cache:
+            return self._module_cache[path]
+        if path in self._module_loading:
+            chain = " -> ".join(
+                [item.stem for item in self._module_loading] + [path.stem]
+            )
+            raise ModuleLoadError(f"Circular Codex import detected: {chain}")
+        self._module_loading.add(path)
+        try:
+            from .lexer import Lexer
+            from .parser import Parser
+
+            source = path.read_text(encoding="utf-8")
+            ast = Parser(Lexer(source).tokenize()).parse()
+            child = Interpreter(
+                contracts_enabled=self.contracts_enabled,
+                module_paths=self.module_paths,
+            )
+            child._module_cache = self._module_cache
+            child._module_loading = self._module_loading
+            child._module_origin_stack = [path.parent]
+            child.execute(ast)
+            exports: Dict[str, Any] = {}
+            for name in child._declared_exports:
+                try:
+                    exports[name] = child._lookup(name)
+                except NameError as exc:
+                    raise ModuleLoadError(
+                        f"Codex '{module}' cannot export undefined name '{name}'"
+                    ) from exc
+            record = ModuleRecord(path, exports)
+            self._module_cache[path] = record
+            return record
+        finally:
+            self._module_loading.discard(path)
+
+    def _execute_import(self, node: ImportNode) -> Any:
+        record = self._load_module(node.module)
+        if node.name not in record.exports:
+            raise ModuleLoadError(
+                f"Codex '{node.module}' does not export '{node.name}'"
+            )
+        return self._define(node.name, record.exports[node.name])
+
+    def _execute_export(self, node: ExportNode) -> Any:
+        try:
+            value = self._lookup(node.name)
+        except NameError as exc:
+            raise ModuleLoadError(
+                f"Codex cannot export undefined name '{node.name}'"
+            ) from exc
+        if node.name not in self._declared_exports:
+            self._declared_exports.append(node.name)
+        return value
 
     def _contract_values(self, condition: ASTNode) -> str:
         names: List[str] = []

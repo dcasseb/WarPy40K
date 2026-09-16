@@ -25,6 +25,8 @@ class NodeType(Enum):
     ORDER_STATEMENT = auto()
     WARP_STATEMENT = auto()
     CONTRACT_ASSERTION = auto()
+    IMPORT = auto()
+    EXPORT = auto()
     SQUAD_LITERAL = auto()
     DATASLATE_LITERAL = auto()
     INDEX_ACCESS = auto()
@@ -124,6 +126,21 @@ class ContractClauseNode(ASTNode):
 @dataclass
 class ContractAssertionNode(ASTNode):
     condition: ASTNode
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class ImportNode(ASTNode):
+    name: str
+    module: str
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class ExportNode(ASTNode):
+    name: str
     line: int = 1
     column: int = 1
 

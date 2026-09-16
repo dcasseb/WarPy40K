@@ -262,7 +262,7 @@ and later contract forms attached to functions.
 
 ---
 
-## v1.5 — Codex Modules
+## v1.5 — Codex Modules ✅
 
 **Theme:** Programs become collections of explicit codices.
 

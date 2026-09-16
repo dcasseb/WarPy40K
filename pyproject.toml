@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WarPy40K"
-version = "1.4.0"
+version = "1.5.0"
 description = "A Warhammer 40K-inspired interpreted programming language"
 readme = "README.md"
 license = {text = "MIT"}
@@ -56,3 +56,6 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.setuptools.package-data]
+warpy40k = ["stdlib/*.wp40k"]

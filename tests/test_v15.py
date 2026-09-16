@@ -46,8 +46,7 @@ Codex Export double_after_increment;
 """,
     )
     result = execute(
-        "Invoke double_after_increment from Codex Math; "
-        "double_after_increment(4)",
+        "Invoke double_after_increment from Codex Math; " "double_after_increment(4)",
         [tmp_path],
     )
     assert result == 10
@@ -60,7 +59,9 @@ def test_private_module_names_do_not_leak_into_importing_scope(tmp_path):
         "secret = 99; public = 7; Codex Export public;",
     )
     interpreter = Interpreter(module_paths=[tmp_path])
-    assert execute("Invoke public from Codex Vault; public", interpreter=interpreter) == 7
+    assert (
+        execute("Invoke public from Codex Vault; public", interpreter=interpreter) == 7
+    )
     with pytest.raises(NameError, match="secret"):
         execute("secret", interpreter=interpreter)
 
@@ -171,7 +172,6 @@ def test_core_stdlib_uses_same_codex_abstraction():
 
 def test_contextual_module_words_remain_normal_identifiers():
     result = execute(
-        "Invoke = 1; Codex = 2; Export = 3; from = 4; "
-        "Invoke + Codex + Export + from"
+        "Invoke = 1; Codex = 2; Export = 3; from = 4; " "Invoke + Codex + Export + from"
     )
     assert result == 10

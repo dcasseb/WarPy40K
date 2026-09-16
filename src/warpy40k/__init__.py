@@ -7,17 +7,18 @@ for the WarPy40K language.
 
 from typing import Any, Optional
 
-from .interpreter import ContractViolation, Interpreter
+from .interpreter import ContractViolation, Interpreter, ModuleLoadError
 from .lexer import Lexer
 from .parser import Parser
 from .tokens import TokenType
 
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 __all__ = [
     "Lexer",
     "Parser",
     "Interpreter",
     "ContractViolation",
+    "ModuleLoadError",
     "TokenType",
     "evaluate",
     "reset_interpreter",
