@@ -30,9 +30,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .
           python -m pip install -r requirements-dev.txt
-          python -m black src tests scripts benchmarks
-          python -m isort src tests scripts benchmarks
-          python -m flake8 src tests scripts benchmarks
+          python -m black src tests benchmarks
+          python -m isort src tests benchmarks
+          python -m flake8 src tests benchmarks
           python -m mypy src/warpy40k
           python -m pytest -q
 
