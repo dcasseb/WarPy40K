@@ -1,0 +1,28 @@
+name: Format v1.6 changes
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/format-v1.6.yml"
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install "black>=23,<27" "isort>=5,<8"
+          python -m black src tests benchmarks
+          python -m isort src tests benchmarks
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/format-v1.6.yml
+          git add -A
+          git commit -m "style: format v1.6 Sanction implementation"
+          git push
