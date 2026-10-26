@@ -283,9 +283,10 @@ Invoke Math from Codex Core
 
 ---
 
-## v1.6 — Sanctioned Effects
+## v1.6 — Sanctioned Effects ✅
 
 **Theme:** Side effects become capabilities rather than ambient privileges.
+**Status:** implemented in v1.6.0 with explicit Sanction regions, host grants, an opt-in strict mode, and scoped file/environment/time/process/console effects.
 
 Target capabilities:
 
