@@ -28,10 +28,16 @@ def test_host_must_grant_requested_capability():
 
 
 def test_time_sanction_and_restoration():
-    result, _ = run("Sanction time { Clock() }", granted_effects=["time"], strict_effects=True)
+    result, _ = run(
+        "Sanction time { Clock() }", granted_effects=["time"], strict_effects=True
+    )
     assert isinstance(result, float)
     with pytest.raises(EffectViolation):
-        run("Sanction time { Clock() } Clock()", granted_effects=["time"], strict_effects=True)
+        run(
+            "Sanction time { Clock() } Clock()",
+            granted_effects=["time"],
+            strict_effects=True,
+        )
 
 
 def test_nested_sanction_cannot_escalate():
@@ -54,7 +60,8 @@ def test_file_access_confined_to_host_root(tmp_path):
     with pytest.raises(EffectViolation, match="Unsafe"):
         run(
             'Sanction file_read { ReadFile("../secrets.txt") }',
-            granted_effects=["file_read"], file_root=tmp_path,
+            granted_effects=["file_read"],
+            file_root=tmp_path,
         )
 
 
@@ -66,7 +73,8 @@ def test_symlink_cannot_escape_file_root(tmp_path):
         with pytest.raises(EffectViolation, match="escapes"):
             run(
                 'Sanction file_read { ReadFile("link.txt") }',
-                granted_effects=["file_read"], file_root=tmp_path,
+                granted_effects=["file_read"],
+                file_root=tmp_path,
             )
     finally:
         outside.unlink()
@@ -74,10 +82,13 @@ def test_symlink_cannot_escape_file_root(tmp_path):
 
 def test_environment_requires_permission(monkeypatch):
     monkeypatch.setenv("WARPY_TEST_ENV", "value")
-    assert run(
-        'Sanction environment { GetEnv("WARPY_TEST_ENV") }',
-        granted_effects=["environment"],
-    )[0] == "value"
+    assert (
+        run(
+            'Sanction environment { GetEnv("WARPY_TEST_ENV") }',
+            granted_effects=["environment"],
+        )[0]
+        == "value"
+    )
 
 
 def test_strict_mode_denies_ambient_print(capsys):
@@ -94,15 +105,17 @@ def test_legacy_print_remains_supported(capsys):
 def test_strict_print_inside_console_sanction(capsys):
     run(
         'Sanction console { print("allowed") }',
-        granted_effects=["console"], strict_effects=True,
+        granted_effects=["console"],
+        strict_effects=True,
     )
     assert capsys.readouterr().out == "allowed\n"
 
 
 def test_nested_function_uses_active_sanction():
     result, _ = run(
-        'def now() { return Clock(); } Sanction time { now() }',
-        granted_effects=["time"], strict_effects=True,
+        "def now() { return Clock(); } Sanction time { now() }",
+        granted_effects=["time"],
+        strict_effects=True,
     )
     assert isinstance(result, float)
 

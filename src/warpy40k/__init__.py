@@ -7,7 +7,12 @@ for the WarPy40K language.
 
 from typing import Any, Optional
 
-from .interpreter import ContractViolation, EffectViolation, Interpreter, ModuleLoadError
+from .interpreter import (
+    ContractViolation,
+    EffectViolation,
+    Interpreter,
+    ModuleLoadError,
+)
 from .lexer import Lexer
 from .parser import Parser
 from .tokens import TokenType

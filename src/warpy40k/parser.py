@@ -161,15 +161,11 @@ class Parser:
     def _parse_sanction_statement(self) -> SanctionNode:
         token = self._expect(TokenType.IDENTIFIER)
         capabilities: List[str] = []
-        first = self._expect(
-            TokenType.IDENTIFIER, "Expected capability after Sanction"
-        )
+        first = self._expect(TokenType.IDENTIFIER, "Expected capability after Sanction")
         capabilities.append(first.value)
         while self.current_token and self.current_token.type == TokenType.COMMA:
             self._advance()
-            name = self._expect(
-                TokenType.IDENTIFIER, "Expected capability after comma"
-            )
+            name = self._expect(TokenType.IDENTIFIER, "Expected capability after comma")
             capabilities.append(name.value)
         if not self.current_token or self.current_token.type != TokenType.LBRACE:
             raise SyntaxError(

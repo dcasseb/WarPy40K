@@ -8,7 +8,6 @@ from warpy40k.interpreter import Interpreter
 from warpy40k.lexer import Lexer
 from warpy40k.parser import Parser
 
-
 PURE = """
 value = 0
 i = 0

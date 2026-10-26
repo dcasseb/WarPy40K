@@ -52,8 +52,9 @@ from .ast import (
     WildcardPatternNode,
 )
 
-
-EFFECT_NAMES = frozenset(("console", "file_read", "file_write", "environment", "process", "time"))
+EFFECT_NAMES = frozenset(
+    ("console", "file_read", "file_write", "environment", "process", "time")
+)
 
 
 class EffectContext:
@@ -73,9 +74,13 @@ class EffectContext:
     def enter(self, requested: List[str]) -> None:
         effects = frozenset(requested)
         if effects - EFFECT_NAMES:
-            raise EffectViolation(f"Unknown capability: {sorted(effects - EFFECT_NAMES)!r}")
+            raise EffectViolation(
+                f"Unknown capability: {sorted(effects - EFFECT_NAMES)!r}"
+            )
         if effects - self.grants:
-            raise EffectViolation(f"Capabilities not granted: {sorted(effects - self.grants)!r}")
+            raise EffectViolation(
+                f"Capabilities not granted: {sorted(effects - self.grants)!r}"
+            )
         if self.stack and not effects <= self.stack[-1]:
             raise EffectViolation("Nested Sanction cannot elevate capabilities")
         self.stack.append(effects)
