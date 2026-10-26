@@ -1,6 +1,6 @@
 # WarPy40K
 
-**Current version: 1.5.0**
+**Current version: 1.6.0**
 
 A small Warhammer 40K-inspired interpreted programming language implemented in Python, with its own lexer, recursive-descent parser, AST, runtime semantics, native structured data, pattern-oriented command dispatch, explicit replayable nondeterminism, executable contracts, explicit Codex modules, functions, recursion, unrestricted control flow, and a constructive Turing-completeness demonstration.
 
@@ -37,6 +37,10 @@ See [`docs/codex_modules.md`](docs/codex_modules.md) for the complete v1.5 seman
 ## WarPy40K 1.4 — Inquisition Contracts
 
 Version **1.4.0** adds executable assertions plus function preconditions and postconditions. Contract checking can be disabled through `Interpreter(contracts_enabled=False)`. See [`docs/inquisition_contracts.md`](docs/inquisition_contracts.md).
+
+## WarPy40K 1.6 — Sanctioned Effects
+
+Explicit `Sanction` regions authorize console, file, environment, process and time operations against host-provided grants. In strict mode there is no ambient console or process access. Legacy 1.x console calls remain compatible by default. See [`docs/sanctioned_effects.md`](docs/sanctioned_effects.md).
 
 ## WarPy40K 1.3 — The Warp Effect Model
 
