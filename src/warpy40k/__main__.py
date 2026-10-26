@@ -9,7 +9,8 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import WarPy40KError, evaluate, reset_interpreter
+from . import WarPy40KError, evaluate
+from .interpreter import Interpreter
 from .lexer import Lexer
 from .parser import Parser
 
@@ -33,17 +34,40 @@ def main() -> None:
         "--ast", action="store_true", help="Display AST instead of executing"
     )
 
+    parser.add_argument(
+        "--grant",
+        action="append",
+        choices=[
+            "console", "file_read", "file_write", "environment", "process", "time"
+        ],
+        default=[],
+        help="Grant a named host effect capability (repeatable)",
+    )
+    parser.add_argument(
+        "--strict-effects",
+        action="store_true",
+        help="Require Sanction regions for console and process effects too",
+    )
+    parser.add_argument(
+        "--file-root",
+        type=Path,
+        help="Host-authorized root for file_read/file_write effects",
+    )
     args = parser.parse_args()
+    options = {
+        "granted_effects": args.grant,
+        "strict_effects": args.strict_effects,
+        "file_root": args.file_root,
+    }
 
     if args.interactive:
-        repl()
+        repl(**options)
     elif args.code:
-        execute_code(args.code, args.tokens, args.ast)
+        execute_code(args.code, args.tokens, args.ast, **options)
     elif args.file:
-        execute_file(args.file, args.tokens, args.ast)
+        execute_file(args.file, args.tokens, args.ast, **options)
     else:
-        # Default to REPL if no arguments
-        repl()
+        repl(**options)
 
 
 def execute_code(
@@ -51,6 +75,10 @@ def execute_code(
     show_tokens: bool = False,
     show_ast: bool = False,
     print_result: bool = True,
+    granted_effects=None,
+    strict_effects: bool = False,
+    file_root=None,
+    module_paths=None,
 ) -> None:
     """Execute a string of WarPy40K code."""
 
@@ -71,7 +99,16 @@ def execute_code(
             print(ast)
             return
 
-        result = evaluate(source, use_global=False)
+        if granted_effects or strict_effects or file_root or module_paths:
+            runtime = Interpreter(
+                granted_effects=granted_effects,
+                strict_effects=strict_effects,
+                file_root=file_root,
+                module_paths=module_paths,
+            )
+            result = runtime.execute(Parser(Lexer(source).tokenize()).parse())
+        else:
+            result = evaluate(source, use_global=False)
         if print_result and result is not None:
             print(result)
     except WarPy40KError as e:
@@ -83,13 +120,22 @@ def execute_code(
 
 
 def execute_file(
-    filename: str, show_tokens: bool = False, show_ast: bool = False
+    filename: str,
+    show_tokens: bool = False,
+    show_ast: bool = False,
+    granted_effects=None,
+    strict_effects: bool = False,
+    file_root=None,
 ) -> None:
     """Parse and execute a complete WarPy40K source file exactly once."""
 
     try:
         source = Path(filename).read_text(encoding="utf-8")
-        execute_code(source, show_tokens, show_ast, print_result=False)
+        execute_code(
+            source, show_tokens, show_ast, print_result=False,
+            granted_effects=granted_effects, strict_effects=strict_effects,
+            file_root=file_root, module_paths=[Path(filename).resolve().parent],
+        )
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found", file=sys.stderr)
         sys.exit(1)
@@ -98,7 +144,7 @@ def execute_file(
         sys.exit(1)
 
 
-def repl() -> None:
+def repl(granted_effects=None, strict_effects=False, file_root=None) -> None:
     """Start an interactive REPL for WarPy40K."""
 
     print("WarPy40K Interactive REPL")
@@ -108,7 +154,11 @@ def repl() -> None:
     print()
 
     # Reset interpreter for fresh REPL session
-    reset_interpreter()
+    runtime = Interpreter(
+        granted_effects=granted_effects,
+        strict_effects=strict_effects,
+        file_root=file_root,
+    )
 
     while True:
         try:
@@ -124,7 +174,11 @@ def repl() -> None:
                 continue
 
             if code.strip().lower() in ("reset", "clear"):
-                reset_interpreter()
+                runtime = Interpreter(
+                    granted_effects=granted_effects,
+                    strict_effects=strict_effects,
+                    file_root=file_root,
+                )
                 print("All variables cleared. The Emperor's will be done.")
                 continue
 
@@ -132,7 +186,7 @@ def repl() -> None:
                 continue
 
             # Execute the code (use_global=True to maintain state)
-            result = evaluate(code, use_global=True)
+            result = runtime.execute(Parser(Lexer(code).tokenize()).parse())
             if result is not None:
                 print(result)
 
