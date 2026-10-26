@@ -8,6 +8,7 @@ Allows running WarPy40K code from the command line.
 import argparse
 import sys
 from pathlib import Path
+from typing import List, Optional
 
 from . import WarPy40KError, evaluate
 from .interpreter import Interpreter
@@ -80,10 +81,10 @@ def execute_code(
     show_tokens: bool = False,
     show_ast: bool = False,
     print_result: bool = True,
-    granted_effects=None,
+    granted_effects: Optional[List[str]] = None,
     strict_effects: bool = False,
-    file_root=None,
-    module_paths=None,
+    file_root: Optional[Path] = None,
+    module_paths: Optional[List[Path]] = None,
 ) -> None:
     """Execute a string of WarPy40K code."""
 
@@ -128,9 +129,9 @@ def execute_file(
     filename: str,
     show_tokens: bool = False,
     show_ast: bool = False,
-    granted_effects=None,
+    granted_effects: Optional[List[str]] = None,
     strict_effects: bool = False,
-    file_root=None,
+    file_root: Optional[Path] = None,
 ) -> None:
     """Parse and execute a complete WarPy40K source file exactly once."""
 
@@ -154,7 +155,11 @@ def execute_file(
         sys.exit(1)
 
 
-def repl(granted_effects=None, strict_effects=False, file_root=None) -> None:
+def repl(
+    granted_effects: Optional[List[str]] = None,
+    strict_effects: bool = False,
+    file_root: Optional[Path] = None,
+) -> None:
     """Start an interactive REPL for WarPy40K."""
 
     print("WarPy40K Interactive REPL")
