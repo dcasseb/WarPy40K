@@ -38,7 +38,12 @@ def main() -> None:
         "--grant",
         action="append",
         choices=[
-            "console", "file_read", "file_write", "environment", "process", "time"
+            "console",
+            "file_read",
+            "file_write",
+            "environment",
+            "process",
+            "time",
         ],
         default=[],
         help="Grant a named host effect capability (repeatable)",
@@ -132,9 +137,14 @@ def execute_file(
     try:
         source = Path(filename).read_text(encoding="utf-8")
         execute_code(
-            source, show_tokens, show_ast, print_result=False,
-            granted_effects=granted_effects, strict_effects=strict_effects,
-            file_root=file_root, module_paths=[Path(filename).resolve().parent],
+            source,
+            show_tokens,
+            show_ast,
+            print_result=False,
+            granted_effects=granted_effects,
+            strict_effects=strict_effects,
+            file_root=file_root,
+            module_paths=[Path(filename).resolve().parent],
         )
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found", file=sys.stderr)

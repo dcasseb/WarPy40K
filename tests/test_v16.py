@@ -148,8 +148,7 @@ def test_loaded_codex_cannot_bypass_host_sanction(tmp_path):
     )
     program = Parser(
         Lexer(
-            "Invoke read_clock from Codex ClockMod; "
-            "Sanction time { read_clock() }"
+            "Invoke read_clock from Codex ClockMod; " "Sanction time { read_clock() }"
         ).tokenize()
     ).parse()
     assert isinstance(runtime.execute(program), float)
