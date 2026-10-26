@@ -2,6 +2,18 @@
 
 All notable changes to WarPy40K are recorded here.
 
+## 1.6.0 — 2026-10-26
+
+### Added
+
+- Explicit `Sanction effect { ... }` or `Sanction a, b { ... }` effect regions.
+- Host-owned capability grants with non-escalating nested scopes.
+- New `ReadFile`, `WriteFile`, `GetEnv`, and `Clock` host-mediated operations.
+- Strict effects mode; legacy console/process compatibility default.
+- File-root restriction with resolved-path checks and `EffectViolation` diagnostics.
+- Shared capability context for imported Codices.
+- v1.6 capability safety/compatibility test coverage.
+
 ## 1.5.0 — 2026-09-16
 
 ### Added
