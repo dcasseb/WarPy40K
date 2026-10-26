@@ -40,6 +40,13 @@ Version **1.4.0** adds executable assertions plus function preconditions and pos
 
 ## WarPy40K 1.6 — Sanctioned Effects
 
+Run strict, capability-authorized code from the CLI:
+
+```bash
+warpy40k --strict-effects --grant console -c 'Sanction console { print("For the Emperor!") }'
+```
+
+
 Explicit `Sanction` regions authorize console, file, environment, process and time operations against host-provided grants. In strict mode there is no ambient console or process access. Legacy 1.x console calls remain compatible by default. See [`docs/sanctioned_effects.md`](docs/sanctioned_effects.md).
 
 ## WarPy40K 1.3 — The Warp Effect Model
