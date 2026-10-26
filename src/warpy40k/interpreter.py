@@ -4,7 +4,9 @@ Interpreter for the WarPy40K language.
 Executes the Abstract Syntax Tree (AST) and produces results.
 """
 
+import os
 import random
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -39,6 +41,7 @@ from .ast import (
     Program,
     PurgeExprNode,
     ReturnStatementNode,
+    SanctionNode,
     SquadLiteralNode,
     SquadPatternNode,
     UnaryOpNode,
@@ -48,6 +51,60 @@ from .ast import (
     WhileLoopNode,
     WildcardPatternNode,
 )
+
+
+EFFECT_NAMES = frozenset(("console", "file_read", "file_write", "environment", "process", "time"))
+
+
+class EffectContext:
+    """Host-owned permission grants; nested scopes may only restrict them."""
+
+    def __init__(
+        self, grants: Optional[List[str]], strict: bool, file_root: Optional[Path]
+    ) -> None:
+        self.grants = frozenset(grants or ())
+        unknown = self.grants - EFFECT_NAMES
+        if unknown:
+            raise ValueError(f"Unknown host capability: {sorted(unknown)!r}")
+        self.strict = strict
+        self.file_root = Path(file_root).resolve() if file_root is not None else None
+        self.stack: List[frozenset] = []
+
+    def enter(self, requested: List[str]) -> None:
+        effects = frozenset(requested)
+        if effects - EFFECT_NAMES:
+            raise EffectViolation(f"Unknown capability: {sorted(effects - EFFECT_NAMES)!r}")
+        if effects - self.grants:
+            raise EffectViolation(f"Capabilities not granted: {sorted(effects - self.grants)!r}")
+        if self.stack and not effects <= self.stack[-1]:
+            raise EffectViolation("Nested Sanction cannot elevate capabilities")
+        self.stack.append(effects)
+
+    def leave(self) -> None:
+        self.stack.pop()
+
+    def require(self, name: str) -> None:
+        if self.stack:
+            if name in self.stack[-1]:
+                return
+        elif not self.strict and name in ("console", "process"):
+            return
+        raise EffectViolation(f"Effect '{name}' requires an active Sanction")
+
+    def file(self, name: str) -> Path:
+        if not isinstance(name, str):
+            raise TypeError("File path must be a string")
+        if self.file_root is None:
+            raise EffectViolation("File effects require host file_root")
+        spec = Path(name)
+        if spec.is_absolute() or ".." in spec.parts:
+            raise EffectViolation("Unsafe file path")
+        resolved = (self.file_root / spec).resolve()
+        try:
+            resolved.relative_to(self.file_root)
+        except ValueError as exc:
+            raise EffectViolation("File path escapes permitted root") from exc
+        return resolved
 
 
 @dataclass
@@ -125,6 +182,10 @@ class ContractViolation(RuntimeError):
     """Raised when an enabled Inquisition contract evaluates false."""
 
 
+class EffectViolation(RuntimeError):
+    """Effect attempted without explicit permission."""
+
+
 class ModuleLoadError(RuntimeError):
     """Raised when a Codex cannot be resolved or exported safely."""
 
@@ -149,6 +210,9 @@ class Interpreter:
         warp_replay: Optional[List[float]] = None,
         contracts_enabled: bool = True,
         module_paths: Optional[List[Path]] = None,
+        granted_effects: Optional[List[str]] = None,
+        strict_effects: bool = False,
+        file_root: Optional[Path] = None,
     ) -> None:
         self.environment: Dict[str, Any] = {}
         self._scopes: List[Dict[str, Any]] = [self.environment]
@@ -163,6 +227,7 @@ class Interpreter:
         self._module_loading: Set[Path] = set()
         self._module_origin_stack: List[Path] = []
         self._declared_exports: List[str] = []
+        self._effects = EffectContext(granted_effects, strict_effects, file_root)
         self._init_builtins()
 
     @property
@@ -201,6 +266,10 @@ class Interpreter:
         self.environment["float"] = self._builtin_float
         self.environment["str"] = self._builtin_str
         self.environment["exit"] = self._builtin_exit
+        self.environment["ReadFile"] = self._builtin_read_file
+        self.environment["WriteFile"] = self._builtin_write_file
+        self.environment["GetEnv"] = self._builtin_get_env
+        self.environment["Clock"] = self._builtin_clock
 
         self.environment["Deploy"] = self._builtin_deploy
         self.environment["Extract"] = self._builtin_extract
@@ -209,16 +278,41 @@ class Interpreter:
         self.environment["Erase"] = self._builtin_erase
 
     def _builtin_print(self, *args: Any) -> None:
+        self._effects.require("console")
         print(*args)
         return None
 
     def _builtin_input(self, prompt: str = "") -> str:
+        self._effects.require("console")
         return input(prompt)
 
     def _builtin_exit(self, code: int = 0) -> None:
+        self._effects.require("process")
+        if not isinstance(code, int) or isinstance(code, bool):
+            raise TypeError("exit code must be an integer")
         import sys
 
         sys.exit(code)
+
+    def _builtin_read_file(self, path: str) -> str:
+        self._effects.require("file_read")
+        return self._effects.file(path).read_text(encoding="utf-8")
+
+    def _builtin_write_file(self, path: str, value: str) -> None:
+        self._effects.require("file_write")
+        if not isinstance(value, str):
+            raise TypeError("WriteFile expects a string value")
+        self._effects.file(path).write_text(value, encoding="utf-8")
+
+    def _builtin_get_env(self, name: str) -> str:
+        self._effects.require("environment")
+        if not isinstance(name, str):
+            raise TypeError("GetEnv expects a string name")
+        return os.environ.get(name, "")
+
+    def _builtin_clock(self) -> float:
+        self._effects.require("time")
+        return time.time()
 
     def _draw_random(self) -> float:
         if not self._warp_random_stack:
@@ -344,6 +438,8 @@ class Interpreter:
             return self._execute_import(node)
         if isinstance(node, ExportNode):
             return self._execute_export(node)
+        if isinstance(node, SanctionNode):
+            return self._execute_sanction(node)
         if isinstance(node, BlockNode):
             return self._execute_block(node)
         if isinstance(node, ReturnStatementNode):
@@ -546,6 +642,7 @@ class Interpreter:
                 contracts_enabled=self.contracts_enabled,
                 module_paths=self.module_paths,
             )
+            child._effects = self._effects
             child._module_cache = self._module_cache
             child._module_loading = self._module_loading
             child._module_origin_stack = [path.parent]
@@ -571,6 +668,13 @@ class Interpreter:
                 f"Codex '{node.module}' does not export '{node.name}'"
             )
         return self._define(node.name, record.exports[node.name])
+
+    def _execute_sanction(self, node: SanctionNode) -> Any:
+        self._effects.enter(node.capabilities)
+        try:
+            return self.execute(node.body)
+        finally:
+            self._effects.leave()
 
     def _execute_export(self, node: ExportNode) -> Any:
         try:
