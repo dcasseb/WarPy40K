@@ -35,6 +35,7 @@ from .ast import (
     Program,
     PurgeExprNode,
     ReturnStatementNode,
+    SanctionNode,
     SquadLiteralNode,
     SquadPatternNode,
     UnaryOpNode,
@@ -106,6 +107,13 @@ class Parser:
             return self._parse_import_statement()
         if self._looks_like_export_statement():
             return self._parse_export_statement()
+        if (
+            token.type == TokenType.IDENTIFIER
+            and token.value == "Sanction"
+            and self.position < len(self.tokens)
+            and self.tokens[self.position].type == TokenType.IDENTIFIER
+        ):
+            return self._parse_sanction_statement()
         if token.type == TokenType.LBRACE:
             return self._parse_block()
         return self._parse_expression_statement()
@@ -149,6 +157,29 @@ class Parser:
             return False
         marker = self.tokens[self.position]
         return marker.type == TokenType.IDENTIFIER and marker.value == "Export"
+
+    def _parse_sanction_statement(self) -> SanctionNode:
+        token = self._expect(TokenType.IDENTIFIER)
+        capabilities: List[str] = []
+        first = self._expect(
+            TokenType.IDENTIFIER, "Expected capability after Sanction"
+        )
+        capabilities.append(first.value)
+        while self.current_token and self.current_token.type == TokenType.COMMA:
+            self._advance()
+            name = self._expect(
+                TokenType.IDENTIFIER, "Expected capability after comma"
+            )
+            capabilities.append(name.value)
+        if not self.current_token or self.current_token.type != TokenType.LBRACE:
+            raise SyntaxError(
+                f"Sanction requires a block at line {token.line}, "
+                f"column {token.column}"
+            )
+        body = self._parse_block()
+        if self.current_token and self.current_token.type == TokenType.SEMICOLON:
+            self._advance()
+        return SanctionNode(capabilities, body, token.line, token.column)
 
     def _parse_import_statement(self) -> ImportNode:
         token = self._expect(TokenType.IDENTIFIER)
