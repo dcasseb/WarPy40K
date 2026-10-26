@@ -50,7 +50,8 @@ def test_nested_sanction_cannot_escalate():
 
 def test_file_access_confined_to_host_root(tmp_path):
     result, _ = run(
-        'Sanction file_write, file_read { WriteFile("log.txt", "hello"); ReadFile("log.txt") }',
+        'Sanction file_write, file_read { WriteFile("log.txt", "hello"); ' 
+        'ReadFile("log.txt") }',
         granted_effects=["file_read", "file_write"],
         file_root=tmp_path,
         strict_effects=True,
