@@ -27,6 +27,7 @@ class NodeType(Enum):
     CONTRACT_ASSERTION = auto()
     IMPORT = auto()
     EXPORT = auto()
+    SANCTION = auto()
     SQUAD_LITERAL = auto()
     DATASLATE_LITERAL = auto()
     INDEX_ACCESS = auto()
@@ -141,6 +142,14 @@ class ImportNode(ASTNode):
 @dataclass
 class ExportNode(ASTNode):
     name: str
+    line: int = 1
+    column: int = 1
+
+
+@dataclass
+class SanctionNode(ASTNode):
+    capabilities: List[str]
+    body: ASTNode
     line: int = 1
     column: int = 1
 
