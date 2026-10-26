@@ -135,3 +135,47 @@ def test_sanction_cleanup_on_runtime_error():
         runtime.execute(Parser(Lexer("Sanction time { 1 / 0 }").tokenize()).parse())
     with pytest.raises(EffectViolation):
         runtime.execute(Parser(Lexer("Clock()").tokenize()).parse())
+
+
+def test_loaded_codex_cannot_bypass_host_sanction(tmp_path):
+    (tmp_path / "ClockMod.wp40k").write_text(
+        "def read_clock() { return Clock(); } Codex Export read_clock;"
+    )
+    runtime = Interpreter(
+        granted_effects=["time"],
+        strict_effects=True,
+        module_paths=[tmp_path],
+    )
+    program = Parser(
+        Lexer(
+            "Invoke read_clock from Codex ClockMod; "
+            "Sanction time { read_clock() }"
+        ).tokenize()
+    ).parse()
+    assert isinstance(runtime.execute(program), float)
+    with pytest.raises(EffectViolation, match="time"):
+        runtime.execute(Parser(Lexer("read_clock()").tokenize()).parse())
+
+
+def test_imported_codex_cannot_implicitly_elevate(tmp_path):
+    (tmp_path / "Escalation.wp40k").write_text(
+        "Sanction time { Clock() }; value = 1; Codex Export value;"
+    )
+    with pytest.raises(EffectViolation, match="not granted"):
+        run(
+            "Invoke value from Codex Escalation",
+            module_paths=[tmp_path],
+            strict_effects=True,
+        )
+
+
+def test_cli_effect_options(tmp_path, capsys):
+    from warpy40k.__main__ import execute_code
+
+    execute_code(
+        'Sanction console { print("approved") }',
+        print_result=False,
+        granted_effects=["console"],
+        strict_effects=True,
+    )
+    assert capsys.readouterr().out == "approved\\n"
