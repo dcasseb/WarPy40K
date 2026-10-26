@@ -1,0 +1,68 @@
+name: Release WarPy40K v1.5.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/release-v1.5.0.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: v1.5.0
+      TARGET_SHA: ec1cefe939b6345121612e3fcd903d4e08184989
+      RELEASE_TITLE: "WarPy40K 1.5.0 — Warp, Contracts & Codex Modules"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact target passed CI
+        shell: bash
+        run: |
+          conclusion="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TARGET_SHA&per_page=100" --jq '[.workflow_runs[] | select(.name == "WarPy40K CI" and .head_sha == env.TARGET_SHA)] | sort_by(.run_number) | last | .conclusion')"
+          test "$conclusion" = "success"
+
+      - name: Create annotated tag
+        shell: bash
+        run: |
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" "$TARGET_SHA" -m "$RELEASE_TITLE"
+          git push origin "$TAG"
+
+      - name: Publish GitHub release
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            exit 0
+          fi
+          cat > release-notes.md <<'EOF'
+          # WarPy40K 1.5.0 — Warp, Contracts & Codex Modules
+
+          WarPy40K 1.5.0 consolidates three major language milestones since v1.2.0 and establishes the stable checkpoint before v1.6 Sanctioned Effects.
+
+          ## Highlights
+          - Warp Effect Model: seeded deterministic regions, normalized trace recording, deterministic replay, and nested stream semantics.
+          - Inquisition Contracts: assertions, preconditions, postconditions, diagnostics, optional checking, and explicit overhead benchmarking.
+          - Codex Modules: explicit imports/exports, module-local scope, deterministic resolution, stdlib integration, caching, circular-import diagnostics, and safe path restrictions.
+          - Dedicated contract and Codex module benchmarks.
+          - Full CI on the exact tagged commit across Python 3.8, 3.10, and 3.12, including tests, coverage, formatting, linting, typing, and benchmark smoke runs.
+
+          This release marks the modular/reproducible-language checkpoint before ambient side effects begin moving behind explicit capabilities.
+
+          See CHANGELOG.md and the v1.3–v1.5 documentation for full details.
+
+          **For the Emperor!**
+          EOF
+          gh release create "$TAG" --verify-tag --target "$TARGET_SHA" --title "$RELEASE_TITLE" --notes-file release-notes.md
