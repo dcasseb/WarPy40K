@@ -178,4 +178,4 @@ def test_cli_effect_options(tmp_path, capsys):
         granted_effects=["console"],
         strict_effects=True,
     )
-    assert capsys.readouterr().out == "approved\\n"
+    assert capsys.readouterr().out == "approved\n"
