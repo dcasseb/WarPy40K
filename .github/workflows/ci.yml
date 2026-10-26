@@ -47,6 +47,9 @@ jobs:
       - name: Smoke Codex module benchmark
         run: python benchmarks/run_module_benchmark.py --samples 1 --warmups 0
 
+      - name: Smoke Sanction effects benchmark
+        run: python benchmarks/run_effect_benchmark.py --samples 1 --warmups 0
+
   quality:
     runs-on: ubuntu-latest
 
